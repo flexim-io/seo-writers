@@ -1,0 +1,133 @@
+/* Mermaid scopes theme CSS below the SVG id. Tokens therefore live on all
+   diagram descendants instead of :root, which would become an invalid
+   descendant selector such as #diagram :root during SVG generation. */
+* {
+  /* Semantic color roles */
+  --flexim-color-canvas: #f8f8f7;
+  --flexim-color-surface: #ffffff;
+  --flexim-color-surface-muted: #f2f4f5;
+  --flexim-color-ink: #111111;
+  --flexim-color-ink-subtle: #3f4650;
+  --flexim-color-muted: #66707c;
+  --flexim-color-data-muted: #6e7781;
+  --flexim-color-border: #d7dce2;
+  --flexim-color-edge: #bfdbf4;
+  --flexim-color-edge-active: #79afe5;
+  --flexim-color-accent: #438fdf;
+  --flexim-color-accent-label: #337bc3;
+  --flexim-color-signal: #317bc6;
+  --flexim-color-accent-soft: #eaf3fc;
+  --flexim-color-accent-pale: #dcebf8;
+  --flexim-color-accent-border: #8bb7e7;
+  --flexim-color-cluster: #f1f5f8;
+  --flexim-color-cluster-border: #cbd5df;
+  --flexim-color-on-strong: #ffffff;
+  --flexim-color-decision-support: #c9d2dc;
+  --flexim-color-featured-support: #e2f0ff;
+  --flexim-color-warning-surface: #fff7e8;
+  --flexim-color-warning-border: #d99a33;
+  --flexim-color-success-surface: #edf8f1;
+  --flexim-color-success-border: #70a987;
+
+  /* Typography roles */
+  --flexim-font-body: Arial, "Helvetica Neue", sans-serif;
+  --flexim-font-display:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --flexim-type-diagram-title-size: 24px;
+  --flexim-type-diagram-title-weight: 750;
+  --flexim-type-diagram-title-tracking: 0.045em;
+  --flexim-type-group-size: 15px;
+  --flexim-type-journey-section-size: 16px;
+  --flexim-type-group-weight: 700;
+  --flexim-type-group-tracking: 0.04em;
+  --flexim-type-eyebrow-size: 14px;
+  --flexim-type-eyebrow-weight: 750;
+  --flexim-type-eyebrow-tracking: 0.075em;
+  --flexim-type-eyebrow-leading: 1.25;
+  --flexim-type-title-size: 20px;
+  --flexim-type-title-weight: 760;
+  --flexim-type-title-tracking: -0.015em;
+  --flexim-type-title-leading: 1.16;
+  --flexim-type-description-size: 16px;
+  --flexim-type-description-leading: 1.35;
+  --flexim-type-meta-size: 14px;
+  --flexim-type-meta-tracking: 0.025em;
+  --flexim-type-meta-leading: 1.3;
+  --flexim-type-decision-title-size: 30px;
+  --flexim-type-decision-title-leading: 1.05;
+  --flexim-type-default-size: 18px;
+  --flexim-type-data-title-size: 22px;
+  --flexim-type-data-label-size: 17px;
+
+  /* Shared geometry */
+  --flexim-stroke-node: 1.4px;
+  --flexim-stroke-edge: 2px;
+  --flexim-stroke-edge-emphasis: 2.2px;
+  --flexim-radius-node: 14px;
+  --flexim-radius-edge-label: 6px;
+  --flexim-content-gap: 7px;
+  --flexim-content-leading: 1.22;
+  --flexim-cluster-title-offset-y: 10px;
+  --flexim-state-title-offset-y: 10px;
+  --flexim-venn-title-offset-y: 8px;
+  --flexim-edge-label-padding-block: 2px;
+  --flexim-edge-label-padding-inline: 5px;
+
+  /* Reusable module families */
+  --flexim-card-width: 270px;
+  --flexim-card-min-height: 108px;
+  --flexim-card-padding-block: 18px;
+  --flexim-card-padding-inline: 20px;
+  --flexim-step-width: 230px;
+  --flexim-step-min-height: 72px;
+  --flexim-step-padding-block: 12px;
+  --flexim-step-padding-inline: 16px;
+  --flexim-comparison-width: 285px;
+  --flexim-comparison-min-height: 78px;
+  --flexim-comparison-padding-block: 10px;
+  --flexim-comparison-padding-inline: 6px;
+  --flexim-decision-width: 300px;
+  --flexim-decision-min-height: 144px;
+  --flexim-decision-padding: 20px;
+  --flexim-outcome-width: 275px;
+  --flexim-outcome-min-height: 116px;
+  --flexim-outcome-padding-block: 18px;
+  --flexim-outcome-padding-inline: 20px;
+
+  /* Responsive module variants */
+  --flexim-breakpoint-mobile-max: 720px;
+  --flexim-mobile-card-width: 240px;
+  --flexim-mobile-comparison-width: 235px;
+  --flexim-mobile-title-size: 17px;
+
+  /* Fixed render canvases */
+  --flexim-canvas-desktop-width: 2080px;
+  --flexim-canvas-desktop-height: 1170px;
+  --flexim-canvas-desktop-padding: 72px;
+  --flexim-canvas-desktop-device-scale: 2;
+  --flexim-canvas-desktop-min-font-size: 14px;
+  --flexim-canvas-article-width: 1296px;
+  --flexim-canvas-article-height: 729px;
+  --flexim-canvas-article-padding: 48px;
+  --flexim-canvas-article-device-scale: 2;
+  --flexim-canvas-article-min-font-size: 14px;
+  --flexim-canvas-mobile-width: 360px;
+  --flexim-canvas-mobile-padding: 20px;
+  --flexim-canvas-mobile-device-scale: 2;
+  --flexim-canvas-mobile-min-font-size: 14px;
+  --flexim-canvas-mobile-preview-height: 1000px;
+  --flexim-canvas-mobile-frame-min-height: 240px;
+  --flexim-canvas-mobile-full-width-threshold: 400px;
+
+  /* Preview fitting */
+  --flexim-fit-default-allow-upscale: false;
+  --flexim-fit-default-content-inset: none;
+  --flexim-fit-default-minimum-width-ratio: 0.62;
+  --flexim-fit-journey-allow-upscale: true;
+  --flexim-fit-journey-content-inset: 24;
+  --flexim-fit-journey-minimum-width-ratio: 1;
+  --flexim-fit-full-width-allow-upscale: true;
+  --flexim-fit-full-width-content-inset: none;
+  --flexim-fit-full-width-minimum-width-ratio: 1;
+  --flexim-fit-edge-to-edge-frame-padding: 0px;
+}

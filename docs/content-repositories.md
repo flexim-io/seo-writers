@@ -16,7 +16,9 @@ A single private content repository may serve one brand or editorial operation. 
 
 Open a checkout or worktree of the private content repository first, then install SEO Writers from the repository marketplace. Run Codex or Claude Code from that working tree so paths, saved state, and generated artifacts stay with the article rather than the plugin source.
 
-The orchestrator may save resumable state under `.seo-writers/sessions/<workflowId>/` in the private content repository. Portable CMS exports, author profiles, interviews, sources, media, and audit reports stay there as well. The content repository defines its own access policy and retention rules.
+The orchestrator may save resumable state under `.seo-writers/sessions/<workflowId>/` in the private content repository. Portable CMS exports, author profiles, interviews, sources, Mermaid source, generated media, previews, QA, and audit reports stay there as well. The content repository defines its own access policy and retention rules.
+
+The optional Mermaid renderer may materialize a derived dependency-only runtime in the platform user cache, keyed by renderer version and the bundled package-lock hash. This is the only intended exception to article-workspace placement: the cache contains pinned executable dependencies and a completion marker, never article source, production context, generated assets, previews, QA, or workflow state. Canonical renderer source remains in the installed public plugin.
 
 Flexim is recommended when live content-library data, author profiles, or final CMS draft handoff are useful. Without Flexim, supply portable inputs and use another explicitly chosen destination. Text production must not be blocked only because Flexim is unavailable.
 

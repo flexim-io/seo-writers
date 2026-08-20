@@ -19,6 +19,7 @@ Read [references/workflow-state.md](references/workflow-state.md) completely bef
 - preserves two content-library passes, five independent editorial audits, and the final cold-reader gate;
 - validates specialist handoffs, artifact identity, coverage, isolation, warnings, and blockers before accepting them;
 - records immutable artifacts, decisions, delegation, `changeImpactManifest` results, and `carried_forward` gates in resumable state;
+- dispatches compatible optional media-production workers without turning them into canonical stages or replacing the integration owner;
 - reruns only gates whose controlling inputs changed after the first complete pass;
 - pauses at approval, missing evidence, media production, isolation, or mutation authorization boundaries.
 
@@ -124,7 +125,11 @@ Do not lock meaning until every affected gate is ready or provably `carried_forw
 
 ### 9. Plan and integrate visuals
 
-After text lock, dispatch `visual-storytelling` in `plan` mode. Dispatch its integration mode only after real assets exist. Required proof visuals need real sources; generated images, mockups, and stock cannot become proof.
+After text lock, dispatch `visual-storytelling` in `plan` mode. A process mention, a `[MEDIA: ...]` marker, or entry into the visual phase does not justify dispatch of any producer by itself.
+
+When the approved media map contains `format: diagram`, `production: design`, and a complete Mermaid-compatible production brief, optionally dispatch `render-mermaid-infographic` as a media-production worker. It is not a canonical workflow stage: record each `visualId + canvas` invocation under `media_integration`, preserve its `mermaid_render_handoff`, and keep `visual-storytelling` in `integrate` mode as the stage owner. Missing Node, Chrome, or renderer setup blocks only that visual. In `automatic`, never authorize setup; preserve the plan or route an approved fallback.
+
+Dispatch `visual-storytelling` integration only after real assets exist and every rendered Mermaid candidate has passed required human semantic review against its brief. Required proof visuals need real sources; generated images, mockups, and stock cannot become proof.
 
 Any meaning or claim change returns to `chief-editor-review`. A media, caption, `alt`, or link change goes through the selective impact matrix rather than reopening unrelated text work.
 

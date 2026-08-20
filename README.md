@@ -6,9 +6,9 @@ SEO in this project means satisfying search intent and helping a reader complete
 
 ## What is included
 
-The repository packages 14 reusable editorial skills as one beta plugin for both Codex and Claude Code. Both hosts use the same canonical skill sources, and neither requires [Flexim](https://flexim.io/) to run the text workflow. `run-seo-writing-workflow` coordinates or resumes the full pipeline while each specialist skill keeps its own contract.
+The repository packages 15 reusable editorial skills as one beta plugin for both Codex and Claude Code. Both hosts use the same canonical skill sources, and neither requires [Flexim](https://flexim.io/) to run the text workflow. `run-seo-writing-workflow` coordinates or resumes the full pipeline while each specialist skill keeps its own contract.
 
-Codex reads `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json`. Claude Code reads `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`. Both packages point to the same `skills/` directory, so the host metadata stays separate without duplicating runtime skills.
+Codex reads `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json`. Claude Code reads `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`. Both packages point to the same `skills/` directory and install the sibling `runtime/` payload, so the host metadata stays separate without duplicating runtime skills.
 
 The current pipeline is:
 
@@ -47,11 +47,20 @@ See [Content repositories](docs/content-repositories.md) for the complete bounda
 | `audit-eeat` | Audit atomic claims, evidence, provenance, demonstrated experience, and author-contribution gaps. |
 | `chief-editor-review` | Resolve independent reports, apply accepted changes, rerun affected gates, and lock article meaning. |
 | `visual-storytelling` | Plan and integrate the smallest useful set of evidence-safe visuals after the text is locked. |
+| `render-mermaid-infographic` | Optionally preflight or render one approved Mermaid-compatible diagram locally, run technical QA, and return verified assets for human semantic review and visual integration. |
 | `final-integration-check` | Verify the final text, media, metadata, trust surface, and draft-only CMS payload. |
 | `cold-reader-review` | Independently judge the final reader-visible article with no production context before final handoff. |
 | `cms-draft-handoff` | Create or update an explicitly authorized private Flexim draft and verify it by full read-back. |
 
-Canonical skill sources live under `skills/<skill>/`. Both host manifests package that same directory without duplicating skills. Article artifacts belong in the separate private content repository, never in the plugin repository.
+Canonical skill sources live under `skills/<skill>/`; the optional local Mermaid renderer lives under `runtime/mermaid-infographic/`. Both hosts install the same sources without duplicating skills. Article artifacts belong in the separate private content repository, never in the plugin repository.
+
+## Optional local Mermaid rendering
+
+`render-mermaid-infographic` is an optional media-production worker, not a mandatory pipeline stage. `visual-storytelling` first decides whether a diagram is useful and prepares a complete evidence-safe brief. The renderer then handles one approved `visualId + canvas` locally and returns SVG, PNG, preserved Mermaid source, preview, QA, hashes, and provenance. `visual-storytelling` still performs human semantic review and integration.
+
+Text production does not require the renderer. Mermaid production requires Node.js 22 or newer, a compatible local Chrome or Chromium, and one explicitly authorized dependency-cache setup. Preflight and automatic mode never install dependencies or download a browser. The setup command uses the bundled lockfile with `PUPPETEER_SKIP_DOWNLOAD=true npm ci --omit=dev`, and generated article assets stay inside the private content repository. No online renderer, CMS mutation, or publication fallback is used.
+
+See [Quickstart: optional local Mermaid rendering](docs/quickstart.md#optional-local-mermaid-rendering) for setup and limitations.
 
 ## Flexim and portability
 
@@ -76,7 +85,7 @@ In short:
 2. Add the `flexim-io/seo-writers` marketplace and install `seo-writers@flexim` in Codex or Claude Code.
 3. Start `run-seo-writing-workflow` with an idea or topic, the data you already have, and an optional requested target. Use `portfolio_decision` when you only want a topic or portfolio choice.
 4. Let the coordinator run `audit-content-library` in `pre-brief` mode using either read-only Flexim access or a complete CMS export, then explicitly approve the proposed Article Brief.
-5. Resume from the saved state after any requested evidence, author answer, isolated audit, or media-production pause. After the first complete pass, the coordinator records a change-impact plan and reruns only affected gates; ambiguous changes escalate conservatively. Keep reader Markdown separate from production reports and handoffs.
+5. Resume from the saved state after any requested evidence, author answer, isolated audit, or media-production pause. A compatible Mermaid brief may use the optional local renderer; missing renderer setup blocks only that visual. After the first complete pass, the coordinator records a change-impact plan and reruns only affected gates; ambiguous changes escalate conservatively. Keep reader Markdown separate from production reports and handoffs.
 6. Use `cms-draft-handoff` only after an explicit request to create or update a private Flexim draft, ready final integration, and a ready independent cold-reader review.
 
 You can still invoke any stage directly. Each `SKILL.md` defines its inputs, modes, readiness gates, output contract, and boundaries; the orchestrator routes those contracts rather than replacing them with one opaque prompt.
@@ -94,7 +103,7 @@ The [Quickstart](docs/quickstart.md#optional-background-execution) includes copy
 
 ## Contributing
 
-Issues and pull requests are welcome. Keep reusable runtime work under `skills/`, never commit real article or author data, and treat both host manifests as views of one shared plugin. See [CONTRIBUTING.md](CONTRIBUTING.md) for the public contribution boundary.
+Issues and pull requests are welcome. Keep reusable skill work under `skills/` and bundled production code under `runtime/`, never commit real article or author data, and treat both host manifests as views of one shared plugin. See [CONTRIBUTING.md](CONTRIBUTING.md) for the public contribution boundary.
 
 ## Beta status
 
@@ -106,6 +115,7 @@ This repository is an open beta:
 - a verified assigned author may write in first person for authorial framing and source-grounded judgment, but personal experience still requires evidence;
 - the shared skills are packaged for Codex and Claude Code, but the plugin has not been submitted to either official public marketplace;
 - Flexim integration is recommended but portable inputs keep text production usable without it;
+- local Mermaid production is optional, requires Node.js 22 plus local Chrome, uses a pinned external dependency cache, and still requires human semantic review before integration;
 - publishing remains a separate, explicitly authorized action and is not implemented by these skills;
 - contracts may still evolve while the skills are validated on real articles.
 

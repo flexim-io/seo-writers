@@ -54,6 +54,7 @@ finalSnapshot: null
 currentArtifactIds: {}
 stages: {}
 artifacts: {}
+productionWorkers: []
 decisions: []
 stateMigrations: []
 changeImpactManifests: []
@@ -147,6 +148,28 @@ workerRef:
 
 If the host lacks worker dispatch, record `same_context_disclosed` only for non-independent specialist stages. Never run the five independent audits or `cold_reader_review` in the coordinator's context and call them independent. Return external dispatch packages instead.
 
+Optional production workers do not create canonical stages. Keep the `media_integration` stage `workerRef` for its `visual-storytelling integrate` owner and append one separate record for every renderer invocation:
+
+```yaml
+productionWorkerId: media-producer-visual-03-article-v1
+stageId: media_integration
+skill: render-mermaid-infographic
+mode: render | automatic
+visualId: visual-03
+canvas: article | desktop | mobile
+status: active | blocked | ready | invalidated
+workerRef:
+  id: "host worker or session ID"
+  mechanism: subagent | task | isolated_session | external_dispatch
+inputArtifactIds: []
+outputArtifactIds: []
+handoffArtifactId: mermaid-render-visual-03-article-v1
+warnings: []
+blockers: []
+```
+
+`productionWorkers` is append-only. A mobile composition is a distinct worker and handoff, not an extra output attached implicitly to another canvas.
+
 ## Artifacts and fingerprints
 
 Use an append-only record for every accepted artifact version:
@@ -170,6 +193,19 @@ validation:
   result: ready
 supersedes: edited-reader-v1
 ```
+
+Register every renderer result as an artifact with `type: mermaid_render_handoff`. Its immutable snapshot must cover the full handoff, including:
+
+```yaml
+reuseIdentity:
+  sourceSha256: "..."
+  briefFingerprint: "..."
+  componentHashes: {}
+  rendererVersion: "..."
+  packageLockSha256: "..."
+```
+
+The component hashes cover the complete media-map item, production brief, locked reader snapshot and anchor, claim/source permissions, privacy constraints, caption, `alt`, canvas, and acceptance criteria. Reuse requires every value above to match exactly. A changed component invalidates that production worker and its handoff before `visual-storytelling integrate`; never replace the stage's primary `workerRef` with a renderer worker.
 
 Record a gate's `coverageFingerprint` as the declared controlling inputs for that gate, not a generic whole-document hash. It must identify the exact fields or anchors considered, their artifact snapshots, the applied change classes, and the reason those inputs remain unchanged. A byte hash of the entire article alone cannot prove an unrelated concern is unchanged.
 
@@ -209,6 +245,8 @@ Apply transitions in order:
 7. On critical conflict, mark `blocked` and preserve the smallest safe resolution.
 8. Choose the next incomplete or invalid stage from the canonical order. `portfolio_decision` ends immediately after `corpus_prebrief` is ready.
 9. Mark the workflow ready only when the requested target's terminal artifact exists and every required upstream stage is ready or provably `carried_forward`.
+
+Inside `media_integration`, the optional order is `visual_plan` → zero or more media-production workers → `visual-storytelling integrate`. Accept a `mermaid_render_handoff` as an integration candidate only when technical status is ready, artifacts and hashes resolve, and `humanReviewRequired` has been satisfied by an explicit semantic review. A missing optional renderer environment does not invalidate text lock or unrelated visuals.
 
 Never translate a child `blocked` result to `ready`. A warning may remain non-blocking only when that child's contract permits it.
 
@@ -273,8 +311,9 @@ On every `resume`:
 4. Confirm every fresh independent report names one reader snapshot and has distinct clean-context provenance.
 5. Confirm every `carried_forward` stage has a valid prior artifact, coverageFingerprint, changeImpactManifest, and rationale.
 6. Recheck time-sensitive corpus, product, author-profile, asset, or CMS snapshots when the owning skill requires freshness.
-7. Apply change impact before choosing a stage. Never expand to a full rerun only because the state was resumed.
-8. Reconfirm explicit draft authorization immediately before any CMS mutation.
+7. Recompute every active `mermaid_render_handoff` reuse identity and invalidate production when the source, brief, component, renderer, or lock hash changed.
+8. Apply change impact before choosing a stage. Never expand to a full rerun only because the state was resumed.
+9. Reconfirm explicit draft authorization immediately before any CMS mutation.
 
 If state cannot prove required isolation, set the affected result invalid. Do not infer isolation from filenames, wording, or separate timestamps.
 

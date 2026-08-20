@@ -1,0 +1,829 @@
+svg {
+  background: var(--flexim-color-canvas);
+}
+
+.titleText,
+.flowchartTitleText,
+.gitTitleText,
+.pieTitleText,
+.statediagramTitleText {
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-diagram-title-size) !important;
+  font-weight: var(--flexim-type-diagram-title-weight) !important;
+  letter-spacing: var(--flexim-type-diagram-title-tracking) !important;
+}
+
+.statediagramTitleText {
+  transform: translateY(var(--flexim-state-title-offset-y));
+}
+
+.label,
+.label text,
+.label span,
+.messageText,
+.actor,
+.actor text,
+.taskText,
+.sectionTitle,
+.legend,
+.legend text {
+  color: var(--flexim-color-ink) !important;
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-body) !important;
+}
+
+.flowchart-link,
+.edgePath .path,
+.transition,
+.messageLine0,
+.messageLine1,
+.relation,
+.em-relation {
+  stroke: var(--flexim-color-edge-active) !important;
+  stroke-linecap: round !important;
+  stroke-width: var(--flexim-stroke-edge) !important;
+}
+
+.marker,
+.arrowheadPath,
+marker path {
+  fill: var(--flexim-color-accent) !important;
+  stroke: var(--flexim-color-accent) !important;
+}
+
+.edgeLabel,
+.edgeLabel rect,
+.labelBkg {
+  background: var(--flexim-color-canvas) !important;
+  fill: var(--flexim-color-canvas) !important;
+}
+
+.edgeLabel p,
+.edgeLabel span,
+.edgeLabel text {
+  color: var(--flexim-color-muted) !important;
+  fill: var(--flexim-color-muted) !important;
+  font-size: var(--flexim-type-description-size) !important;
+}
+
+.cluster rect {
+  fill: var(--flexim-color-cluster) !important;
+  stroke: var(--flexim-color-cluster-border) !important;
+  rx: var(--flexim-radius-node) !important;
+  ry: var(--flexim-radius-node) !important;
+}
+
+.cluster-label > foreignObject {
+  transform: translateY(var(--flexim-cluster-title-offset-y));
+}
+
+.cluster-label text,
+.cluster-label span {
+  color: var(--flexim-color-ink) !important;
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-group-size) !important;
+  font-weight: var(--flexim-type-group-weight) !important;
+  letter-spacing: var(--flexim-type-group-tracking) !important;
+}
+
+.statediagram-state .nodeLabel {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-title-size) !important;
+  font-weight: var(--flexim-type-title-weight) !important;
+  justify-content: center;
+  letter-spacing: var(--flexim-type-title-tracking) !important;
+  line-height: var(--flexim-type-title-leading) !important;
+  min-height: var(--flexim-step-min-height);
+  min-width: var(--flexim-step-width);
+  padding: var(--flexim-step-padding-block) var(--flexim-step-padding-inline);
+  text-align: center;
+}
+
+.statediagram-state rect.basic {
+  rx: var(--flexim-radius-node) !important;
+  ry: var(--flexim-radius-node) !important;
+}
+
+.statediagram-state.decision .nodeLabel,
+.statediagram-state.decision .nodeLabel p,
+.statediagram-state.featured .nodeLabel,
+.statediagram-state.featured .nodeLabel p {
+  color: var(--flexim-color-on-strong) !important;
+}
+
+.statediagram-note .nodeLabel {
+  color: var(--flexim-color-ink-subtle) !important;
+  font-family: var(--flexim-font-body) !important;
+  font-size: var(--flexim-type-description-size) !important;
+}
+
+.statediagram-cluster rect.outer {
+  fill: transparent !important;
+  rx: var(--flexim-radius-node) !important;
+  ry: var(--flexim-radius-node) !important;
+}
+
+.statediagram-cluster rect.inner {
+  fill: transparent !important;
+  stroke: transparent !important;
+}
+
+rect.journey-section {
+  fill: var(--flexim-color-accent-soft) !important;
+  stroke: var(--flexim-color-border) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+  rx: var(--flexim-radius-node) !important;
+  ry: var(--flexim-radius-node) !important;
+}
+
+foreignObject .journey-section .label,
+text.journey-section {
+  color: var(--flexim-color-accent-label) !important;
+  fill: var(--flexim-color-accent-label) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-journey-section-size) !important;
+  font-weight: var(--flexim-type-group-weight) !important;
+  letter-spacing: var(--flexim-type-group-tracking) !important;
+}
+
+rect.task {
+  fill: var(--flexim-color-surface) !important;
+  stroke: var(--flexim-color-border) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+  rx: var(--flexim-radius-node) !important;
+  ry: var(--flexim-radius-node) !important;
+}
+
+foreignObject .task .label,
+text.task {
+  box-sizing: border-box;
+  color: var(--flexim-color-ink) !important;
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-title-size) !important;
+  font-weight: var(--flexim-type-title-weight) !important;
+  letter-spacing: var(--flexim-type-title-tracking) !important;
+  line-height: var(--flexim-type-title-leading) !important;
+  padding: var(--flexim-step-padding-block) var(--flexim-step-padding-inline);
+}
+
+rect.journey-section.section-type-2,
+rect.task.task-type-2 {
+  fill: var(--flexim-color-accent) !important;
+  stroke: var(--flexim-color-accent) !important;
+}
+
+g:has(> rect.journey-section.section-type-2) foreignObject .label,
+g:has(> rect.task.task-type-2) foreignObject .label,
+text.journey-section.section-type-2,
+text.task.task-type-2 {
+  color: var(--flexim-color-on-strong) !important;
+  fill: var(--flexim-color-on-strong) !important;
+}
+
+circle.actor-0 {
+  fill: var(--flexim-color-accent) !important;
+  stroke: var(--flexim-color-accent) !important;
+}
+
+circle.actor-0 + text.legend {
+  fill: var(--flexim-color-accent-label) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-eyebrow-size) !important;
+  font-weight: var(--flexim-type-eyebrow-weight) !important;
+  letter-spacing: var(--flexim-type-eyebrow-tracking) !important;
+}
+
+.task-line {
+  stroke: var(--flexim-color-edge) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+g:has(> rect.journey-section) ~ line[marker-end] {
+  stroke: var(--flexim-color-edge-active) !important;
+  stroke-width: var(--flexim-stroke-edge) !important;
+}
+
+.face,
+.face + g {
+  transform: translateY(var(--flexim-step-padding-block));
+}
+
+.face {
+  fill: var(--flexim-color-surface) !important;
+  stroke: var(--flexim-color-accent-border) !important;
+}
+
+.face + g circle,
+.mouth {
+  fill: var(--flexim-color-muted) !important;
+  stroke: var(--flexim-color-muted) !important;
+}
+
+.timeline-node path.node-bkg {
+  fill: var(--flexim-color-surface) !important;
+  stroke: var(--flexim-color-border) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.timeline-node line {
+  display: none;
+}
+
+.timeline-node text {
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-title-size) !important;
+  font-weight: var(--flexim-type-title-weight) !important;
+  letter-spacing: var(--flexim-type-title-tracking) !important;
+}
+
+.eventWrapper {
+  filter: none !important;
+}
+
+.eventWrapper .timeline-node path.node-bkg {
+  fill: transparent !important;
+  stroke: none !important;
+}
+
+.eventWrapper .timeline-node text {
+  fill: var(--flexim-color-ink-subtle) !important;
+  font-family: var(--flexim-font-body) !important;
+  font-size: var(--flexim-type-default-size) !important;
+  font-weight: normal !important;
+}
+
+.lineWrapper line[stroke-dasharray] {
+  stroke: var(--flexim-color-edge) !important;
+  stroke-dasharray: none !important;
+  marker-end: none !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.lineWrapper line:not([stroke-dasharray]) {
+  stroke: var(--flexim-color-edge-active) !important;
+  stroke-width: var(--flexim-stroke-edge) !important;
+}
+
+.taskWrapper ~ text {
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-diagram-title-size) !important;
+  font-weight: var(--flexim-type-diagram-title-weight) !important;
+  letter-spacing: var(--flexim-type-diagram-title-tracking) !important;
+}
+
+.em-swimlane rect {
+  fill: transparent !important;
+  stroke: transparent !important;
+}
+
+.em-lane-divider {
+  stroke: var(--flexim-color-border) !important;
+  stroke-linecap: round !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.em-title {
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-diagram-title-size) !important;
+  font-weight: var(--flexim-type-diagram-title-weight) !important;
+  letter-spacing: var(--flexim-type-diagram-title-tracking) !important;
+}
+
+.em-swimlane text {
+  fill: var(--flexim-color-accent-label) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-group-size) !important;
+  font-weight: var(--flexim-type-group-weight) !important;
+  letter-spacing: var(--flexim-type-group-tracking) !important;
+}
+
+.em-box rect {
+  rx: var(--flexim-radius-node) !important;
+  ry: var(--flexim-radius-node) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.em-box foreignObject span {
+  color: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-title-size) !important;
+  font-weight: var(--flexim-type-title-weight) !important;
+  letter-spacing: var(--flexim-type-title-tracking) !important;
+  line-height: var(--flexim-type-title-leading) !important;
+}
+
+.em-box foreignObject b {
+  font-weight: inherit;
+}
+
+.em-box.em-featured foreignObject span {
+  color: var(--flexim-color-on-strong) !important;
+}
+
+.ishikawa-title {
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-diagram-title-size) !important;
+  font-weight: var(--flexim-type-diagram-title-weight) !important;
+  letter-spacing: var(--flexim-type-diagram-title-tracking) !important;
+}
+
+.ishikawa-spine,
+.ishikawa-branch {
+  stroke: var(--flexim-color-edge-active) !important;
+  stroke-linecap: round !important;
+  stroke-width: var(--flexim-stroke-edge) !important;
+}
+
+.ishikawa-sub-branch {
+  stroke: var(--flexim-color-edge) !important;
+  stroke-linecap: round !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.ishikawa-arrow {
+  fill: var(--flexim-color-accent) !important;
+}
+
+.ishikawa-head {
+  fill: var(--flexim-color-accent) !important;
+  stroke: var(--flexim-color-accent) !important;
+  stroke-width: var(--flexim-stroke-edge) !important;
+}
+
+.ishikawa-head-label {
+  fill: var(--flexim-color-on-strong) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-description-size) !important;
+  font-weight: var(--flexim-type-title-weight) !important;
+  letter-spacing: var(--flexim-type-title-tracking) !important;
+}
+
+.ishikawa-label-box {
+  fill: var(--flexim-color-accent-soft) !important;
+  rx: var(--flexim-radius-edge-label) !important;
+  ry: var(--flexim-radius-edge-label) !important;
+  stroke: var(--flexim-color-border) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.ishikawa-label.cause {
+  fill: var(--flexim-color-accent-label) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-group-size) !important;
+  font-weight: var(--flexim-type-group-weight) !important;
+  letter-spacing: var(--flexim-type-group-tracking) !important;
+}
+
+.ishikawa-label:not(.cause) {
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-body) !important;
+  font-size: var(--flexim-type-description-size) !important;
+}
+
+.cynefinTitle {
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-diagram-title-size) !important;
+  font-weight: var(--flexim-type-diagram-title-weight) !important;
+  letter-spacing: var(--flexim-type-diagram-title-tracking) !important;
+}
+
+.cynefinDomain {
+  fill: var(--flexim-color-surface) !important;
+  fill-opacity: 1 !important;
+}
+
+.cynefinBoundary {
+  fill: none !important;
+  stroke: var(--flexim-color-edge) !important;
+  stroke-dasharray: none !important;
+  stroke-linecap: butt !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.cynefinCliff {
+  fill: none !important;
+  stroke: var(--flexim-color-accent) !important;
+  stroke-linecap: butt !important;
+  stroke-width: var(--flexim-stroke-edge-emphasis) !important;
+}
+
+.cynefinConfusion {
+  fill: var(--flexim-color-accent-soft) !important;
+  fill-opacity: 1 !important;
+  stroke: var(--flexim-color-accent-border) !important;
+  stroke-dasharray: none !important;
+  stroke-width: var(--flexim-stroke-edge) !important;
+}
+
+.cynefinDomainLabel {
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-title-size) !important;
+  font-weight: var(--flexim-type-title-weight) !important;
+  letter-spacing: var(--flexim-type-title-tracking) !important;
+}
+
+.cynefinSubtitle {
+  fill: var(--flexim-color-muted) !important;
+  font-family: var(--flexim-font-body) !important;
+  font-size: var(--flexim-type-description-size) !important;
+  font-style: normal !important;
+}
+
+.cynefinItem {
+  fill: var(--flexim-color-surface) !important;
+  fill-opacity: 1 !important;
+  rx: var(--flexim-radius-edge-label) !important;
+  ry: var(--flexim-radius-edge-label) !important;
+  stroke: var(--flexim-color-border) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.cynefinItemText {
+  fill: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-body) !important;
+  font-size: var(--flexim-type-meta-size) !important;
+}
+
+.cynefin-items > g:last-child .cynefinItem {
+  fill: var(--flexim-color-ink) !important;
+  stroke: var(--flexim-color-ink) !important;
+}
+
+.cynefin-items > g:last-child .cynefinItemText {
+  fill: var(--flexim-color-on-strong) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-weight: var(--flexim-type-title-weight) !important;
+}
+
+.node rect,
+.node polygon,
+.node circle,
+.node ellipse,
+.node path {
+  fill: var(--flexim-color-surface);
+  stroke: var(--flexim-color-border);
+  stroke-width: var(--flexim-stroke-node);
+}
+
+.node rect {
+  rx: var(--flexim-radius-node);
+  ry: var(--flexim-radius-node);
+}
+
+.actor,
+.actor-top,
+.actor-bottom {
+  fill: var(--flexim-color-surface) !important;
+  rx: var(--flexim-radius-node) !important;
+  ry: var(--flexim-radius-node) !important;
+  stroke: var(--flexim-color-accent-border) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.actor.actor-box {
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-title-size) !important;
+  font-weight: var(--flexim-type-title-weight) !important;
+}
+
+.messageText {
+  font-size: var(--flexim-type-default-size) !important;
+}
+
+.actor-line {
+  stroke: var(--flexim-color-edge) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.activation0,
+.activation1,
+.activation2 {
+  fill: var(--flexim-color-accent-soft) !important;
+  stroke: var(--flexim-color-accent) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.class-frame {
+  fill: var(--flexim-color-surface);
+  rx: var(--flexim-radius-node);
+  ry: var(--flexim-radius-node);
+  stroke: var(--flexim-color-border);
+  stroke-width: var(--flexim-stroke-node);
+}
+
+.label-group .nodeLabel {
+  color: var(--flexim-color-ink) !important;
+  font-family: var(--flexim-font-display) !important;
+  font-size: var(--flexim-type-title-size) !important;
+  font-weight: var(--flexim-type-title-weight) !important;
+  letter-spacing: var(--flexim-type-title-tracking) !important;
+  line-height: var(--flexim-type-title-leading) !important;
+}
+
+.members-group .nodeLabel,
+.methods-group .nodeLabel {
+  color: var(--flexim-color-ink-subtle) !important;
+  font-family: var(--flexim-font-body) !important;
+  font-size: var(--flexim-type-description-size) !important;
+  line-height: var(--flexim-type-description-leading) !important;
+}
+
+.divider path {
+  stroke: var(--flexim-color-border) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.node.contract .class-frame {
+  fill: var(--flexim-color-ink);
+  stroke: var(--flexim-color-ink);
+}
+
+.node.featured .class-frame {
+  fill: var(--flexim-color-accent);
+  stroke: var(--flexim-color-accent);
+}
+
+.node.contract .nodeLabel,
+.node.contract .nodeLabel p,
+.node.featured .nodeLabel,
+.node.featured .nodeLabel p {
+  color: var(--flexim-color-on-strong) !important;
+  fill: var(--flexim-color-on-strong) !important;
+}
+
+.node.contract .divider path {
+  stroke: var(--flexim-color-decision-support) !important;
+}
+
+.node.featured .divider path {
+  stroke: var(--flexim-color-featured-support) !important;
+}
+
+foreignObject .card,
+foreignObject .step,
+foreignObject .comparison,
+foreignObject .decision,
+foreignObject .outcome,
+foreignObject .callout,
+foreignObject .metric,
+foreignObject .quote {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--flexim-content-gap);
+  line-height: var(--flexim-content-leading);
+  white-space: normal;
+}
+
+foreignObject .card {
+  min-height: var(--flexim-card-min-height);
+  padding: var(--flexim-card-padding-block) var(--flexim-card-padding-inline);
+  width: var(--flexim-card-width);
+}
+
+foreignObject .step {
+  justify-content: center;
+  min-height: var(--flexim-step-min-height);
+  padding: var(--flexim-step-padding-block) var(--flexim-step-padding-inline);
+  width: var(--flexim-step-width);
+}
+
+foreignObject .comparison {
+  min-height: var(--flexim-comparison-min-height);
+  justify-content: center;
+  padding: var(--flexim-comparison-padding-block)
+    var(--flexim-comparison-padding-inline);
+  width: var(--flexim-comparison-width);
+}
+
+foreignObject .decision {
+  align-items: center;
+  justify-content: center;
+  min-height: var(--flexim-decision-min-height);
+  padding: var(--flexim-decision-padding);
+  width: var(--flexim-decision-width);
+}
+
+foreignObject .outcome,
+foreignObject .callout {
+  min-height: var(--flexim-outcome-min-height);
+  justify-content: center;
+  padding: var(--flexim-outcome-padding-block)
+    var(--flexim-outcome-padding-inline);
+  width: var(--flexim-outcome-width);
+}
+
+foreignObject .eyebrow,
+foreignObject .meta,
+foreignObject .badge,
+foreignObject .label,
+foreignObject .value {
+  font-family: var(--flexim-font-display);
+}
+
+foreignObject .eyebrow {
+  color: var(--flexim-color-accent-label);
+  font-size: var(--flexim-type-eyebrow-size);
+  font-weight: var(--flexim-type-eyebrow-weight);
+  letter-spacing: var(--flexim-type-eyebrow-tracking);
+  line-height: var(--flexim-type-eyebrow-leading);
+  text-transform: uppercase;
+}
+
+foreignObject .title {
+  color: var(--flexim-color-ink);
+  font-family: var(--flexim-font-display);
+  font-size: var(--flexim-type-title-size);
+  font-weight: var(--flexim-type-title-weight);
+  letter-spacing: var(--flexim-type-title-tracking);
+  line-height: var(--flexim-type-title-leading);
+  hyphens: none;
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: normal;
+}
+
+foreignObject .description {
+  color: var(--flexim-color-muted);
+  font-family: var(--flexim-font-body);
+  font-size: var(--flexim-type-description-size);
+  line-height: var(--flexim-type-description-leading);
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+foreignObject .meta {
+  color: var(--flexim-color-muted);
+  font-size: var(--flexim-type-meta-size);
+  letter-spacing: var(--flexim-type-meta-tracking);
+  line-height: var(--flexim-type-meta-leading);
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+foreignObject .align-left {
+  align-items: flex-start;
+  text-align: left;
+}
+
+foreignObject .align-right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+foreignObject .align-center {
+  align-items: center;
+  text-align: center;
+}
+
+.node.card rect,
+.node.step rect,
+.node.outcome rect,
+.node.callout rect {
+  fill: var(--flexim-color-surface) !important;
+  stroke: var(--flexim-color-border) !important;
+}
+
+.cluster.swimlane .swimlane-title {
+  fill: var(--flexim-color-accent-soft) !important;
+  rx: var(--flexim-radius-edge-label) !important;
+  ry: var(--flexim-radius-edge-label) !important;
+  stroke: var(--flexim-color-border) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.cluster.swimlane .swimlane-body {
+  fill: transparent !important;
+  rx: var(--flexim-radius-node) !important;
+  ry: var(--flexim-radius-node) !important;
+  stroke: var(--flexim-color-border) !important;
+  stroke-width: var(--flexim-stroke-node) !important;
+}
+
+.cluster.swimlane .swimlane-label > foreignObject {
+  transform: none !important;
+}
+
+.swimlane-label text,
+.swimlane-label span {
+  color: var(--flexim-color-accent-label) !important;
+  fill: var(--flexim-color-accent-label) !important;
+  font-size: var(--flexim-type-eyebrow-size) !important;
+  font-weight: var(--flexim-type-eyebrow-weight) !important;
+  letter-spacing: var(--flexim-type-eyebrow-tracking) !important;
+}
+
+.node.comparison rect {
+  fill: transparent !important;
+  stroke: transparent !important;
+}
+
+.node.decision rect,
+.node.decision polygon,
+.node.decision path {
+  fill: var(--flexim-color-ink) !important;
+  stroke: var(--flexim-color-ink) !important;
+  rx: var(--flexim-radius-node) !important;
+  ry: var(--flexim-radius-node) !important;
+}
+
+.node.decision .eyebrow,
+.node.decision .description {
+  color: var(--flexim-color-decision-support) !important;
+}
+
+.node.decision > .label,
+.node.decision > .label text,
+.node.decision > .label span,
+.node.decision > .label p {
+  color: var(--flexim-color-on-strong) !important;
+  fill: var(--flexim-color-on-strong) !important;
+}
+
+.node.decision .title {
+  color: var(--flexim-color-on-strong) !important;
+  font-size: var(--flexim-type-decision-title-size);
+  line-height: var(--flexim-type-decision-title-leading);
+}
+
+.node.featured rect,
+.node.featured polygon,
+.node.featured path {
+  fill: var(--flexim-color-accent) !important;
+  stroke: var(--flexim-color-accent) !important;
+  rx: var(--flexim-radius-node) !important;
+  ry: var(--flexim-radius-node) !important;
+}
+
+.node.featured .eyebrow,
+.node.featured .description,
+.node.featured .meta {
+  color: var(--flexim-color-featured-support) !important;
+}
+
+.node.featured .title {
+  color: var(--flexim-color-on-strong) !important;
+}
+
+.node.muted rect,
+.node.muted polygon,
+.node.muted path {
+  fill: var(--flexim-color-surface-muted) !important;
+  stroke: var(--flexim-color-border) !important;
+}
+
+.node.comparison rect,
+.node.comparison.muted rect {
+  fill: transparent !important;
+  stroke: transparent !important;
+}
+
+.node.warning rect,
+.node.warning polygon,
+.node.warning path {
+  fill: var(--flexim-color-warning-surface) !important;
+  stroke: var(--flexim-color-warning-border) !important;
+}
+
+.node.success rect,
+.node.success polygon,
+.node.success path {
+  fill: var(--flexim-color-success-surface) !important;
+  stroke: var(--flexim-color-success-border) !important;
+}
+
+.venn-title {
+  transform: translateY(var(--flexim-venn-title-offset-y));
+}
+
+foreignObject {
+  overflow: visible;
+}
+
+@media (--flexim-mobile) {
+  foreignObject .card,
+  foreignObject .outcome,
+  foreignObject .callout {
+    width: var(--flexim-mobile-card-width);
+  }
+
+  foreignObject .comparison {
+    width: var(--flexim-mobile-comparison-width);
+  }
+
+  foreignObject .title {
+    font-size: var(--flexim-mobile-title-size);
+  }
+}
