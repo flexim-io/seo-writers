@@ -1,0 +1,4 @@
+interface:
+  display_name: "Load Author Voice"
+  short_description: "Load or validate an author voice profile safely"
+  default_prompt: "Use $load-author-voice to resolve the assigned author and prepare a safe transient voice handoff from Flexim or a provided portable profile before writing."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Final Integration Check"
+  short_description: "Verify text, media, metadata, and CMS readiness"
+  default_prompt: "Use $final-integration-check to verify the final article package before CMS draft handoff."

@@ -1,0 +1,16 @@
+{
+  "name": "flexim",
+  "owner": {
+    "name": "Flexim",
+    "url": "https://github.com/flexim-io"
+  },
+  "description": "Open-source Flexim plugins for evidence-safe editorial work.",
+  "plugins": [
+    {
+      "name": "seo-writers",
+      "source": "./",
+      "description": "A coordinated, evidence-safe editorial workflow for SEO articles.",
+      "category": "productivity"
+    }
+  ]
+}

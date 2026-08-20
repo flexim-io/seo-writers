@@ -1,0 +1,4 @@
+interface:
+  display_name: "Chief Editor Review"
+  short_description: "Resolve audits and lock article meaning"
+  default_prompt: "Use $chief-editor-review to resolve independent editorial reports and lock the approved reader Markdown."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Content Library"
+  short_description: "Audit published posts before each article"
+  default_prompt: "Use $audit-content-library to compare this proposed article with the current published content library."

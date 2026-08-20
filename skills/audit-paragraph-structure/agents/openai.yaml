@@ -1,0 +1,4 @@
+interface:
+  display_name: "Paragraph Structure Audit"
+  short_description: "Audit and strengthen paragraphs and lists"
+  default_prompt: "Use $audit-paragraph-structure to audit every paragraph and list, then rewrite only the units that fail."

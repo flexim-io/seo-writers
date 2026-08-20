@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cold Reader Review"
+  short_description: "Check a final article without production context"
+  default_prompt: "Use $cold-reader-review to judge whether this finished article works for an unfamiliar reader."

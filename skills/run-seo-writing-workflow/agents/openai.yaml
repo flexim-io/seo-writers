@@ -1,0 +1,4 @@
+interface:
+  display_name: "Run SEO Writing Workflow"
+  short_description: "Coordinate the full editorial workflow"
+  default_prompt: "Use $run-seo-writing-workflow to run or resume an evidence-safe article workflow."

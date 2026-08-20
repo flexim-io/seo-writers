@@ -1,0 +1,4 @@
+interface:
+  display_name: "E-E-A-T Evidence Audit"
+  short_description: "Audit evidence and author contribution"
+  default_prompt: "Use $audit-eeat to audit this article for evidence, demonstrated experience, trust gaps, and whether an author interview is required, recommended, or not needed."

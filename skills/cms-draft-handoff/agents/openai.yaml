@@ -1,0 +1,4 @@
+interface:
+  display_name: "CMS Draft Handoff"
+  short_description: "Create and verify private Flexim CMS drafts"
+  default_prompt: "Use $cms-draft-handoff to create or update a private Flexim CMS draft and verify it by read-back."

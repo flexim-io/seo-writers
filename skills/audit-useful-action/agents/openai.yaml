@@ -1,0 +1,4 @@
+interface:
+  display_name: "Useful Action Audit"
+  short_description: "Keep every section useful to the reader"
+  default_prompt: "Use $audit-useful-action to formulate the reader-world change and audit every section against it."

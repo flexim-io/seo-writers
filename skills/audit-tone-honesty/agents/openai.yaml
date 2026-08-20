@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tone Honesty Audit"
+  short_description: "Detect false, production, and honest voice"
+  default_prompt: "Use $audit-tone-honesty to audit this text for production-language leakage, false intimacy, pressure, honest limits, care, and justified play."
