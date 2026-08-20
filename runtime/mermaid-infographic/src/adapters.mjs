@@ -6,6 +6,7 @@ import puppeteer from "puppeteer";
 
 import { buildRenderableSource } from "./metadata.mjs";
 import { composeMermaidConfig, loadPresetCss } from "./preset.mjs";
+import { PREVIEW_FIT_MAP, PREVIEW_LAYOUT } from "./preview-fit.mjs";
 import { escapeLabelValue } from "./security.mjs";
 import { normalizeSvgMarkup } from "./svg-normalization.mjs";
 import {
@@ -122,8 +123,9 @@ async function prepareInvocationRuntime({ runtimeRoot, workRoot, preset, chromeP
   return { configPath, cssPath, puppeteerConfigPath, mermaidConfig };
 }
 
-function pageTemplate(svg, metadata, profile, background) {
+function pageTemplate(svg, metadata, profile, background, previewFit) {
   const title = escapeLabelValue(metadata.title);
+  const framePadding = previewFit.framePadding ?? profile.padding;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -133,8 +135,8 @@ function pageTemplate(svg, metadata, profile, background) {
 <style>
   * { box-sizing: border-box; }
   html, body { margin: 0; min-height: 100%; background: ${background}; }
-  #frame { width: ${profile.width}px; height: ${profile.height}px; padding: ${profile.padding}px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: ${background}; }
-  #frame > svg { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; overflow: visible; }
+  #frame { width: ${profile.width}px; height: ${profile.height}px; padding: ${framePadding}px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: ${background}; }
+  #frame > svg { display: block; flex: none; max-width: 100%; height: auto; overflow: visible; }
 </style>
 </head>
 <body><main id="frame" aria-label="${title}">${svg}</main></body>
@@ -276,6 +278,8 @@ export function createRealAdapters(options) {
       const profile = PROFILE_MAP[metadata.canvas];
       if (!profile) throw new Error(`Unknown browser profile: ${metadata.canvas}`);
       const background = tokenValue(DESIGN_TOKENS, "--flexim-color-canvas");
+      const previewFit =
+        PREVIEW_FIT_MAP[metadata.syntax] ?? PREVIEW_FIT_MAP.default;
       const browser = await puppeteer.launch({
         executablePath: chromePath,
         headless: true,
@@ -296,10 +300,67 @@ export function createRealAdapters(options) {
           deviceScaleFactor: profile.deviceScaleFactor,
         });
         const svg = await readFile(svgPath, "utf8");
-        await page.setContent(pageTemplate(svg, metadata, profile, background), {
+        await page.setContent(pageTemplate(svg, metadata, profile, background, previewFit), {
           waitUntil: "load",
           timeout: timeoutMs,
         });
+        await page.evaluate(
+          ({
+            allowUpscale,
+            contentInset,
+            minimumWidthRatio,
+            mobileFullWidthThreshold,
+          }) => {
+            const svgElement = document.querySelector("svg");
+            const frame = document.querySelector("#frame");
+            if (
+              !(svgElement instanceof SVGSVGElement) ||
+              !(frame instanceof HTMLElement)
+            ) return;
+
+            if (contentInset !== null) {
+              const contentBounds = svgElement.getBBox();
+              if (contentBounds.width > 0 && contentBounds.height > 0) {
+                svgElement.setAttribute(
+                  "viewBox",
+                  [
+                    contentBounds.x - contentInset,
+                    contentBounds.y - contentInset,
+                    contentBounds.width + contentInset * 2,
+                    contentBounds.height + contentInset * 2,
+                  ].join(" "),
+                );
+              }
+            }
+
+            if (allowUpscale) svgElement.style.maxWidth = "none";
+            const viewBox = svgElement.viewBox.baseVal;
+            const frameStyle = getComputedStyle(frame);
+            const availableWidth =
+              frame.clientWidth -
+              Number.parseFloat(frameStyle.paddingLeft) -
+              Number.parseFloat(frameStyle.paddingRight);
+            const availableHeight =
+              frame.clientHeight -
+              Number.parseFloat(frameStyle.paddingTop) -
+              Number.parseFloat(frameStyle.paddingBottom);
+            const minimumWidth =
+              frame.clientWidth <= mobileFullWidthThreshold
+                ? availableWidth
+                : availableWidth * minimumWidthRatio;
+            const preferredWidth = Math.min(
+              Math.max(viewBox.width, minimumWidth),
+              availableWidth,
+            );
+            const width = Math.min(
+              preferredWidth,
+              (availableHeight / viewBox.height) * viewBox.width,
+            );
+            svgElement.style.width = `${width}px`;
+            svgElement.style.height = `${(viewBox.height / viewBox.width) * width}px`;
+          },
+          { ...previewFit, ...PREVIEW_LAYOUT },
+        );
         const qa = await inspectPage(page, profile);
         const frame = await page.$("#frame");
         if (!frame) throw new Error("Article preview frame is missing.");
@@ -319,3 +380,5 @@ export function createRealAdapters(options) {
     },
   };
 }
+
+export { PREVIEW_FIT_MAP, PREVIEW_LAYOUT };
