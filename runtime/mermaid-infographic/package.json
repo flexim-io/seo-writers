@@ -1,0 +1,25 @@
+{
+  "name": "seo-writers-mermaid-infographic-runtime",
+  "version": "0.2.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "@mermaid-js/mermaid-cli": "11.16.0",
+    "dompurify": "3.4.13",
+    "mermaid": "11.16.1",
+    "puppeteer": "25.2.1",
+    "yaml": "2.9.0"
+  },
+  "overrides": {
+    "mermaid": "11.16.1"
+  },
+  "scripts": {
+    "preflight": "node src/launcher.mjs preflight",
+    "render": "node src/launcher.mjs render",
+    "setup": "node src/launcher.mjs setup"
+  }
+}

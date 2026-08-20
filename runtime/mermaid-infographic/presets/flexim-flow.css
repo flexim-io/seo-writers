@@ -1,0 +1,10 @@
+.node.decision + .edgePath,
+.node.featured + .edgePath {
+  stroke-width: var(--flexim-stroke-edge-emphasis);
+}
+
+.edgeLabel {
+  border-radius: var(--flexim-radius-edge-label);
+  padding: var(--flexim-edge-label-padding-block)
+    var(--flexim-edge-label-padding-inline);
+}

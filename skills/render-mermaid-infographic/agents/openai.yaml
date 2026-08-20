@@ -1,0 +1,4 @@
+interface:
+  display_name: "Render Mermaid Infographic"
+  short_description: "Render a verified local Mermaid infographic"
+  default_prompt: "Use $render-mermaid-infographic to preflight or render one approved Mermaid infographic locally."

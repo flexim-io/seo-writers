@@ -1,0 +1,51 @@
+{
+  "theme": "base",
+  "look": "classic",
+  "securityLevel": "strict",
+  "deterministicIds": true,
+  "deterministicIDSeed": "flexim-mermaid-11.16.1",
+  "htmlLabels": true,
+  "flowchart": {
+    "curve": "basis",
+    "htmlLabels": true,
+    "nodeSpacing": 40,
+    "rankSpacing": 42,
+    "padding": 8,
+    "diagramPadding": 40,
+    "useMaxWidth": false
+  },
+  "sequence": {
+    "diagramMarginX": 32,
+    "diagramMarginY": 24,
+    "actorMargin": 64,
+    "boxMargin": 12,
+    "messageMargin": 44,
+    "mirrorActors": false,
+    "useMaxWidth": false,
+    "wrap": true
+  },
+  "state": {
+    "useMaxWidth": false
+  },
+  "journey": {
+    "diagramMarginX": 50,
+    "diagramMarginY": 10,
+    "leftMargin": 150,
+    "taskMargin": 50,
+    "useMaxWidth": false
+  },
+  "gantt": {
+    "useMaxWidth": false,
+    "barHeight": 28,
+    "barGap": 8,
+    "topPadding": 64,
+    "leftPadding": 120,
+    "gridLineStartPadding": 40
+  },
+  "cynefin": {
+    "width": 928,
+    "height": 522,
+    "padding": 0,
+    "seed": 20260811
+  }
+}

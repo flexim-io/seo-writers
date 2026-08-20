@@ -24,6 +24,7 @@ When visual analysis exposes a structural or factual problem, return to `chief-e
 - separates proof, explanation, and illustration;
 - applies the same claim permissions to visual statements as to copy;
 - creates precise briefs for screenshots, diagrams, charts, illustrations, photos, or video;
+- routes a complete compatible diagram brief to the optional `render-mermaid-infographic` production worker when local Mermaid is the approved format;
 - integrates verified assets into locked text with captions and `alt`;
 - hands reader Markdown and the media manifest to `final-integration-check`.
 
@@ -174,14 +175,22 @@ For every beat record:
 | `production` | existing, capture, design, generate, record |
 | `status` | available, needs-production, needs-permission, blocked |
 | `templateDecision` | Selection record or `none` |
+| `acceptanceCriteria` | Non-empty observable conditions for a production asset |
+| `privacyConstraints` | Explicit redaction and protected-data constraints, or an empty list |
 
 ### 4. Write production briefs
 
-Each brief must stand alone for a designer or generator. Include one objective, reader context at placement, format and responsive constraints, composition and hierarchy, exact minimal in-image copy in article language, source of truth, forbidden content, available brand rules, caption and `alt`, acceptance criterion, and the preceding `templateDecision`.
+Each brief must stand alone for a designer or generator. Include one objective, reader context at placement, format and responsive constraints, composition and hierarchy, exact minimal in-image copy in article language, source of truth, forbidden content, available brand rules, caption and `alt`, non-empty observable acceptance criteria, privacy constraints, and the preceding `templateDecision`.
 
 For generative assets, add a production prompt. Never ask a model to create proof, exact current UI, an unsupported data chart, or large amounts of text.
 
+For a media-map item with `format: diagram` and `production: design`, decide explicitly whether Mermaid preserves the selected relationship and hierarchy. Route it to `render-mermaid-infographic` only when the brief is complete, the role is compatible, every visible statement has a claim permission, and `sourceOfTruth`, `templateDecision`, `acceptanceCriteria`, caption, `alt`, and privacy review are complete. One worker invocation produces one `visualId + canvas`; plan mobile separately when needed. A process mention or `[MEDIA: ...]` marker alone is not a production brief.
+
+Node.js, Chrome, or dependency setup is optional infrastructure for this producer, not a text-workflow requirement. Missing setup leaves the item `needs-production` or routes it to an explicitly approved alternate producer. Never authorize or perform renderer setup silently in `automatic` mode.
+
 ### 5. Integrate into the narrative
+
+Before integrating a Mermaid candidate, validate its `mermaidInfographicHandoff`, artifact hashes, source hash, complete brief and component fingerprints, renderer and package-lock versions, technical checks, privacy result, and warnings. Then perform human semantic review against the exact reader question, relationship, visible claims, qualifications, hierarchy, caption, `alt`, acceptance criteria, and mobile behavior. A successful render or matching hash is not semantic approval. Do not change the item to `available` until this review passes.
 
 Place the visual immediately after the claim or instruction it supports; give the reader a reason to look before it; state one takeaway after a complex visual; avoid “image above” without semantic wording; never split a sentence, list, or logical step; align terminology and numbers across text, caption, and asset; keep stable IDs through CMS upload.
 
@@ -215,13 +224,13 @@ Return `blocked` when the visual inevitably creates a false product or result im
 
 ## Automatic mode
 
-Ask no questions. Build a minimal map, record `templateDecision` for every designed visual, integrate only available verified assets, keep missing optional assets as `planned`, block on missing required proof, exclude or safely redact privacy risks, return structural placement problems to `chief_editor_review`, and never generate assets or mutate CMS without a separate execution step.
+Ask no questions. Build a minimal map, record `templateDecision` for every designed visual, dispatch compatible optional production only when all inputs and dependencies are already ready, integrate only available verified assets after human semantic review, keep missing optional assets as `planned`, block on missing required proof, exclude or safely redact privacy risks, return structural placement problems to `chief_editor_review`, and never install dependencies, generate unsupported assets, or mutate CMS without a separate execution step.
 
 ## Output
 
 For `plan`, return status, visual logic, template decisions, media map, complete production briefs, and what should remain text, table, or code.
 
-For `integrate`, return status, annotated draft with real assets or production markers, verified media manifest, and a handoff to `final-integration-check` with assets, claims, sources, qualifications, markers, warnings, and blockers.
+For `integrate`, return status, annotated draft with real assets or production markers, verified media manifest, consumed production handoff IDs, human-review decisions, and a handoff to `final-integration-check` with assets, claims, sources, qualifications, markers, warnings, and blockers.
 
 For `audit`, return diagnosis, prioritized visual findings, and visuals that already perform their job.
 

@@ -1,6 +1,6 @@
 # Quickstart
 
-SEO Writers is distributed as one beta plugin for Codex and Claude Code. Both packages use the same 14 skills, including `run-seo-writing-workflow` for coordinating or resuming the complete pipeline.
+SEO Writers is distributed as one beta plugin for Codex and Claude Code. Both packages use the same 15 skills, including `run-seo-writing-workflow` for coordinating or resuming the complete pipeline and the optional `render-mermaid-infographic` production worker.
 
 ## Requirements
 
@@ -8,6 +8,8 @@ SEO Writers is distributed as one beta plugin for Codex and Claude Code. Both pa
 - GitHub access to this repository
 - a separate private content repository for article production
 - a proposed article topic
+
+Optional local Mermaid production additionally requires Node.js 22 or newer and a compatible installed Chrome or Chromium. These are not requirements for the text workflow.
 
 Flexim is recommended, not required. Start with the topic and data you already have. In interactive modes, each skill requests the missing portable input it actually needs. In `automatic` mode, it asks no questions and returns a precise blocker instead of inventing data.
 
@@ -137,6 +139,40 @@ When an author is explicitly assigned, the linkage is verified, and a complete v
 
 You can still invoke a specialist skill directly when you need only one stage or want to inspect its contract independently.
 
+## Optional local Mermaid rendering
+
+`visual-storytelling` decides whether a diagram is useful and prepares its media-map item, production brief, evidence permissions, privacy constraints, caption, and `alt`. Only then may the coordinator dispatch `render-mermaid-infographic`. A process mention or `[MEDIA: ...]` marker alone does not trigger it.
+
+Start with a write-free preflight from the private content repository:
+
+```text
+Use $seo-writers:render-mermaid-infographic in preflight mode.
+
+Private repository root: [absolute path]
+Existing private output root: [absolute path inside that repository]
+Mermaid source or approved structured specification: [path or content]
+Production context: [path to the complete private context JSON]
+```
+
+For Claude Code, invoke `/seo-writers:render-mermaid-infographic` with the same package. One invocation handles one `visualId` and one `article`, `desktop`, or `mobile` canvas. SVG and PNG are both required; mobile is a separate composition when needed.
+
+Preflight does not render, install, create a cache, or write output. If the pinned dependency cache is missing, it returns `SETUP_REQUIRED` and the exact setup command. Inspect that command and authorize it explicitly before execution. Safe setup always includes:
+
+```bash
+PUPPETEER_SKIP_DOWNLOAD=true node <installed-launcher> setup
+```
+
+The launcher resolves `<installed-launcher>` from the physical plugin payload and returns the exact host path; do not guess a Codex or Claude cache directory. Setup copies the bundled runtime into the platform user cache and runs the exact lockfile with `npm ci --omit=dev`. It does not download Chrome. `automatic` mode never performs setup.
+
+After a ready preflight, request `render` mode with the same source, context, private root, and existing output root. The renderer works locally and returns preserved `.mmd`, SVG, PNG, HTML preview, JSON QA, hashes, and a `mermaidInfographicHandoff`. The asset remains `needs-production` until `visual-storytelling` performs human semantic review against the locked brief. Technical success is not editorial approval.
+
+Beta limitations:
+
+- the local browser launch currently uses `--no-sandbox` after strict source validation;
+- only reviewed non-experimental syntax/preset pairs in the bundled allowlist are accepted;
+- PDF, JPEG, WebP, animation, hosted embeds, online renderers, CMS mutation, and publication are not supported by this skill;
+- missing Node, Chrome, setup, or a compatible brief blocks only this optional visual, not drafting or editing.
+
 ## Optional background execution
 
 Background execution is optional. It belongs to Codex or Claude Code, not to the SEO Writers orchestrator. Whether the host is attached or detached, invoke `run-seo-writing-workflow` in its existing `run` or `resume` mode and keep using the same workflow-state file.
@@ -204,4 +240,5 @@ Without Flexim, start with the files you have and answer the skills' focused req
 - The repository marketplace is available, but the plugin has not been submitted to the official Codex or Claude marketplace.
 - Portable example files are not included; interactive skills request the required data instead.
 - Independent audit execution depends on host-provided isolated contexts or external dispatch packages.
+- Optional Mermaid production requires separately prepared local Node.js and Chrome dependencies and always requires human semantic review before integration.
 - Publishing is outside the workflow and always requires a separate explicit action.

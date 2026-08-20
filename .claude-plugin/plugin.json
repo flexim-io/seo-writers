@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "seo-writers",
   "displayName": "SEO Writers",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "An evidence-safe editorial workflow with scoped coordination, specialist delegation, selective reruns, and independent final reader review for SEO articles.",
   "author": {
     "name": "Flexim",

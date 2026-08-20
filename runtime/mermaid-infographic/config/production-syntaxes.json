@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "rendererVersion": "0.2.0",
+  "reviewedForPluginVersion": "0.6.0",
+  "pairs": [
+    { "syntax": "flowchart", "preset": "flexim-flow", "editorialStatus": "production-ready" },
+    { "syntax": "sequenceDiagram", "preset": "flexim-base", "editorialStatus": "production-ready" },
+    { "syntax": "classDiagram", "preset": "flexim-base", "editorialStatus": "production-ready" },
+    { "syntax": "stateDiagram-v2", "preset": "flexim-base", "editorialStatus": "production-ready" },
+    { "syntax": "journey", "preset": "flexim-base", "editorialStatus": "production-ready" },
+    { "syntax": "timeline", "preset": "flexim-base", "editorialStatus": "production-ready" }
+  ]
+}
