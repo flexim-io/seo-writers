@@ -274,6 +274,10 @@ Use a revision batch only after the first complete editorial pass and chief-edit
 3. Acknowledge the accepted change in a compact `stateDelta`, with `statePersisted: false` unless another real checkpoint condition applies.
 4. Do not dispatch audits, final integration, or a cold reader while the user is still collecting revisions. Ten consecutive micro-edits remain one batch, not ten impact records or production cycles.
 
+### Active-context fast path
+
+The active collection fast path defined by the coordinator is transient execution memory, not durable state, and adds no field to `revisionBatch`. When that context is lost or its file identity becomes uncertain, use normal resume validation.
+
 ### Close and route
 
 Close the batch when the user explicitly requests checking or finalization or requests a CMS draft. Record the close reason as `user_done`, `review_requested`, or `cms_draft_requested`.

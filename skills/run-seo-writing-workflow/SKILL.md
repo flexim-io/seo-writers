@@ -177,6 +177,31 @@ After the first complete valid editorial pass and chief-editor lock, treat conse
 7. If meaning changed, route the accepted rerun reports through `chief-editor-review` and create a new meaning lock. Purely surface-level corrections keep the existing meaning lock.
 8. For a changed reader-visible final surface, run one final-integration check and one fresh isolated cold-reader review after all affected editorial work is ready. Preserve valid final results for production-only or invisible payload changes.
 
+### Active collection fast path
+
+When a collecting batch was already validated in the same active coordinator context and the new instruction is another correction, reuse the known workflow ID, state reference, base artifact, and working Markdown path. This active context is transient execution memory, not durable state.
+
+- Do not reread the complete workflow state, this `SKILL.md`, or its state reference, and do not revalidate unchanged gates.
+- When an anchor may be only part of a Markdown line, run at most one focused target-read command before the patch and use the returned complete line. Do not guess surrounding text.
+- Apply all changes from the message in one patch. A successful patch is sufficient verification because it matches the old line before writing the replacement. Do not run a post-patch command unless the patch result itself is ambiguous.
+- Leave the fast path when the target is ambiguous, the patch fails, an external file change is plausible, active context was lost, or the user requests a checkpoint, review, finalization, or CMS handoff. Resume normal state validation in those cases.
+- Return the YAML block itself without a prose preface or paraphrase:
+
+```yaml
+status: in_progress
+workflowId: "..."
+stateRef: ".seo-writers/sessions/.../workflow-state.json"
+stateDelta:
+  changedArtifacts:
+    - reader_markdown
+  changeClasses:
+    - reader_wording
+  invalidatedGates: []
+  carriedForwardGates: []
+  statePersisted: false
+nextAction: await_more_user_edits
+```
+
 The state reference defines change classes, `coverageFingerprint` rules, close behavior, persistence checkpoints, and minimum dependencies. Escalate conservatively when semantic effect, ownership, or fingerprint is unclear.
 
 ## Pause, block, or finish
