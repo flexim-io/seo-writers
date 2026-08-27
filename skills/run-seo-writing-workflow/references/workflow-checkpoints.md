@@ -74,14 +74,23 @@ boundaryHandoff:
   requestedTarget: final_package
   baseCheckpointPath: ".seo-writers/sessions/example/checkpoints/chief-editor-lock.md"
   workingArtifactPath: ".seo-writers/sessions/example/working/article.md"
-  appliedCorrectionCount: 5
+  pendingCorrectionCount: 2
+  pendingCorrections:
+    - sequence: 1
+      userInstruction: "Remove the selected sentence."
+      oldText: "Exact selected sentence."
+      newText: ""
+    - sequence: 2
+      userInstruction: "Replace the selected phrase."
+      oldText: "Exact old phrase."
+      newText: "Exact new phrase."
   openStage: revision_batch
   closeReason: context_transition
   requiredArtifactRefs: []
   nextAction: resume_revision_batch
 ```
 
-For an open revision batch, preserve `status: collecting`, `baseCheckpointPath`, `workingArtifactPath`, the number of applied correction messages, and the next action. Do not embed the whole article, full audit history, or unchanged decisions when their artifacts can be referenced.
+For an open revision batch, preserve `status: collecting`, `baseCheckpointPath`, `workingArtifactPath`, `pendingCorrectionCount`, exact ordered `pendingCorrections`, and the next action. Each pending item retains the user's instruction plus its `oldText` and `newText`; later corrections stay after earlier ones so a fresh context can compose dependencies deterministically. Do not embed the whole article, full audit history, or unchanged decisions when their artifacts can be referenced.
 
 For an interrupted interview, add the partial transcript checkpoint and the exact unanswered question to `requiredArtifactRefs` or a small interview-specific field. Do not regenerate the transcript from memory.
 
@@ -171,20 +180,21 @@ Uncertainty invalidates the related gate conservatively. Do not treat a matching
 
 ## Revision batches
 
-After the first chief-editor lock, the first user correction opens one `revisionBatch`. The active conversation tracks that it is open; the base checkpoint and working Markdown hold the durable content.
+After the first chief-editor lock, the first user correction opens one `revisionBatch`. The active conversation tracks that it is open and retains its pending operations; the base checkpoint and unchanged working Markdown identify the durable content.
 
 Rules:
 
-1. Apply all corrections from one user message in one patch.
-2. Later correction messages update the same `workingArtifactPath`.
+1. Record every accepted correction as exact ordered `oldText` / `newText` pairs in transient `pendingCorrections`. Preserve the user's instruction alongside each pair.
+2. Do not read or modify the working Markdown while collecting. Later correction messages append to the same transient batch and require no file or specialist tool calls.
 3. Do not create a checkpoint, dispatch an audit, run final integration, or run a cold reader between individual corrections.
-4. Close the batch on an explicit equivalent of “done,” “check,” or “final review,” or automatically before a CMS draft request.
-5. On closure, diff the working artifact against `baseCheckpointPath` and create one aggregate `changeImpactManifest`.
-6. Rerun each affected gate once. Preserve each unaffected gate only through the `carried_forward` rules.
-7. If meaning changed, `chief-editor-review` accepts the rerun reports and creates a new chief-editor lock. Surface-only changes retain the prior meaning lock.
-8. After all reader-visible changes are ready, run one final-integration check and one fresh isolated cold-reader review.
+4. Close the batch on a natural equivalent of “это всё,” “готово,” “применяй,” “проверяй,” “покажи итог,” “done,” “check,” or “final review,” or automatically before a CMS draft request.
+5. On closure, validate the pending anchors, compose dependent replacements, and apply the complete batch in one consolidated patch. An ambiguity or external conflict blocks before any partial write.
+6. Diff the resulting working artifact against `baseCheckpointPath` and create one aggregate `changeImpactManifest`.
+7. Rerun each affected gate once. Preserve each unaffected gate only through the `carried_forward` rules.
+8. If meaning changed, `chief-editor-review` accepts the rerun reports and creates a new chief-editor lock. Surface-only changes retain the prior meaning lock.
+9. After all reader-visible changes are ready, run one final-integration check and one fresh isolated cold-reader review.
 
-When a context boundary occurs before closure, create only the short collecting handoff shown above. Do not create or update a central workflow state file.
+When a context boundary occurs before closure, create only the short collecting handoff shown above with the exact pending operations. The working Markdown stays unchanged. Do not create or update a central workflow state file.
 
 ## Aggregate change impact
 
@@ -230,7 +240,7 @@ Persist a checkpoint or compact handoff only when:
 - an open revision batch crosses a context boundary;
 - an external CMS mutation is attempted or read back.
 
-Do not persist after each micro-edit or each interview answer. The successful file patch and active conversation are sufficient inside the same active coordinator context.
+Do not persist after each collected correction or each interview answer. The active conversation holds pending corrections until closure; the single successful consolidated patch is sufficient after closure inside the same active coordinator context.
 
 ## CMS mutation receipts
 
@@ -262,7 +272,7 @@ In a fresh context:
 5. Derive the current stage from the artifacts rather than trusting the handoff's claimed stage.
 6. Continue from the first missing or invalidated dependency.
 
-For a collecting batch, compare the working artifact with the base checkpoint only when closing the batch or when external modification is suspected. Do not pay the full diff and audit cost for each resumed micro-edit.
+For a collecting batch, restore the exact ordered `pendingCorrections` from the handoff and append later corrections without reading or modifying the working artifact. Compare the working artifact with the base checkpoint only when closing the batch or when external modification is suspected. Do not pay the full diff and audit cost for each resumed correction.
 
 ## Legacy migration
 
@@ -275,6 +285,8 @@ A legacy workflow state with version `1.0`, `1.1`, or `1.2` is accepted only as 
 5. Discard stored CMS authorization; require the current explicit user request for any new mutation.
 
 Do not update or recreate the legacy state file. Do not copy its complete decisions, artifacts, or history into a new central file. Once the boundary handoff is consumed, normal checkpoint-based coordination applies.
+
+If a migrated legacy batch had already patched its working artifact, mark that fact in the one-time handoff and do not represent those applied changes as pending or apply them again. Close it by diffing the existing working artifact against its base checkpoint. New batches use deferred pending corrections exclusively.
 
 ## Privacy and repository boundary
 
