@@ -113,7 +113,7 @@ The coordinator first runs `audit-content-library` in `pre-brief` mode. When it 
 
 If you only want the portfolio or topic decision, set `Requested target: portfolio_decision`. The workflow returns the content-library decision and stops: it does not propose a working title or prepare an Article Brief. A title you explicitly supply is preserved as `fixed`; if it cannot be delivered honestly, the workflow returns `EDITORIAL_CONFLICT` with the smallest amendment instead of replacing it.
 
-The state is returned inline and may also be saved under `.seo-writers/sessions/<workflowId>/workflow-state.json` in the private content repository's working tree. To continue later, invoke the same skill in `resume` mode with that state or path. The state belongs in the private content repository, not in the installed plugin or this public repository.
+The coordinator saves state under `.seo-writers/sessions/<workflowId>/workflow-state.json` in the private content repository's working tree and normally returns only a compact delta plus that path. It returns complete state inline only when you ask for it, persistence fails, or a safe handoff cannot be represented by referenced artifacts. To continue later, invoke the same skill in `resume` mode with the state path. The state belongs in the private content repository, not in the installed plugin or this public repository.
 
 Then continue in this order:
 
@@ -133,7 +133,9 @@ audit-content-library (pre-brief)
 
 The independent audit includes `audit-useful-action`, `audit-paragraph-structure`, `audit-tone-honesty`, `audit-eeat`, and a second `audit-content-library` pass in `pre-chief-editor` mode. The orchestrator dispatches them into clean isolated contexts when the host supports that. Otherwise it returns five self-contained packages for external isolated execution and resumes after the reports are supplied. Other specialist-owned stages are also dispatched when the host supports workers; the coordinator keeps intake, Article Brief approval, state, validation, and routing.
 
-After the first complete pass, a correction does not automatically restart the whole workflow. The coordinator records its changed anchors, semantic effect, and affected concerns, then reruns only gates with changed controls. It carries another gate forward only with explicit provenance and a proven unchanged coverage fingerprint. Any reader-visible final change always repeats final integration and a fresh cold-reader review.
+After the first complete pass and chief-editor lock, consecutive corrections form one revision batch. Each message updates the same working Markdown, and the coordinator does not start audits or final checks while you are still making small changes. Say “done,” “check it,” or “final review” to close the batch; requesting a CMS draft also closes it. The coordinator then compares the complete result with the last checkpoint, creates one aggregate change-impact record, reruns only gates with changed controls, and carries another gate forward only with explicit provenance and a proven unchanged coverage fingerprint. A changed reader-visible surface receives final integration and a fresh cold-reader review once after the complete batch is ready.
+
+If an interview is needed, the coordinator saves one completed interview artifact instead of rewriting the full transcript after every answer. It creates an intermediate checkpoint only when the interview is interrupted, blocked, deferred, or at material risk of context loss.
 
 When an author is explicitly assigned, the linkage is verified, and a complete voice profile is ready, the Brief may use first person for the author's framing, navigation, and source-grounded judgment. This does not establish that the author personally used a product, observed a result, made a decision, or lived through an event; those claims still need evidence.
 

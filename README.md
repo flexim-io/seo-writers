@@ -36,7 +36,7 @@ See [Content repositories](docs/content-repositories.md) for the complete bounda
 
 | Skill | Responsibility |
 | --- | --- |
-| `run-seo-writing-workflow` | Coordinate or resume the complete workflow, preserve title authority, dispatch specialist workers, reuse unaffected checks after an explicit impact analysis, and stop at real approval or authorization boundaries. |
+| `run-seo-writing-workflow` | Coordinate or resume the complete workflow, preserve title authority, dispatch specialist workers, batch post-lock user corrections, reuse unaffected checks after one aggregate impact analysis, and stop at real approval or authorization boundaries. |
 | `audit-content-library` | Compare a proposed or completed article with published posts and active drafts, then define or verify its distinct portfolio role. |
 | `load-author-voice` | Resolve the assigned author and load a complete voice profile from Flexim or a validated portable input. |
 | `draft-article` | Turn an approved Article Brief and allowed evidence into an article structure and evidence-safe draft. |
@@ -85,7 +85,7 @@ In short:
 2. Add the `flexim-io/seo-writers` marketplace and install `seo-writers@flexim` in Codex or Claude Code.
 3. Start `run-seo-writing-workflow` with an idea or topic, the data you already have, and an optional requested target. Use `portfolio_decision` when you only want a topic or portfolio choice.
 4. Let the coordinator run `audit-content-library` in `pre-brief` mode using either read-only Flexim access or a complete CMS export, then explicitly approve the proposed Article Brief.
-5. Resume from the saved state after any requested evidence, author answer, isolated audit, or media-production pause. A compatible Mermaid brief may use the optional local renderer; missing renderer setup blocks only that visual. After the first complete pass, the coordinator records a change-impact plan and reruns only affected gates; ambiguous changes escalate conservatively. Keep reader Markdown separate from production reports and handoffs.
+5. Resume from the saved state after any requested evidence, author answer, isolated audit, or media-production pause. A compatible Mermaid brief may use the optional local renderer; missing renderer setup blocks only that visual. After the first complete pass, consecutive user corrections stay in one revision batch until review, finalization, or CMS handoff is requested. The coordinator then records one aggregate change-impact plan and reruns only affected gates; ambiguous changes escalate conservatively. Keep reader Markdown separate from production reports and handoffs.
 6. Use `cms-draft-handoff` only after an explicit request to create or update a private Flexim draft, ready final integration, and a ready independent cold-reader review.
 
 You can still invoke any stage directly. Each `SKILL.md` defines its inputs, modes, readiness gates, output contract, and boundaries; the orchestrator routes those contracts rather than replacing them with one opaque prompt.

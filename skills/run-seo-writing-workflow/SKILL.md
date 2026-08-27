@@ -1,6 +1,6 @@
 ---
 name: run-seo-writing-workflow
-description: Coordinate or resume SEO Writers from a portfolio decision through an approved Article Brief, delegated specialist work, isolated audits, chief-editor lock, visual integration, selective revision reruns, a context-free cold-reader review, and an optional explicitly authorized private CMS draft. Use when one accountable coordinator must stop at an exact requested target, preserve title authority and evidence boundaries, or resume saved work. Keep Flexim optional for text production and never publish.
+description: Coordinate or resume SEO Writers from a portfolio decision through an approved Article Brief, delegated specialist work, isolated audits, chief-editor lock, batched user revisions, visual integration, a context-free cold-reader review, and an optional explicitly authorized private CMS draft. Use when one accountable coordinator must stop at an exact requested target, preserve title authority and evidence boundaries, selectively recheck a completed revision batch, or resume saved work. Keep Flexim optional for text production and never publish.
 ---
 
 # Run SEO Writing Workflow
@@ -18,9 +18,9 @@ Read [references/workflow-state.md](references/workflow-state.md) completely bef
 - dispatches every specialist-owned stage when the host supports workers;
 - preserves two content-library passes, five independent editorial audits, and the final cold-reader gate;
 - validates specialist handoffs, artifact identity, coverage, isolation, warnings, and blockers before accepting them;
-- records immutable artifacts, decisions, delegation, `changeImpactManifest` results, and `carried_forward` gates in resumable state;
+- records checkpoint artifacts, decisions, delegation, aggregate `changeImpactManifest` results, and `carried_forward` gates in resumable state;
 - dispatches compatible optional media-production workers without turning them into canonical stages or replacing the integration owner;
-- reruns only gates whose controlling inputs changed after the first complete pass;
+- batches post-lock user corrections and reruns only gates whose controlling inputs changed when the batch closes;
 - pauses at approval, missing evidence, media production, isolation, or mutation authorization boundaries.
 
 It does not replace a specialist skill, compress gates into one generic review, invent evidence or author experience, silently amend an Article Brief, turn Flexim into a text-workflow requirement, mutate a CMS without explicit permission, or publish.
@@ -97,6 +97,8 @@ Dispatch `load-author-voice` when the approved Brief requires a named voice. A c
 
 Dispatch `draft-article` in `structure` mode for author-contribution preflight before full copy. Route `REQUIRED` to a reality-first author interview. For `RECOMMENDED`, preserve permitted non-experiential first person and use local `REPHRASE`, `CUT`, or evidence-required handling only for unsafe spans. Never neutralize the whole article merely because distinctive contribution is absent.
 
+During an author interview, retain the answers in the active conversation and save one completed interview artifact when the interview ends. Create an intermediate checkpoint only when the interview is interrupted, blocked, deferred for a later answer, or approaching a context-loss risk. Do not rewrite the full transcript after each answer.
+
 ### 6. Draft and edit
 
 Dispatch `draft-article` for the full draft only after Brief approval and preflight readiness. Validate its handoff, then dispatch `edit-article` with the same Brief, evidence permissions, author handoff, and source provenance.
@@ -122,6 +124,8 @@ Dispatch the five workers in fresh isolated contexts, preferably in parallel. Re
 Dispatch `chief-editor-review` only after the baseline five audit reports are valid, or after an amendment with valid reruns and explicitly recorded carried-forward coverage. The chief editor alone changes shared reader Markdown and must route each changed concern through the change-impact rules.
 
 Do not lock meaning until every affected gate is ready or provably `carried_forward`. Keep the explicit `interview_now`, `keep_current_text`, or `defer` decision for a `RECOMMENDED` contribution opportunity.
+
+After the first chief-editor lock, keep that immutable checkpoint as the base and use one working reader Markdown for subsequent user corrections. Do not create a new immutable reader artifact for each micro-edit.
 
 ### 9. Plan and integrate visuals
 
@@ -149,6 +153,8 @@ Then use the impact matrix, final integration, and a new fresh cold-reader revie
 
 ### 11. Hand off a private Flexim draft
 
+Treat a CMS draft request as an instruction to close any collecting `revisionBatch`. Complete its aggregate change-impact analysis, affected reruns, final integration, and fresh cold-reader review before evaluating CMS readiness.
+
 Dispatch `cms-draft-handoff` only when all are true:
 
 - `requestedTarget` is `cms_draft`;
@@ -158,16 +164,20 @@ Dispatch `cms-draft-handoff` only when all are true:
 
 Preparing or reviewing a payload is not mutation authorization. Private-draft permission is not publication permission.
 
-## Revision routing
+## Revision batches
 
-After the first complete valid pass, classify every correction before dispatching work. The state reference defines the required classes, `coverageFingerprint` rules, and minimum dependencies.
+After the first complete valid editorial pass and chief-editor lock, treat consecutive user corrections as one `revisionBatch` instead of a sequence of production cycles.
 
-- carry a stage forward only with valid prior provenance, unchanged controls, a recorded `changeImpactManifest`, and explicit rationale;
-- rerun an affected independent audit in a new clean context with the current complete package, never with another auditor's report;
-- rerun final integration and a fresh cold reader for any reader-visible final-surface change;
-- preserve valid results for production-only or invisible payload changes;
-- escalate conservatively when semantic effect, ownership, or fingerprint is unclear;
-- show the rerun plan, carried-forward stages, and reasons before dispatching revision workers.
+1. The first correction opens the batch automatically with the current lock or final checkpoint as `baseArtifactId` and one `workingArtifactPath`.
+2. Apply all corrections from one user message in one patch. Later correction messages update the same working reader Markdown.
+3. Acknowledge each accepted message briefly. Do not dispatch audits, final integration, or a cold reader while the batch is `collecting`, and do not persist state for each micro-edit.
+4. Close the batch when the user says the equivalent of “done,” “check it,” or “final review,” or when a CMS draft request arrives. If interruption requires a durable checkpoint, persist the batch as `collecting` without starting expensive work. If intent to close is ambiguous, keep collecting.
+5. Compare the complete working Markdown with the base checkpoint, classify the aggregate changed anchors and fields, and create one aggregate `changeImpactManifest` for the entire batch.
+6. Carry a stage forward only with valid prior provenance, unchanged controls, the aggregate manifest, and explicit rationale. Rerun each affected independent audit once in a new clean context with the current complete package, never with another auditor's report.
+7. If meaning changed, route the accepted rerun reports through `chief-editor-review` and create a new meaning lock. Purely surface-level corrections keep the existing meaning lock.
+8. For a changed reader-visible final surface, run one final-integration check and one fresh isolated cold-reader review after all affected editorial work is ready. Preserve valid final results for production-only or invisible payload changes.
+
+The state reference defines change classes, `coverageFingerprint` rules, close behavior, persistence checkpoints, and minimum dependencies. Escalate conservatively when semantic effect, ownership, or fingerprint is unclear.
 
 ## Pause, block, or finish
 
@@ -178,49 +188,22 @@ After the first complete valid pass, classify every correction before dispatchin
 
 ## Output
 
-Return concise progress, produced artifacts, planned reruns, and complete state. At minimum include:
+Return a compact delta by default:
 
 ```yaml
 status: in_progress | waiting | blocked | ready
-mode: run | resume | automatic
 workflowId: "..."
-workflowVersion: "1.1"
-requestedTarget: portfolio_decision | article_brief | draft | edited | text_lock | media_plan | final_package | cms_draft
-stateRef: "inline or workspace-relative path"
-currentStage: "..."
-lastReadyStage: "..."
-article:
-  title:
-    value: null
-    titleAuthority: fixed | candidate | missing
-  narrativePerspective: FIRST_PERSON | NEUTRAL | ORGANIZATIONAL | THIRD_PERSON | undecided
-delegation:
-  supported: true | false
-  mechanism: subagent | task | isolated_session | external_dispatch | same_context_disclosed | unavailable
-  workers: []
-artifactChanges: []
-changeImpactManifest: null
-rerunPlan:
-  required: []
-  carriedForward: []
-  invalidated: []
-decisionsNeeded: []
-authorization:
-  draftMutationAuthorized: true | false
-  publicationAuthorized: false
-isolation:
-  independentReportsValid: true | false
-  coldReaderValid: true | false
-warnings: []
-blockers: []
-nextAction:
-  owner: user | coordinator | specialist | isolated_auditor | cold_reader | media_producer
-  skill: null
-  instruction: "..."
-nextStage: "..."
+stateRef: ".seo-writers/sessions/.../workflow-state.json"
+stateDelta:
+  changedArtifacts: []
+  changeClasses: []
+  invalidatedGates: []
+  carriedForwardGates: []
+  statePersisted: true | false
+nextAction: "await_more_user_edits or the smallest concrete next action"
 ```
 
-When waiting, include the smallest self-contained input or worker dispatch package. When ready, identify the terminal artifact and confirm that no publication occurred.
+Do not return complete state by default. Return it only when the user explicitly asks, persistence fails, or a safe handoff cannot be represented by the compact delta and referenced artifacts. When waiting, include the smallest self-contained input or worker dispatch package. When ready, identify the terminal artifact and confirm that no publication occurred.
 
 ## Do not
 
@@ -230,4 +213,5 @@ When waiting, include the smallest self-contained input or worker dispatch packa
 - Change a fixed title or Article Brief without explicit approval.
 - Treat author voice as experiential evidence or turn every permitted first-person sentence into an interview requirement.
 - Default a correction to a full workflow rerun or carry an affected gate forward without proof.
+- Start an audit or final-reader cycle for each correction inside a collecting revision batch.
 - Make Flexim mandatory for text work, mutate CMS without private-draft authorization, or publish.
