@@ -13,7 +13,7 @@ Optional local Mermaid production additionally requires Node.js 22 or newer and 
 
 Flexim is recommended, not required. Start with the topic and data you already have. In interactive modes, each skill requests the missing portable input it actually needs. In `automatic` mode, it asks no questions and returns a precise blocker instead of inventing data.
 
-Run the workflow from a checkout or worktree of the private content repository, not from the SEO Writers clone. Keep all real briefs, sources, exports, author data, drafts, media, and saved state in that repository. See [Content repositories](content-repositories.md) for the boundary.
+Run the workflow from a checkout or worktree of the private content repository, not from the SEO Writers clone. Keep all real briefs, sources, exports, author data, drafts, media, checkpoints, and boundary handoffs in that repository. See [Content repositories](content-repositories.md) for the boundary.
 
 ## Install in Codex
 
@@ -59,7 +59,7 @@ claude plugin marketplace add flexim-io/seo-writers@main
 claude plugin install seo-writers@flexim
 ```
 
-Start a new task or session after the migration. If you need to resume an old workflow, copy its state from `.seo-writing-os/sessions/` to `.seo-writers/sessions/` in the private content repository before resuming. Keep a backup until the resumed workflow loads successfully.
+Start a new task or session after the migration. If you need to resume an old workflow, supply its `.seo-writing-os/sessions/.../workflow-state.json` once as legacy migration input. The coordinator resolves the referenced artifacts, creates a short boundary handoff, and continues with checkpoints. Do not copy the old state into a new path or keep updating it; retain the original only as a backup until migration is verified.
 
 ## Link the skills to one repository
 
@@ -103,7 +103,8 @@ Proposed topic: [your topic]
 Corpus source: [path to the complete CMS export, or state that Flexim is unavailable]
 Requested target: final_package
 
-Run every safe stage, preserve resumable state, and stop at the first real
+Run every safe stage, preserve checkpoint artifacts, create a short handoff only
+at an interruption or context boundary, and stop at the first real
 approval or missing-input boundary. Do not publish or mutate CMS.
 ```
 
@@ -113,7 +114,9 @@ The coordinator first runs `audit-content-library` in `pre-brief` mode. When it 
 
 If you only want the portfolio or topic decision, set `Requested target: portfolio_decision`. The workflow returns the content-library decision and stops: it does not propose a working title or prepare an Article Brief. A title you explicitly supply is preserved as `fixed`; if it cannot be delivered honestly, the workflow returns `EDITORIAL_CONFLICT` with the smallest amendment instead of replacing it.
 
-The coordinator saves state under `.seo-writers/sessions/<workflowId>/workflow-state.json` in the private content repository's working tree and normally returns only a compact delta plus that path. It returns complete state inline only when you ask for it, persistence fails, or a safe handoff cannot be represented by referenced artifacts. To continue later, invoke the same skill in `resume` mode with the state path. The state belongs in the private content repository, not in the installed plugin or this public repository.
+During one uninterrupted task, the coordinator does not create or update a workflow-state file. It uses the conversation, one working Markdown, and completed specialist artifacts. Immutable reader checkpoints are created only for the draft, chief-editor lock, and final package. If work is interrupted, blocked, deferred, or moved to another context, the coordinator writes a short boundary handoff that references the needed checkpoints and reports.
+
+To continue later, invoke the same skill in `resume` mode with that short handoff and its referenced artifacts. The coordinator validates the artifacts and derives the current stage rather than trusting a stored stage label. Checkpoints and handoffs belong in the private content repository, not in the installed plugin or this public repository.
 
 Then continue in this order:
 
@@ -131,7 +134,7 @@ audit-content-library (pre-brief)
 → cms-draft-handoff (Flexim drafts only, with explicit permission)
 ```
 
-The independent audit includes `audit-useful-action`, `audit-paragraph-structure`, `audit-tone-honesty`, `audit-eeat`, and a second `audit-content-library` pass in `pre-chief-editor` mode. The orchestrator dispatches them into clean isolated contexts when the host supports that. Otherwise it returns five self-contained packages for external isolated execution and resumes after the reports are supplied. Other specialist-owned stages are also dispatched when the host supports workers; the coordinator keeps intake, Article Brief approval, state, validation, and routing.
+The independent audit includes `audit-useful-action`, `audit-paragraph-structure`, `audit-tone-honesty`, `audit-eeat`, and a second `audit-content-library` pass in `pre-chief-editor` mode. The orchestrator dispatches them into clean isolated contexts when the host supports that. Otherwise it returns five self-contained packages for external isolated execution and resumes after the reports are supplied. Other specialist-owned stages are also dispatched when the host supports workers; the coordinator keeps intake, Article Brief approval, checkpoint discovery, validation, and routing.
 
 After the first complete pass and chief-editor lock, consecutive corrections form one revision batch. Each message updates the same working Markdown, and the coordinator does not start audits or final checks while you are still making small changes. Say “done,” “check it,” or “final review” to close the batch; requesting a CMS draft also closes it. The coordinator then compares the complete result with the last checkpoint, creates one aggregate change-impact record, reruns only gates with changed controls, and carries another gate forward only with explicit provenance and a proven unchanged coverage fingerprint. A changed reader-visible surface receives final integration and a fresh cold-reader review once after the complete batch is ready.
 
@@ -177,7 +180,7 @@ Beta limitations:
 
 ## Optional background execution
 
-Background execution is optional. It belongs to Codex or Claude Code, not to the SEO Writers orchestrator. Whether the host is attached or detached, invoke `run-seo-writing-workflow` in its existing `run` or `resume` mode and keep using the same workflow-state file.
+Background execution is optional. It belongs to Codex or Claude Code, not to the SEO Writers orchestrator. Whether the host is attached or detached, invoke `run-seo-writing-workflow` in its existing `run` or `resume` mode and keep using the same checkpoints and boundary handoff.
 
 All editorial and authorization boundaries remain active in the background. The coordinator may continue safe stages, but it must stop for explicit Article Brief approval, critical missing input, author answers that are required to draft safely, media production, or permission to mutate a private CMS draft. It never publishes.
 
@@ -187,12 +190,13 @@ For a long multi-step run, use [Goal mode](https://learn.chatgpt.com/docs/long-r
 
 ```text
 /goal Use $seo-writers:run-seo-writing-workflow in run mode for
-"[your topic]" and work toward final_package. Preserve resumable state.
+"[your topic]" and work toward final_package. Preserve checkpoint artifacts
+and create a short handoff only at a context boundary.
 Stop for Article Brief approval or any required missing input. Do not mutate
 CMS and do not publish.
 ```
 
-Use the goal controls or the same task to pause, resume, steer, or provide an approval. Resuming the SEO workflow means invoking the skill in `resume` mode with the returned state or `.seo-writers/sessions/<workflowId>/workflow-state.json`; Goal mode does not replace that state.
+Use the goal controls or the same task to pause, resume, steer, or provide an approval. In the same task, the conversation and artifacts retain the active context. In a fresh task, invoke the skill in `resume` mode with the short boundary handoff and referenced checkpoints; Goal mode does not replace those artifacts.
 
 [Codex Scheduled tasks](https://learn.chatgpt.com/docs/automations) can run recurring checks in the background, but they are not required for the editorial workflow and should not be used to bypass a human gate. A scheduled task that needs the private content repository's local working tree runs only while the computer is on and the desktop app is running. Web-only scheduled tasks cannot work directly in a folder on the computer.
 
@@ -202,7 +206,8 @@ From the article repository, start a detached session with:
 
 ```bash
 claude --bg 'Use /seo-writers:run-seo-writing-workflow in run mode for
-"[your topic]" and work toward final_package. Preserve resumable state.
+"[your topic]" and work toward final_package. Preserve checkpoint artifacts
+and create a short handoff only at a context boundary.
 Stop for Article Brief approval or required missing input. Do not mutate CMS
 and do not publish.'
 ```
@@ -222,13 +227,13 @@ The optional `/loop` command is suitable for quick polling, not as the default w
 
 ```text
 /loop 15m check whether the current SEO Writers workflow can resume from
-saved state; if it is waiting for approval or missing input, report that
+its checkpoints and boundary handoff; if it is waiting for approval or missing input, report that
 without changing the article
 ```
 
 `/loop` is session-scoped and fires only while Claude Code is running and idle. Detaching the session with `/bg` can keep that session running, but it still depends on the local environment. For scheduling that must survive independently of the session or local machine, use separate hosted infrastructure described in the official [Claude Code scheduled tasks documentation](https://code.claude.com/docs/en/scheduled-tasks).
 
-SEO Writers does not provide an always-on hosted runner. Such a runner can be added later without changing the portable skill contracts because workflow progress already lives in explicit resumable state.
+SEO Writers does not provide an always-on hosted runner. Such a runner can be added later without changing the portable skill contracts because workflow progress already lives in explicit checkpoints, specialist artifacts, and short boundary handoffs.
 
 ## Flexim and other CMSs
 

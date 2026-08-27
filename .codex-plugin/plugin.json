@@ -1,6 +1,6 @@
 {
   "name": "seo-writers",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "An evidence-safe editorial workflow with scoped coordination, specialist delegation, selective reruns, and independent final reader review for SEO articles.",
   "author": {
     "name": "Flexim",
@@ -19,7 +19,7 @@
   "interface": {
     "displayName": "SEO Writers",
     "shortDescription": "Evidence-safe SEO editorial workflow",
-    "longDescription": "Run or resume a stateful workflow to plan, draft, edit, independently audit, illustrate, batch user revisions, selectively recheck affected concerns, and hand off SEO articles with explicit evidence and publication boundaries.",
+    "longDescription": "Run or resume a checkpoint-based workflow to plan, draft, edit, independently audit, illustrate, batch user revisions, selectively recheck affected concerns, and hand off SEO articles with explicit evidence and publication boundaries.",
     "developerName": "Flexim",
     "category": "Productivity",
     "capabilities": [
