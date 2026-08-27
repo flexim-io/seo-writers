@@ -1,13 +1,13 @@
 ---
 name: run-seo-writing-workflow
-description: Coordinate or resume SEO Writers from a portfolio decision through an approved Article Brief, delegated specialist work, isolated audits, chief-editor lock, batched user revisions, visual integration, a context-free cold-reader review, and an optional explicitly authorized private CMS draft. Use when one accountable coordinator must stop at an exact requested target, preserve title authority and evidence boundaries, selectively recheck a completed revision batch, or resume saved work. Keep Flexim optional for text production and never publish.
+description: Coordinate or resume SEO Writers from a portfolio decision through an approved Article Brief, delegated specialist work, isolated audits, chief-editor lock, batched user revisions, visual integration, a context-free cold-reader review, and an optional explicitly authorized private CMS draft. Use when one accountable coordinator must stop at an exact requested target, preserve title authority and evidence boundaries, selectively recheck a completed revision batch, or resume from checkpoint artifacts and a short boundary handoff. Keep Flexim optional for text production and never publish.
 ---
 
 # Run SEO Writing Workflow
 
-Act as the visible coordinator for one article. Own intake, Article Brief coordination, state, worker dispatch, result validation, change-impact routing, and next-stage decisions. Do not silently become the specialist who writes, audits, or integrates the article.
+Act as the visible coordinator for one article. Own intake, Article Brief coordination, checkpoint discovery, worker dispatch, result validation, change-impact routing, and next-stage decisions. Do not silently become the specialist who writes, audits, or integrates the article.
 
-Read [references/workflow-state.md](references/workflow-state.md) completely before initializing or resuming a workflow.
+Read [references/workflow-checkpoints.md](references/workflow-checkpoints.md) completely before initializing or resuming a workflow.
 
 ## Responsibility
 
@@ -18,7 +18,7 @@ Read [references/workflow-state.md](references/workflow-state.md) completely bef
 - dispatches every specialist-owned stage when the host supports workers;
 - preserves two content-library passes, five independent editorial audits, and the final cold-reader gate;
 - validates specialist handoffs, artifact identity, coverage, isolation, warnings, and blockers before accepting them;
-- records checkpoint artifacts, decisions, delegation, aggregate `changeImpactManifest` results, and `carried_forward` gates in resumable state;
+- preserves immutable checkpoint artifacts, specialist results, aggregate `changeImpactManifest` results, and `carried_forward` gates, with a short `boundaryHandoff` only when work crosses a context boundary;
 - dispatches compatible optional media-production workers without turning them into canonical stages or replacing the integration owner;
 - batches post-lock user corrections and reruns only gates whose controlling inputs changed when the batch closes;
 - pauses at approval, missing evidence, media production, isolation, or mutation authorization boundaries.
@@ -30,23 +30,23 @@ It does not replace a specialist skill, compress gates into one generic review, 
 Accept:
 
 1. explicit user instruction and corrections, including requested target and supplied title;
-2. existing workflow state or state path for `resume`;
+2. existing checkpoint artifacts, specialist results, and an optional `boundaryHandoff` for `resume`;
 3. topic or idea, corpus access, and destination;
 4. host capabilities for subagents, tasks, sessions, and isolated contexts;
 5. sources, claim permissions, product-state evidence, author assignment, author evidence, and author voice input;
 6. approved Article Brief or inputs needed to prepare one;
 7. draft, audit, media, integration, and final artifacts already produced;
-8. explicit private-draft authorization;
+8. the current explicit user request for any private-draft authorization;
 9. mode: `run`, `resume`, or `automatic`.
 
 Priority: explicit user correction, approved Article Brief, verified primary source or real asset, claim permissions and product state, editorial policy and permitted author voice, current artifact, model assumption.
 
-Trust artifacts over state labels. When they disagree, record the mismatch and apply the state reference's impact rules.
+Trust artifacts over handoff labels. When they disagree, record the mismatch and apply the checkpoint reference's impact rules. A legacy workflow state in version `1.0`, `1.1`, or `1.2` may be supplied once for migration, but it is not active runtime memory.
 
 ## Modes and targets
 
 - `run`: work interactively, asking only one decision-changing question at a time.
-- `resume`: validate state and artifacts, then continue from the first incomplete, invalidated, or affected stage.
+- `resume`: validate checkpoint artifacts and the optional boundary handoff, derive the current stage, then continue from the first incomplete, invalidated, or affected stage.
 - `automatic`: ask no questions; run every safe stage supported by inputs and host capability, then return `ready` or `blocked`.
 
 Use `requestedTarget`: `portfolio_decision`, `article_brief`, `draft`, `edited`, `text_lock`, `media_plan`, `final_package`, or `cms_draft`. Default to `final_package`. A topic-selection request such as “choose the best topic” maps to `portfolio_decision` unless the user asks for a Brief or later stage. A full workflow request does not authorize a CMS mutation.
@@ -55,11 +55,15 @@ Use `requestedTarget`: `portfolio_decision`, `article_brief`, `draft`, `edited`,
 
 ### 1. Initialize or resume
 
-Create or migrate state according to the reference. Record whether a host supports workers and the selected `delegation` mechanism. When workers are available, dispatch specialists; the coordinator may prepare an Article Brief but must not produce specialist outputs itself.
+Do not create a central workflow state during one uninterrupted task. Derive the current stage from the active conversation, immutable checkpoints, the working artifact, specialist results, and any short `boundaryHandoff`. Record delegation and other durable decisions in the relevant checkpoint or specialist artifact, not in a second model-visible memory file.
+
+If a legacy workflow state is supplied, use the reference's one-time migration procedure to resolve its referenced artifacts and produce the smallest boundary handoff needed for the current context. Do not update or recreate that state file.
+
+Record whether a host supports workers and the selected `delegation` mechanism. When workers are available, dispatch specialists; the coordinator may prepare an Article Brief but must not produce specialist outputs itself.
 
 When workers are unavailable, disclose `same_context_disclosed` for non-independent stages. For independent audits or the cold reader, return the smallest external clean-context dispatch package instead of performing a same-context imitation.
 
-If an artifact changed outside the workflow, register a new version and create a `changeImpactManifest` before choosing a rerun. Do not use stage order alone as an invalidation graph.
+If an artifact changed outside the workflow, compare it with the controlling checkpoint and create a `changeImpactManifest` before choosing a rerun. Do not use stage order alone as an invalidation graph.
 
 ### 2. Classify title authority
 
@@ -97,7 +101,7 @@ Dispatch `load-author-voice` when the approved Brief requires a named voice. A c
 
 Dispatch `draft-article` in `structure` mode for author-contribution preflight before full copy. Route `REQUIRED` to a reality-first author interview. For `RECOMMENDED`, preserve permitted non-experiential first person and use local `REPHRASE`, `CUT`, or evidence-required handling only for unsafe spans. Never neutralize the whole article merely because distinctive contribution is absent.
 
-During an author interview, retain the answers in the active conversation and save one completed interview artifact when the interview ends. Create an intermediate checkpoint only when the interview is interrupted, blocked, deferred for a later answer, or approaching a context-loss risk. Do not rewrite the full transcript after each answer.
+During an author interview, retain the answers in the active conversation and save one completed interview artifact when the interview ends. Create an intermediate checkpoint and short `boundaryHandoff` only when the interview is interrupted, blocked, deferred for a later answer, or approaching a context-loss risk. Do not rewrite the full transcript after each answer.
 
 ### 6. Draft and edit
 
@@ -123,7 +127,7 @@ Dispatch the five workers in fresh isolated contexts, preferably in parallel. Re
 
 Dispatch `chief-editor-review` only after the baseline five audit reports are valid, or after an amendment with valid reruns and explicitly recorded carried-forward coverage. The chief editor alone changes shared reader Markdown and must route each changed concern through the change-impact rules.
 
-Do not lock meaning until every affected gate is ready or provably `carried_forward`. Keep the explicit `interview_now`, `keep_current_text`, or `defer` decision for a `RECOMMENDED` contribution opportunity.
+Do not lock meaning until every affected gate is ready or provably `carried_forward`. Keep the explicit `interview_now`, `keep_current_text`, or `defer` decision for a `RECOMMENDED` contribution opportunity. Store the lock, accepted decisions, controlling fingerprints, and reader snapshot as one immutable chief-editor checkpoint.
 
 After the first chief-editor lock, keep that immutable checkpoint as the base and use one working reader Markdown for subsequent user corrections. Do not create a new immutable reader artifact for each micro-edit.
 
@@ -141,7 +145,7 @@ Any meaning or claim change returns to `chief-editor-review`. A media, caption, 
 
 Dispatch `final-integration-check` against the lock, final reader Markdown, media manifest, visible trust surface, and proposed payload. A ready integration result is not yet a `final_package`.
 
-From its minimal reader-surface package, dispatch `cold-reader-review` to a fresh isolated worker. Give that worker only title, reader Markdown or rendered page, visible author and publisher surface, media, captions, `alt`, and reader links. Do not give it the Brief, sources, author profile, workflow state, audit reports, or expected result.
+From its minimal reader-surface package, dispatch `cold-reader-review` to a fresh isolated worker. Give that worker only title, reader Markdown or rendered page, visible author and publisher surface, media, captions, `alt`, and reader links. Do not give it the Brief, sources, author profile, boundary handoff, audit reports, or expected result.
 
 If the cold reader blocks:
 
@@ -160,18 +164,20 @@ Dispatch `cms-draft-handoff` only when all are true:
 - `requestedTarget` is `cms_draft`;
 - destination is Flexim;
 - final integration and cold-reader review are ready for the same final reader-visible surface;
-- current explicit `authorization.draftMutationAuthorized` is true.
+- the current explicit user request authorizes this private-draft mutation.
 
 Preparing or reviewing a payload is not mutation authorization. Private-draft permission is not publication permission.
+
+Do not carry CMS authorization in a checkpoint or `boundaryHandoff`. For every attempted CMS mutation and required read-back, preserve a durable `mutationReceipt` that identifies the requested operation, returned entry, comparison result, and final draft status. A receipt records what happened; it never grants a later mutation.
 
 ## Revision batches
 
 After the first complete valid editorial pass and chief-editor lock, treat consecutive user corrections as one `revisionBatch` instead of a sequence of production cycles.
 
-1. The first correction opens the batch automatically with the current lock or final checkpoint as `baseArtifactId` and one `workingArtifactPath`.
+1. The first correction opens the batch automatically with the current lock or final checkpoint as `baseCheckpointPath` and one `workingArtifactPath`.
 2. Apply all corrections from one user message in one patch. Later correction messages update the same working reader Markdown.
-3. Acknowledge each accepted message briefly. Do not dispatch audits, final integration, or a cold reader while the batch is `collecting`, and do not persist state for each micro-edit.
-4. Close the batch when the user says the equivalent of “done,” “check it,” or “final review,” or when a CMS draft request arrives. If interruption requires a durable checkpoint, persist the batch as `collecting` without starting expensive work. If intent to close is ambiguous, keep collecting.
+3. Acknowledge each accepted message briefly. Do not dispatch audits, final integration, or a cold reader while the batch is `collecting`, and do not persist a checkpoint for each micro-edit.
+4. Close the batch when the user says the equivalent of “done,” “check it,” or “final review,” or when a CMS draft request arrives. If interruption requires a durable boundary, preserve the working artifact and create one short `boundaryHandoff` with `status: collecting`, the base and working paths, applied correction count, `closeReason`, and next action. If intent to close is ambiguous, keep collecting.
 5. Compare the complete working Markdown with the base checkpoint, classify the aggregate changed anchors and fields, and create one aggregate `changeImpactManifest` for the entire batch.
 6. Carry a stage forward only with valid prior provenance, unchanged controls, the aggregate manifest, and explicit rationale. Rerun each affected independent audit once in a new clean context with the current complete package, never with another auditor's report.
 7. If meaning changed, route the accepted rerun reports through `chief-editor-review` and create a new meaning lock. Purely surface-level corrections keep the existing meaning lock.
@@ -179,30 +185,27 @@ After the first complete valid editorial pass and chief-editor lock, treat conse
 
 ### Active collection fast path
 
-When a collecting batch was already validated in the same active coordinator context and the new instruction is another correction, reuse the known workflow ID, state reference, base artifact, and working Markdown path. This active context is transient execution memory, not durable state.
+When a collecting batch was already validated in the same active coordinator context and the new instruction is another correction, reuse the known base checkpoint and working Markdown path from transient execution memory. The conversation and open working artifact are the active memory for this uninterrupted run; they are not a second durable workflow record.
 
-- Do not reread the complete workflow state, this `SKILL.md`, or its state reference, and do not revalidate unchanged gates.
+- Do not read or create a workflow state file, reread this `SKILL.md` or its checkpoint reference, or revalidate unchanged gates.
 - When an anchor may be only part of a Markdown line, run at most one focused target-read command before the patch and use the returned complete line. Do not guess surrounding text.
 - Apply all changes from the message in one patch. A successful patch is sufficient verification because it matches the old line before writing the replacement. Do not run a post-patch command unless the patch result itself is ambiguous.
-- Leave the fast path when the target is ambiguous, the patch fails, an external file change is plausible, active context was lost, or the user requests a checkpoint, review, finalization, or CMS handoff. Resume normal state validation in those cases.
+- Leave the fast path when the target is ambiguous, the patch fails, an external file change is plausible, active context was lost, or the user requests a checkpoint, review, finalization, or CMS handoff. Resume from checkpoint and artifact validation in those cases.
 - Return the YAML block itself without a prose preface or paraphrase:
 
 ```yaml
 status: in_progress
-workflowId: "..."
-stateRef: ".seo-writers/sessions/.../workflow-state.json"
-stateDelta:
-  changedArtifacts:
-    - reader_markdown
-  changeClasses:
-    - reader_wording
-  invalidatedGates: []
-  carriedForwardGates: []
-  statePersisted: false
+changedArtifacts:
+  - reader_markdown
+changeClasses:
+  - reader_wording
+invalidatedGates: []
+carriedForwardGates: []
+checkpointPersisted: false
 nextAction: await_more_user_edits
 ```
 
-The state reference defines change classes, `coverageFingerprint` rules, close behavior, persistence checkpoints, and minimum dependencies. Escalate conservatively when semantic effect, ownership, or fingerprint is unclear.
+The checkpoint reference defines change classes, `coverageFingerprint` rules, close behavior, boundary handoffs, and minimum dependencies. Escalate conservatively when semantic effect, ownership, or fingerprint is unclear.
 
 ## Pause, block, or finish
 
@@ -217,18 +220,16 @@ Return a compact delta by default:
 
 ```yaml
 status: in_progress | waiting | blocked | ready
-workflowId: "..."
-stateRef: ".seo-writers/sessions/.../workflow-state.json"
-stateDelta:
-  changedArtifacts: []
-  changeClasses: []
-  invalidatedGates: []
-  carriedForwardGates: []
-  statePersisted: true | false
+changedArtifacts: []
+changeClasses: []
+invalidatedGates: []
+carriedForwardGates: []
+checkpointPersisted: true | false
+handoffRef: null
 nextAction: "await_more_user_edits or the smallest concrete next action"
 ```
 
-Do not return complete state by default. Return it only when the user explicitly asks, persistence fails, or a safe handoff cannot be represented by the compact delta and referenced artifacts. When waiting, include the smallest self-contained input or worker dispatch package. When ready, identify the terminal artifact and confirm that no publication occurred.
+Do not return complete workflow history by default. Return expanded artifact provenance only when the user explicitly asks, checkpoint persistence fails, or a safe context transfer cannot be represented by the compact delta and referenced artifacts. When waiting across a context boundary, create the smallest self-contained `boundaryHandoff` and return its `handoffRef`. When ready, identify the terminal artifact and confirm that no publication occurred.
 
 ## Do not
 

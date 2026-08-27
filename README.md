@@ -26,7 +26,7 @@ The independent editorial audit contains five separate gates:
 
 This public repository develops and distributes SEO Writers. It is not where real articles are produced.
 
-Install the plugin for use from a separate private content repository. Keep real briefs, CMS exports, sources, author profiles, interviews, drafts, audit reports, workflow state, media, and finished articles there. One private repository may serve one brand or editorial operation.
+Install the plugin for use from a separate private content repository. Keep real briefs, CMS exports, sources, author profiles, interviews, drafts, audit reports, workflow checkpoints and boundary handoffs, media, and finished articles there. One private repository may serve one brand or editorial operation.
 
 The public repository contains only installable runtime sources and user-facing documentation. Development validation, synthetic fixtures, release tooling, and private working material live outside it. Sanitized examples may be added here only when they are intentionally public and provenance-safe.
 
@@ -85,14 +85,14 @@ In short:
 2. Add the `flexim-io/seo-writers` marketplace and install `seo-writers@flexim` in Codex or Claude Code.
 3. Start `run-seo-writing-workflow` with an idea or topic, the data you already have, and an optional requested target. Use `portfolio_decision` when you only want a topic or portfolio choice.
 4. Let the coordinator run `audit-content-library` in `pre-brief` mode using either read-only Flexim access or a complete CMS export, then explicitly approve the proposed Article Brief.
-5. Resume from the saved state after any requested evidence, author answer, isolated audit, or media-production pause. A compatible Mermaid brief may use the optional local renderer; missing renderer setup blocks only that visual. After the first complete pass, consecutive user corrections stay in one revision batch until review, finalization, or CMS handoff is requested. The coordinator then records one aggregate change-impact plan and reruns only affected gates; ambiguous changes escalate conservatively. Keep reader Markdown separate from production reports and handoffs.
+5. Resume from immutable checkpoints, specialist results, and a short boundary handoff after any requested evidence, author answer, isolated audit, or media-production pause. A compatible Mermaid brief may use the optional local renderer; missing renderer setup blocks only that visual. After the first complete pass, consecutive user corrections stay in one revision batch until review, finalization, or CMS handoff is requested. The coordinator then records one aggregate change-impact plan and reruns only affected gates; ambiguous changes escalate conservatively. Keep reader Markdown separate from production reports and handoffs.
 6. Use `cms-draft-handoff` only after an explicit request to create or update a private Flexim draft, ready final integration, and a ready independent cold-reader review.
 
 You can still invoke any stage directly. Each `SKILL.md` defines its inputs, modes, readiness gates, output contract, and boundaries; the orchestrator routes those contracts rather than replacing them with one opaque prompt.
 
 ## Optional background execution
 
-The normal way to use `run-seo-writing-workflow` is in the foreground. If a longer run is more convenient, Codex or Claude Code can keep the same workflow running through host-provided background features. This does not add a new orchestrator mode or change its contract: the skill uses the same `run` and `resume` modes, the same saved state, and the same approval boundaries.
+The normal way to use `run-seo-writing-workflow` is in the foreground. If a longer run is more convenient, Codex or Claude Code can keep the same workflow running through host-provided background features. This does not add a new orchestrator mode or change its contract: the skill uses the same `run` and `resume` modes, the same checkpoint artifacts and boundary handoff, and the same approval boundaries.
 
 - In Codex, start the workflow with [Goal mode](https://learn.chatgpt.com/docs/long-running-work). [Scheduled tasks](https://learn.chatgpt.com/docs/automations) are optional for recurring checks or resumptions, but local-project tasks still need the computer on and the desktop app running.
 - In Claude Code, start a detached session with `claude --bg`, move an existing session to the background with `/bg`, and monitor it with `claude agents`. See the official [background session](https://code.claude.com/docs/en/agent-view) documentation. The session-scoped `/loop` command is optional for polling; it runs only while Claude Code is running and idle. See [scheduled tasks](https://code.claude.com/docs/en/scheduled-tasks).
@@ -109,9 +109,9 @@ Issues and pull requests are welcome. Keep reusable skill work under `skills/` a
 
 This repository is an open beta:
 
-- `run-seo-writing-workflow` provides shared coordination and resumable state; foreground execution is the default, optional background execution comes from the host, and this repository does not include an always-on hosted service;
+- `run-seo-writing-workflow` provides checkpoint-based coordination and short handoffs at context boundaries; foreground execution is the default, optional background execution comes from the host, and this repository does not include an always-on hosted service;
 - independent audits require isolated contexts supplied by the host or external dispatch; same-context reviews are never presented as independent;
-- the final cold-reader review is also a fresh isolated context that sees only reader-visible material, not the Brief, sources, state, or audit reports;
+- the final cold-reader review is also a fresh isolated context that sees only reader-visible material, not the Brief, sources, handoffs, or audit reports;
 - a verified assigned author may write in first person for authorial framing and source-grounded judgment, but personal experience still requires evidence;
 - the shared skills are packaged for Codex and Claude Code, but the plugin has not been submitted to either official public marketplace;
 - Flexim integration is recommended but portable inputs keep text production usable without it;
