@@ -20,7 +20,7 @@ Read [references/workflow-checkpoints.md](references/workflow-checkpoints.md) co
 - validates specialist handoffs, artifact identity, coverage, isolation, warnings, and blockers before accepting them;
 - preserves immutable checkpoint artifacts, specialist results, aggregate `changeImpactManifest` results, and `carried_forward` gates, with a short `boundaryHandoff` only when work crosses a context boundary;
 - dispatches compatible optional media-production workers without turning them into canonical stages or replacing the integration owner;
-- batches post-lock user corrections and reruns only gates whose controlling inputs changed when the batch closes;
+- collects post-lock user corrections without touching the article, applies the closed batch once, and reruns only gates whose controlling inputs changed;
 - pauses at approval, missing evidence, media production, isolation, or mutation authorization boundaries.
 
 It does not replace a specialist skill, compress gates into one generic review, invent evidence or author experience, silently amend an Article Brief, turn Flexim into a text-workflow requirement, mutate a CMS without explicit permission, or publish.
@@ -129,7 +129,7 @@ Dispatch `chief-editor-review` only after the baseline five audit reports are va
 
 Do not lock meaning until every affected gate is ready or provably `carried_forward`. Keep the explicit `interview_now`, `keep_current_text`, or `defer` decision for a `RECOMMENDED` contribution opportunity. Store the lock, accepted decisions, controlling fingerprints, and reader snapshot as one immutable chief-editor checkpoint.
 
-After the first chief-editor lock, keep that immutable checkpoint as the base and use one working reader Markdown for subsequent user corrections. Do not create a new immutable reader artifact for each micro-edit.
+After the first chief-editor lock, keep that immutable checkpoint as the base and use one working reader Markdown for subsequent user corrections. Keep that working file unchanged while a correction batch is collecting, then update it once when the batch closes. Do not create a new immutable reader artifact for each micro-edit.
 
 ### 9. Plan and integrate visuals
 
@@ -174,36 +174,28 @@ Do not carry CMS authorization in a checkpoint or `boundaryHandoff`. For every a
 
 After the first complete valid editorial pass and chief-editor lock, treat consecutive user corrections as one `revisionBatch` instead of a sequence of production cycles.
 
-1. The first correction opens the batch automatically with the current lock or final checkpoint as `baseCheckpointPath` and one `workingArtifactPath`.
-2. Apply all corrections from one user message in one patch. Later correction messages update the same working reader Markdown.
-3. Acknowledge each accepted message briefly. Do not dispatch audits, final integration, or a cold reader while the batch is `collecting`, and do not persist a checkpoint for each micro-edit.
-4. Close the batch when the user says the equivalent of “done,” “check it,” or “final review,” or when a CMS draft request arrives. If interruption requires a durable boundary, preserve the working artifact and create one short `boundaryHandoff` with `status: collecting`, the base and working paths, applied correction count, `closeReason`, and next action. If intent to close is ambiguous, keep collecting.
-5. Compare the complete working Markdown with the base checkpoint, classify the aggregate changed anchors and fields, and create one aggregate `changeImpactManifest` for the entire batch.
-6. Carry a stage forward only with valid prior provenance, unchanged controls, the aggregate manifest, and explicit rationale. Rerun each affected independent audit once in a new clean context with the current complete package, never with another auditor's report.
-7. If meaning changed, route the accepted rerun reports through `chief-editor-review` and create a new meaning lock. Purely surface-level corrections keep the existing meaning lock.
-8. For a changed reader-visible final surface, run one final-integration check and one fresh isolated cold-reader review after all affected editorial work is ready. Preserve valid final results for production-only or invisible payload changes.
+1. The first correction opens the batch automatically with the current lock or final checkpoint as `baseCheckpointPath`, one `workingArtifactPath`, and an empty transient `pendingCorrections` list.
+2. For each accepted correction, retain exact ordered `oldText` / `newText` pairs and the user's instruction in transient conversation memory. Preserve the order of multiple corrections from one message. Do not read or modify the working Markdown while collecting, and do not dispatch audits, final integration, or a cold reader.
+3. Acknowledge each accepted message in the user's language without exposing production state. A subsequent correction continues the same batch automatically; it does not require a separate “yes.”
+4. Close the batch when the user says a natural equivalent of “это всё,” “готово,” “применяй,” “проверяй,” “покажи итог,” “done,” “check it,” or “final review,” or when a CMS draft request arrives. If intent to close is ambiguous, keep collecting.
+5. At closure, resolve every pending pair against the unchanged working artifact, compose corrections that depend on an earlier pending replacement, and apply the complete ordered batch in one consolidated patch. Fail closed without a partial write if an anchor is missing, ambiguous, externally changed, or conflicts with another correction.
+6. Compare the resulting working Markdown with the base checkpoint, classify the aggregate changed anchors and fields, and create one aggregate `changeImpactManifest` for the entire batch.
+7. Carry a stage forward only with valid prior provenance, unchanged controls, the aggregate manifest, and explicit rationale. Rerun each affected independent audit once in a new clean context with the current complete package, never with another auditor's report.
+8. If meaning changed, route the accepted rerun reports through `chief-editor-review` and create a new meaning lock. Purely surface-level corrections keep the existing meaning lock.
+9. For a changed reader-visible final surface, run one final-integration check and one fresh isolated cold-reader review after all affected editorial work is ready. Preserve valid final results for production-only or invisible payload changes.
+
+If interruption requires a durable boundary before closure, create one short `boundaryHandoff` with `status: collecting`, the base and working paths, `pendingCorrectionCount`, the exact ordered `pendingCorrections`, `closeReason`, and next action. Do not patch the working artifact merely to make the batch resumable.
 
 ### Active collection fast path
 
 When a collecting batch was already validated in the same active coordinator context and the new instruction is another correction, reuse the known base checkpoint and working Markdown path from transient execution memory. The conversation and open working artifact are the active memory for this uninterrupted run; they are not a second durable workflow record.
 
 - Do not read or create a workflow state file, reread this `SKILL.md` or its checkpoint reference, or revalidate unchanged gates.
-- When an anchor may be only part of a Markdown line, run at most one focused target-read command before the patch and use the returned complete line. Do not guess surrounding text.
-- Apply all changes from the message in one patch. A successful patch is sufficient verification because it matches the old line before writing the replacement. Do not run a post-patch command unless the patch result itself is ambiguous.
-- Leave the fast path when the target is ambiguous, the patch fails, an external file change is plausible, active context was lost, or the user requests a checkpoint, review, finalization, or CMS handoff. Resume from checkpoint and artifact validation in those cases.
-- Return the YAML block itself without a prose preface or paraphrase:
-
-```yaml
-status: in_progress
-changedArtifacts:
-  - reader_markdown
-changeClasses:
-  - reader_wording
-invalidatedGates: []
-carriedForwardGates: []
-checkpointPersisted: false
-nextAction: await_more_user_edits
-```
+- Do not read or modify the working Markdown while collecting. Append all accepted corrections from the message to `pendingCorrections` as exact ordered `oldText` / `newText` pairs. If the active conversation does not supply enough exact text to form a safe pair, ask one concise clarification instead of inspecting the article.
+- Use no file or specialist tools for an ordinary collection turn. Leave the fast path only when active context was lost, an external file change is plausible, the correction cannot be represented safely, or the user closes the batch, requests a checkpoint, finalization, or CMS handoff.
+- Acknowledge one accepted correction naturally: “Записал. Ещё что-нибудь поправим или уже применяю правки?” After several corrections, the count may be useful: “Записал, в пакете четыре правки. Добавим ещё или применяю все?” Match the user's language and avoid requiring a particular command.
+- Do not expose the compact coordination delta, internal `revisionBatch` status, unchanged-file detail, or instructions such as “say done” during collection. Use “применяю правки,” not “приступаю к работе”: correction capture is already in progress.
+- A subsequent correction continues the same batch automatically. A natural close request leaves the fast path, applies one consolidated patch, and proceeds through aggregate impact analysis.
 
 The checkpoint reference defines change classes, `coverageFingerprint` rules, close behavior, boundary handoffs, and minimum dependencies. Escalate conservatively when semantic effect, ownership, or fingerprint is unclear.
 
@@ -229,7 +221,7 @@ handoffRef: null
 nextAction: "await_more_user_edits or the smallest concrete next action"
 ```
 
-Do not return complete workflow history by default. Return expanded artifact provenance only when the user explicitly asks, checkpoint persistence fails, or a safe context transfer cannot be represented by the compact delta and referenced artifacts. When waiting across a context boundary, create the smallest self-contained `boundaryHandoff` and return its `handoffRef`. When ready, identify the terminal artifact and confirm that no publication occurred.
+The active collection acknowledgement is the exception: return the natural conversational line defined above instead of this technical delta. Do not return complete workflow history by default. Return expanded artifact provenance only when the user explicitly asks, checkpoint persistence fails, or a safe context transfer cannot be represented by the compact delta and referenced artifacts. When waiting across a context boundary, create the smallest self-contained `boundaryHandoff` and return its `handoffRef`. When ready, identify the terminal artifact and confirm that no publication occurred.
 
 ## Do not
 
