@@ -9,27 +9,28 @@ This reference defines durable coordination state for `run-seo-writing-workflow`
 3. [Stages and workers](#stages-and-workers)
 4. [Artifacts and fingerprints](#artifacts-and-fingerprints)
 5. [Transitions](#transitions)
-6. [Change impact and selective reruns](#change-impact-and-selective-reruns)
-7. [Resume validation](#resume-validation)
-8. [Persistence and privacy](#persistence-and-privacy)
+6. [Revision batches](#revision-batches)
+7. [Change impact and selective reruns](#change-impact-and-selective-reruns)
+8. [Resume validation](#resume-validation)
+9. [Persistence and privacy](#persistence-and-privacy)
 
 ## Core rules
 
-- Write new state as `workflowVersion: "1.1"`. Accept a complete `1.0` state, initialize missing fields, append a migration record, and persist `1.1` only after validation.
-- Keep one state per article workflow and immutable versions of accepted artifacts. `currentArtifactIds` points only to active versions.
+- Write new state as `workflowVersion: "1.2"`. Accept a complete `1.0` or `1.1` state, initialize `revisionBatch`, append one migration record, and persist `1.2` only after validation.
+- Keep one state per article workflow. Keep immutable specialist results and reader checkpoints, but use one working reader Markdown while post-lock user corrections are being collected. `currentArtifactIds` points only to active accepted versions.
 - Treat stage readiness as a derived claim backed by a specialist output, controlling input, and snapshot or coverage fingerprint.
 - Keep decisions, author-profile references, source references, authorization, audit reports, and worker identifiers outside reader Markdown.
 - The coordinator owns intake, Article Brief coordination and approval, state, dispatch, result validation, impact analysis, and routing. A specialist owns its own output.
 - Before the first complete pass, do not carry a mandatory gate forward. After that baseline, reuse a gate only when its controlling coverage fingerprint is proven unchanged by a recorded `changeImpactManifest`.
 - When classification, provenance, or a controlling fingerprint is uncertain, invalidate conservatively. Never call a broad rerun mandatory merely because it is simpler.
-- Update state after each accepted stage result, explicit decision, migration, impact decision, invalidation, carry-forward decision, or mutation attempt. Append superseding decisions; do not rewrite history.
+- Persist state at meaningful checkpoints: an accepted stage result, a waiting or blocked boundary, an interrupted interview or revision batch, a migration, a closed revision batch, a terminal readiness decision, and immediately before and after a CMS mutation attempt. Do not persist state for each micro-edit. Append superseding decisions; do not rewrite history.
 
 ## State shape
 
 Use JSON when persisting and equivalent YAML or JSON when returning inline.
 
 ```yaml
-workflowVersion: "1.1"
+workflowVersion: "1.2"
 workflowId: "seo-article-..."
 createdAt: "ISO-8601"
 updatedAt: "ISO-8601"
@@ -58,6 +59,14 @@ productionWorkers: []
 decisions: []
 stateMigrations: []
 changeImpactManifests: []
+revisionBatch:
+  status: closed
+  baseArtifactId: null
+  workingArtifactPath: null
+  openedAt: null
+  closedAt: null
+  closeReason: null
+  changeImpactManifestId: null
 delegation:
   supported: null
   mechanism: subagent | task | isolated_session | external_dispatch | same_context_disclosed | unavailable | null
@@ -83,6 +92,8 @@ nextAction:
 `titleAuthority` governs title changes. An explicit user title and an approved Brief title are `fixed`; an unapproved working title is `candidate`; no title is `missing`. Query selection, portfolio decision, title value, and title promise remain separate decisions.
 
 `publicationAuthorized` remains false in this workflow. Publication is outside the skill even if a broader host has other permission.
+
+`revisionBatch` is the durable checkpoint view of the current post-lock correction transaction. It is not an event log. While a batch is `collecting`, `baseArtifactId` identifies the accepted reader checkpoint, `workingArtifactPath` identifies the single mutable reader Markdown, and the remaining close fields stay null. When the batch closes, set `closedAt`, `closeReason`, and `changeImpactManifestId` together after comparing the complete working file with the base snapshot.
 
 ## Stages and workers
 
@@ -172,7 +183,7 @@ blockers: []
 
 ## Artifacts and fingerprints
 
-Use an append-only record for every accepted artifact version:
+Use an append-only record for every accepted specialist result or checkpoint artifact:
 
 ```yaml
 artifactId: edited-reader-v2
@@ -193,6 +204,8 @@ validation:
   result: ready
 supersedes: edited-reader-v1
 ```
+
+For reader Markdown, create immutable versions at the draft, chief-editor lock, and final-package checkpoints. Between those checkpoints, edit the one file named by `revisionBatch.workingArtifactPath`; do not register a new artifact version for every individual correction. When a batch closes, register only the resulting accepted lock or final checkpoint after its required gates pass.
 
 Register every renderer result as an artifact with `type: mermaid_render_handoff`. Its immutable snapshot must cover the full handoff, including:
 
@@ -250,9 +263,36 @@ Inside `media_integration`, the optional order is `visual_plan` → zero or more
 
 Never translate a child `blocked` result to `ready`. A warning may remain non-blocking only when that child's contract permits it.
 
+## Revision batches
+
+Use a revision batch only after the first complete editorial pass and chief-editor lock exist. Before that point, normal stage ownership and baseline audit rules apply.
+
+### Open and collect
+
+1. The first post-lock user correction opens `revisionBatch.status: collecting` automatically. Use the current chief-editor lock or final reader checkpoint as `baseArtifactId` and retain one `workingArtifactPath`.
+2. Apply all corrections from one user message in one patch. Apply later correction messages to the same working file.
+3. Acknowledge the accepted change in a compact `stateDelta`, with `statePersisted: false` unless another real checkpoint condition applies.
+4. Do not dispatch audits, final integration, or a cold reader while the user is still collecting revisions. Ten consecutive micro-edits remain one batch, not ten impact records or production cycles.
+
+### Close and route
+
+Close the batch when the user explicitly requests checking or finalization or requests a CMS draft. Record the close reason as `user_done`, `review_requested`, or `cms_draft_requested`.
+
+If the workflow is interrupted before a close request, persist the current fields once; the batch remains `collecting`, its close fields stay null, and no impact analysis or audit starts. On resume, continue collecting from the same working file and base snapshot.
+
+At close:
+
+1. Compare the complete working file with the base snapshot.
+2. Classify all changed anchors and fields together.
+3. Create one aggregate `changeImpactManifest` and link it from `revisionBatch.changeImpactManifestId`.
+4. Persist state once with the closed batch and resulting invalidations or carry-forwards.
+5. Dispatch each affected editorial gate at most once for that manifest.
+6. Route semantic changes through `chief-editor-review` for a new meaning lock. Keep the prior meaning lock for changes proven to be surface-only.
+7. After all affected work is ready, run one final-integration check and one fresh isolated cold-reader review when the reader-visible final surface changed.
+
 ## Change impact and selective reruns
 
-When an accepted artifact or explicit user correction changes, first create a `changeImpactManifest` before invalidating any stage:
+After a revision batch closes, create one aggregate `changeImpactManifest` before invalidating any stage. For an artifact changed outside a collecting batch, create the same manifest during resume validation before routing work:
 
 ```yaml
 id: impact-003
@@ -278,7 +318,7 @@ Use this minimum dependency matrix. Add a related gate whenever the exact change
 | Change class | Minimum affected stages |
 | --- | --- |
 | `production_state_only` | no editorial stage; update state only |
-| `spelling_typography` with no semantic or structural effect | final integration and cold reader only when the reader-visible surface changed |
+| `spelling_typography` with no semantic or structural effect | does not invalidate an independent editorial audit; final integration and cold reader only when the reader-visible surface changed |
 | `reader_wording` | tone when voice changes; useful action, paragraph, or E-E-A-T only when their controls changed; then final integration and cold reader for a visible final change |
 | `paragraph_structure` | paragraph audit, then final integration and cold reader; add useful action or tone only when section role or voice changes |
 | `title_or_useful_action` | useful-action audit, tone when framing changes, then lock, final integration, and cold reader; add portfolio audit when scope changes |
@@ -299,21 +339,23 @@ Carry a stage forward only when all are true:
 
 For independent audits, a carried-forward report remains historical evidence for an unchanged concern; it is not relabeled as a fresh audit of a new whole-document snapshot. If its concern changes, dispatch a new clean isolated audit with the complete current package and no earlier auditor report.
 
-Any reader-visible final-surface change requires a new final-integration check and a fresh isolated cold-reader review. A production-only or invisible CMS-payload change does not invalidate the cold-reader result.
+Any reader-visible final-surface change requires one final-integration check and one fresh isolated cold-reader review after the complete batch is ready. A production-only or invisible CMS-payload change does not invalidate the cold-reader result.
 
 ## Resume validation
 
 On every `resume`:
 
-1. Parse state, accept only supported `1.0` or `1.1`, and record any `1.0` to `1.1` migration.
+1. Parse state, accept supported `1.0`, `1.1`, or `1.2`, and migrate an older state directly to `1.2`. Initialize `revisionBatch` without changing existing artifacts, decisions, authorization, stage statuses, `productionWorkers`, or any Mermaid `reuseIdentity`.
 2. Resolve every current required artifact and recompute its hash or compare immutable snapshot IDs where available.
 3. Verify approved Brief version, title authority, narrative perspective, reader snapshot, meaning lock, final snapshot, and authorization relationships.
 4. Confirm every fresh independent report names one reader snapshot and has distinct clean-context provenance.
 5. Confirm every `carried_forward` stage has a valid prior artifact, coverageFingerprint, changeImpactManifest, and rationale.
 6. Recheck time-sensitive corpus, product, author-profile, asset, or CMS snapshots when the owning skill requires freshness.
 7. Recompute every active `mermaid_render_handoff` reuse identity and invalidate production when the source, brief, component, renderer, or lock hash changed.
-8. Apply change impact before choosing a stage. Never expand to a full rerun only because the state was resumed.
-9. Reconfirm explicit draft authorization immediately before any CMS mutation.
+8. If `revisionBatch.status` is `collecting`, compare its working file with the base snapshot. Continue collecting after an interruption; close and route it only when the recorded or current instruction requests checking, finalization, or CMS handoff.
+9. If the working file differs from the base snapshot but an older state has no collecting batch, initialize one conservatively instead of creating one impact manifest per discovered edit.
+10. Apply aggregate change impact before choosing a stage. Never expand to a full rerun only because the state was resumed.
+11. Reconfirm explicit draft authorization immediately before any CMS mutation.
 
 If state cannot prove required isolation, set the affected result invalid. Do not infer isolation from filenames, wording, or separate timestamps.
 
@@ -325,4 +367,6 @@ If state cannot prove required isolation, set the affected result invalid. Do no
 - Do not commit private session state, corpus exports, author profiles, source bundles, unpublished drafts, cold-reader packages, audit reports, or CMS payloads to this public repository.
 - Store authorization with an instruction reference and timestamp, not a paraphrase that expands permission.
 - Use an atomic file replacement when the host can do so safely.
+- Save a completed interview as one artifact. Save an intermediate interview checkpoint only when the interview is interrupted, blocked, deferred, or at material risk of context loss.
+- Persist a collecting revision batch only at an interruption or another declared checkpoint. Ordinary micro-edits remain recoverable from the working file and are reconciled with the base snapshot on resume.
 - If persistence fails, return the complete updated state inline and record a warning; do not lose a completed mutation record.
