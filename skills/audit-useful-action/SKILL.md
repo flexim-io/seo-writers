@@ -35,6 +35,8 @@ Use:
 
 Minimum inputs are the text or source material, known reader and situation, and the Article Brief when one exists. Useful additions include search intent and scope, claim permissions and sources, product role, and target next action.
 
+Read the shared [audit coverage contract](../run-seo-writing-workflow/references/audit-coverage.md) for complete anchored coverage, controlling inputs, and independent provenance. Default to `reportDetail: findings`; retain the useful-action statement and group passing unit IDs instead of explaining each success.
+
 ## Modes
 
 - `formulate`: define the useful action before drafting or revision; when several are plausible, show how each changes title and structure.
@@ -128,9 +130,9 @@ Return `ready` only when reader and situation are defined; the useful action liv
 
 ## Output
 
-Return status `ready`, `blocked`, or `EDITORIAL_CONFLICT`; useful-action statement; reader-world versus author-world diagnosis; complete coverage counts; strong units; every `rewrite`, `remove`, or `blocked` unit; and next action.
+Return status `ready`, `blocked`, or `EDITORIAL_CONFLICT`; useful-action statement; material reader-world versus author-world diagnosis; complete anchored `coverageInventory` and counts; grouped `passedUnits`; every `rewrite`, `remove`, or `blocked` unit with exact anchor, priority, and minimum action; concern-specific `coverageFingerprint`, input and worker provenance; and next action. Do not duplicate strong-unit explanations in the default report.
 
-Use stable IDs `UA01`, `UA02`, and so on in the full map:
+Use stable IDs `UA01`, `UA02`, and so on. In `reportDetail: expanded`, use the full map:
 
 | ID | Unit | Reader situation | Reader change | Contribution | Artifact or decision | Status | Action |
 | --- | --- | --- | --- | --- | --- | --- | --- |

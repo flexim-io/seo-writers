@@ -36,6 +36,8 @@ Priority: explicit user correction, approved Brief, verified primary source and 
 
 Never infer an unknown biography or motive. Do not read CMS for voice during this independent audit. The supplied voice handoff is not evidence.
 
+Read the shared [audit coverage contract](../run-seo-writing-workflow/references/audit-coverage.md) for complete anchored coverage, controlling inputs, and independent provenance. Default to `reportDetail: findings`; inspect every unit through the applicable eleven gates, grouping passing IDs without repeating successful analysis.
+
 ## Modes
 
 - `set-tone`: define the tone contract before writing.
@@ -145,9 +147,9 @@ Return `ready` only when speaker, relationship, frame, and emotion are defined; 
 
 ## Output
 
-Return status `ready`, `blocked`, or `EDITORIAL_CONFLICT`; tone contract; `false / honest / play` profile; coverage; trust strengths; every `rewrite`, `disclose`, `remove`, `verify`, or `blocked` unit; and next action.
+Return status `ready`, `blocked`, or `EDITORIAL_CONFLICT`; tone contract; material `false / honest / play` profile; complete anchored `coverageInventory` and counts; grouped `passedUnits`; every `rewrite`, `disclose`, `remove`, `verify`, or `blocked` unit with exact anchor, priority, and minimum action; concern-specific `coverageFingerprint`, input and worker provenance; and next action. Do not repeat trust strengths for each successful unit.
 
-Use the full manifest:
+For `reportDetail: expanded`, use the full manifest:
 
 | ID | Anchor | First words or unit | Imagined voice | Trust function or risk | Result | Action |
 | --- | --- | --- | --- | --- | --- | --- |

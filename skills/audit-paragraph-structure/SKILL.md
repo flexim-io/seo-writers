@@ -28,6 +28,8 @@ It does not change the Brief, reader, promise, intent, or product role; rebuild 
 
 Use the text, Article Brief and explicit corrections, claim permissions and sources, editorial policy and channel rules, and mode: `audit`, `rewrite`, or `automatic`.
 
+Read the shared [audit coverage contract](../run-seo-writing-workflow/references/audit-coverage.md) for report detail, input identities, complete coverage, and independent provenance. This reference is a reporting contract, not another auditor's context.
+
 Priority: explicit user correction, approved Brief, verified source, editorial policy, current text, model assumption.
 
 ## Units
@@ -102,11 +104,11 @@ Treat a table as a list with repeated fields. Rows must compare on one axis; col
 
 ### 1. Fix the contract
 
-Record reader, useful action, title, scope, claims, and product role. Return `EDITORIAL_CONFLICT` when the problem requires changing them.
+Identify reader, useful action, title, scope, claims, and product role from the supplied contract. Reference that exact input rather than restating it in the report. Return `EDITORIAL_CONFLICT` when the problem requires changing it.
 
 ### 2. Build the inventory
 
-Walk reader Markdown top to bottom. Assign every paragraph, list, and table an ID. Record the nearest heading and first 6–12 words for each paragraph.
+Walk reader Markdown top to bottom. Assign every paragraph, list, and table an ID. Give each unit one exact locator in the supplied snapshot: nearest heading plus a unique excerpt or occurrence/line location. In expanded detail, also record the first 6–12 words; a compact inventory does not need both locators and a second first-words column.
 
 ### 3. Run a scan pass
 
@@ -114,7 +116,7 @@ Read only headings, first sentences, lists, and tables. Confirm that the reasoni
 
 ### 4. Audit every paragraph
 
-For every `P-ID`, record topic, result (`pass`, `rewrite`, `split`, `merge`, `move`, `remove`, or `blocked`), exact reason, action, and corrected text in rewrite mode. Never combine several similar paragraphs into one audit row.
+For every `P-ID`, check topic and result (`pass`, `rewrite`, `split`, `merge`, `move`, `remove`, or `blocked`). In default `reportDetail: findings`, preserve every anchored ID in `coverageInventory`, group passing IDs in `passedUnits`, and give an individual diagnosis and minimum action only for non-passing units. Never group failures or hide unchecked paragraphs in a pass range. In `expanded`, provide topic, reason, and action per paragraph; include corrected text only when requested in rewrite mode.
 
 ### 5. Audit every list and table
 
@@ -134,17 +136,19 @@ Compare found and checked counts. `ready` requires 100% coverage, with code and 
 
 ## Statuses
 
-Return `ready` only when every prose paragraph has a manifest row; every list and table has a separate audit; mixed ideas are split and dependent fragments joined; openings support scanning; changes preserve Brief and claims; and reader Markdown contains no audit IDs or internal markers.
+Return `ready` only when every prose paragraph, list, and table is individually inventoried and covered by a passing group or finding; mixed ideas are split and dependent fragments joined in proposed repairs; openings support scanning; changes preserve Brief and claims; and reader Markdown contains no audit IDs or internal markers. Compact coverage does not waive any unit's gates.
 
 Return `blocked` only when repair requires a contract change, invented evidence, removal of a required qualification, or an author decision between incompatible meanings. Length and style preference alone never block.
 
 ## Output
 
-For `audit`, return status, found and checked counts, excluded units, a complete paragraph manifest, a complete list and table manifest, and critical blockers.
+For `audit`, return status, found and checked counts, excluded units, complete anchored `coverageInventory`, grouped `passedUnits`, paragraph/list/table findings, and critical blockers. Use the shared contract's snapshot, `coverageFingerprint`, and worker provenance. Do not repeat successful checks as prose.
+
+Keep the compact inventory to ID and locator, and refer to it for covered units. Record the scan result once; any failed scan belongs in the relevant finding. Use references to the Brief and reader snapshot for controls, not a repeated contract or paragraph-by-paragraph explanation of the fingerprint. A findings-only report does not require the expanded manifest or the complete automatic example below to be printed.
 
 For `rewrite`, also return corrected reader Markdown without IDs and a change log.
 
-Manifest forms:
+Expanded manifest forms (on request):
 
 | ID | Anchor | First words | Topic | Result | Reason or action |
 | --- | --- | --- | --- | --- | --- |
