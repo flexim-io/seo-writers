@@ -47,6 +47,26 @@ Prefer a compact directory such as:
 
 The directory name is storage organization, not a workflow ID that must be returned to the model on every turn.
 
+## Selected topic context
+
+For an article that starts from supplied topics, retain the source link in the existing Article Brief provenance, then in the controlling metadata of reader checkpoints and any boundary handoff. Use the same `writingContext`; do not create a second workflow-state file or put these fields in reader Markdown or the cold-reader package.
+
+```yaml
+writingContext:
+  workspace: null
+  contextId: null
+  generationId: null
+  topicId: null
+  market: null
+  sourceBriefRef: null
+```
+
+Copy identifiers and market from the supplied handoff or verified source; they are opaque values, not values derived from the title or URL. Preserve both market label and code when supplied. `sourceBriefRef` identifies the complete selected source brief and its immutable identity, including product/audience research supplied with it. Other supplied provenance, such as execution identity, remains with that source artifact. Keep a reference to the approved Article Brief separately: approving or amending it does not rewrite the original research.
+
+Missing identifiers remain `null`; portable writing can continue, but a linked topic mutation cannot use an invented or ambiguous target. A fresh context validates source identity against artifact provenance and retains the user's actual selection. If the user has not chosen yet, the boundary handoff preserves the candidate source references and the outstanding question, with `topicId: null`. A new API response from another workspace, market, context, or generation must not replace this context automatically.
+
+At `final_package`, preserve references to final reader Markdown and metadata alongside this provenance. A later CMS choice resumes from that package. Article completion, a topic-status mutation, and a verified CMS record are separate facts; only their respective artifacts or read-back receipts establish them.
+
 ## Deriving the current stage
 
 On `run` or `resume`, derive the current stage from evidence in this order:
