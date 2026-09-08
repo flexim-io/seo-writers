@@ -1,6 +1,6 @@
 ---
 name: audit-content-library
-description: Audit the current library of published content before an Article Brief is fixed and again before chief-editor review. Use for every new or materially revised article when read-only Flexim access or a complete CMS export must reveal semantic overlap, cannibalization risk, gaps, stale or competing drafts, update or consolidation opportunities, and internal links. Return an evidence-linked overlap report and differentiation contract. Do not mutate articles, CMS, or the editorial contract.
+description: Audit the current content library before Article Brief approval and again before chief-editor review. Use read-only Flexim access, a complete export, or an explicit declaration of an empty library to assess semantic overlap, gaps, competing drafts, update opportunities, and internal links. Return an evidence-linked portfolio decision and differentiation contract. Do not mutate articles, CMS, or the editorial contract.
 ---
 
 # Audit the content library
@@ -79,6 +79,14 @@ When Flexim is unavailable, accept a complete export only if it contains:
 - export time and evidence that pagination or batching is complete.
 
 Return `blocked` if full content, statuses, or coverage cannot be established. A partial folder of articles is not a complete corpus merely because it is local.
+
+### Confirmed empty library
+
+For a new content project, accept the owner's explicit declaration that the complete content scope has zero published articles and zero other active drafts, including content outside Flexim. Record the scope, source statement, and date in `corpusSnapshot`, with `source: empty_declaration`. No CMS, empty export file, or schema creation is required.
+
+Having no CMS, no connected tools, or an empty local folder does not prove an empty library. If the scope or declaration is missing, request that information in interactive modes; in `automatic`, return the precise blocker. If available records contradict the declaration, resolve the discrepancy before claiming complete coverage.
+
+For a confirmed empty library, return zero counts, no nearest posts, and no internal links; do not invent pages or claim API pagination occurred. Assess the proposed reader job, evidence, and differentiation normally. At `pre-chief-editor`, check whether any other content was created or published since the first declaration and identify the article under review separately. The article under review is not a competing draft of itself. Record the refreshed evidence; a prior declaration alone is not current coverage after a context boundary.
 
 ## Comparison model
 
@@ -201,7 +209,9 @@ For `automatic`, return:
 status: ready | blocked
 phase: pre-brief | pre-chief-editor
 corpusSnapshot:
-  source: flexim | cms_export
+  source: flexim | cms_export | empty_declaration
+  scope: "..."
+  sourceRef: "..."
   collection: "..."
   checkedAt: "ISO-8601"
   publishedFound: 0

@@ -37,6 +37,38 @@ claude plugin install seo-writers@flexim
 
 Start a new Claude Code session after installation. If the install summary asks for it, run `/reload-plugins`. Plugin skills use commands such as `/seo-writers:audit-content-library`.
 
+## Connect Flexim for an onboarding prompt
+
+Paste the writing prompt from Flexim into your agent in the private content repository. It carries the available topics and their research. The agent compares the topics, recommends a starting point, and waits for your choice before preparing the Article Brief. You do not need a blog or a CMS to write the article.
+
+When helping with setup, inspect the current host and its available tools and skills first. Reuse a working connection to the exact workspace and an installed SEO Writers package. Do not remove unrelated settings or replace a same-named connection pointing elsewhere. Install only missing capabilities through the host's supported commands above; if the host cannot perform installation, give the exact next step. After installation, start a fresh task or session and carry over the original prompt or boundary handoff.
+
+Use the exact MCP endpoint and connection name supplied by Flexim. These shell variables are placeholders to replace with those values:
+
+```bash
+flexim_mcp_name='CONNECTION_NAME_FROM_FLEXIM'
+flexim_mcp_endpoint='MCP_ENDPOINT_FROM_FLEXIM'
+```
+
+In Codex, add the connection only when it is missing:
+
+```bash
+codex mcp add "$flexim_mcp_name" --url "$flexim_mcp_endpoint" --oauth-resource "$flexim_mcp_endpoint"
+codex mcp login "$flexim_mcp_name"
+```
+
+In Claude Code:
+
+```bash
+claude mcp add --transport http "$flexim_mcp_name" "$flexim_mcp_endpoint"
+```
+
+Open `/mcp` in an interactive Claude Code session and authenticate that connection. Browser sign-in and consent are performed by the user; the agent cannot approve them on the user's behalf. This follows Claude Code's [remote MCP authentication](https://code.claude.com/docs/en/mcp#authenticate-with-remote-mcp-servers). A configured connection is not proof of access: after sign-in, discover the actual tools and perform a read-only lookup of the selected topic in the supplied workspace. A missing or denied capability stays unavailable; do not claim setup succeeded or manufacture a replacement response.
+
+With another agent, check its support for these skills and an authenticated Streamable HTTP MCP connection. Compatibility is not universal. If either capability is unavailable, use the supported Codex or Claude Code path, or work from complete portable research. Missing isolated workers still requires the documented external review packages; another agent does not waive editorial gates.
+
+The workflow keeps the chosen topic's original identity, market, and complete source brief with its article artifacts. A later session resumes that selection instead of choosing again. Missing context identifiers remain unknown and never become guessed topic IDs. Writing produces a portable article package; saving in Flexim requires a separate destination decision and a verified private draft record.
+
 ## Upgrade from SEO Writing OS 0.4.1
 
 `SEO Writers` replaces the old `SEO Writing OS` package and plugin ID. Existing installations do not switch names automatically.
@@ -86,7 +118,7 @@ For a first run without Flexim, a proposed topic or article idea is enough to be
 
 To complete the full workflow, expect to provide:
 
-1. A complete CMS export when `audit-content-library` needs to reach `ready`. It must contain every published article in scope and all active drafts separately. Each record needs a stable ID, status, full Markdown, title, URL or slug, relevant dates, export provenance, export time, and evidence that pagination or batching is complete.
+1. A complete content inventory when `audit-content-library` needs to reach `ready`. If you already have content, supply a complete CMS export with every published article in scope and all active drafts separately. Each record needs a stable ID, status, full Markdown, title, URL or slug, relevant dates, export provenance, export time, and evidence that pagination or batching is complete. If this is your first article, explicitly confirm that the complete project scope has no published content or other active drafts, including outside Flexim. An empty-library declaration needs its scope and date, not a CMS or an empty export file.
 2. Primary sources, product facts, data, interviews, or other evidence required for the claims you want to make.
 3. An author profile only when a named author's voice is required. It must contain the complete voice profile, the exact author identity, provenance, source reference, and freshness dates. A bio or a few published articles are not a substitute.
 

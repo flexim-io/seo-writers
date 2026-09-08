@@ -1,13 +1,13 @@
 ---
 name: final-integration-check
-description: Verify a chief-editor-locked article package after visual planning or media integration and before a context-free final reader review or CMS mutation. Use when final reader Markdown, a media manifest, captions, alt text, author and publisher metadata, SEO fields, and a proposed CMS draft payload must be checked together for semantic lock, claim consistency, real asset availability, privacy, accessibility, responsive readability, internal markers, and draft-only publication boundaries. Return a minimal reader-surface dispatch package for cold-reader-review or a precise blocker. Do not reopen editorial strategy without cause, create assets, mutate CMS, or publish.
+description: Verify a chief-editor-locked article after visual integration and before independent final reader review. Check final Markdown, media, captions, alt text, author and publisher metadata, and SEO fields together; validate a CMS draft payload only when that is the requested destination. Return a portable article package or draft payload with a clean cold-reader dispatch, or a precise blocker. Do not reopen editorial strategy without cause, create assets, mutate CMS, or publish.
 ---
 
 # Final integration check
 
 ## Purpose
 
-Audit the assembled article as one reader package and prepare an exact CMS draft payload. Confirm that text, media, captions, metadata, and publication boundary preserve the chief-editor meaning lock.
+Audit the assembled article as one reader package and prepare portable Markdown and metadata, or an exact CMS draft payload when that is the requested destination. Confirm that text, media, captions, metadata, and publication boundary preserve the chief-editor meaning lock.
 
 This is an integration check, not another open-ended editing pass.
 
@@ -35,7 +35,7 @@ Use:
 5. real local assets or verifiable URLs;
 6. captions, `alt`, source-of-truth, and privacy decisions;
 7. author and publisher metadata snapshot and byline intent;
-8. proposed CMS draft payload, including the H1 decision;
+8. `deliveryTarget: portable | flexim_draft`, with portable metadata or a proposed CMS draft payload including the H1 decision;
 9. mode: `text-only`, `integrated`, or `automatic`.
 
 Priority: explicit user correction, chief-editor lock and Article Brief, verified source or real asset, claim permissions and product state, visual handoff, proposed payload, model assumption.
@@ -49,6 +49,8 @@ Return a changed media claim or payload to the correct owner. Never update the l
 - `automatic`: ask no questions; defer optional missing visuals, block on missing required proof, and never create assets or mutate CMS.
 
 Infer mode from production status and integrated assets when unspecified.
+
+Use `deliveryTarget: portable` when no CMS destination has been chosen. A Flexim draft request uses `flexim_draft`; do not downgrade a blocked draft payload to portable and call the requested draft ready.
 
 ## Process
 
@@ -105,7 +107,11 @@ From supplied metadata check author relation and display name, intended byline, 
 
 Before CMS handoff, validate the relation payload only. Do not claim rendered byline or page layout has been checked before a private preview exists. Keep it as a post-handoff human check.
 
-### 8. Prepare the CMS draft payload
+### 8. Prepare the delivery package
+
+For `portable`, return the actual final reader Markdown, title, description, and approved author/SEO/media metadata, preserving the existing H1. Leave unknown or destination-specific values unset. Set `cmsDraftPayload: null` and `qa.cmsPayloadDraftOnly: null` (not applicable). A missing collection, schema, slug policy, relation ID, or CMS connection does not block the portable article. Keep the selected topic's source provenance outside the reader package.
+
+For `flexim_draft`, prepare the CMS draft payload below. If the user chooses Flexim later, validate its actual schema mapping in a new integration pass before mutation; a prior portable result is not proof of draft-payload readiness.
 
 Use approved inputs only:
 
@@ -135,7 +141,7 @@ Never repair another layer silently.
 
 ## Readiness gates
 
-Return `ready` only when the final package matches the meaning lock; inventory is complete and markers are absent; all required assets are real and verified or omitted under an approved text-only contract; captions, `alt`, privacy, and available-scope mobile behavior pass; claims align across surfaces; trust payload is honest; CMS payload is complete, draft-only, and contains no model guesses; a clean cold-reader dispatch package is complete; no publication occurred; and `nextStage` is `cold_reader_review`.
+Return `ready` only when the final package matches the meaning lock; inventory is complete and markers are absent; all required assets are real and verified or omitted under an approved text-only contract; captions, `alt`, privacy, and available-scope mobile behavior pass; claims align across surfaces; trust metadata is honest; the portable package is complete or the requested CMS payload is complete, draft-only, and contains no model guesses; a clean cold-reader dispatch package is complete; no publication occurred; and `nextStage` is `cold_reader_review`.
 
 Return `blocked` when semantic drift, required proof, privacy, inaccessible assets, unresolved markers, or payload conflict cannot be repaired within integration scope.
 
@@ -144,6 +150,7 @@ Return `blocked` when semantic drift, required proof, privacy, inaccessible asse
 ```yaml
 status: ready | blocked
 mode: text-only | integrated | automatic
+deliveryTarget: portable | flexim_draft
 lock:
   sourceSnapshot: "..."
   finalSnapshot: "..."
@@ -172,7 +179,10 @@ qa:
   privacySafe: true | false
   mobileCheckedInAvailableScope: true | false
   trustPayloadReady: true | false
-  cmsPayloadDraftOnly: true | false
+  cmsPayloadDraftOnly: true | false | null
+portablePackage:
+  readerMarkdownRef: "..."
+  metadata: {}
 cmsDraftPayload:
   collection: "..."
   fields: {}
