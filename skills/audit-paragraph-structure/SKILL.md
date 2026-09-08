@@ -104,11 +104,11 @@ Treat a table as a list with repeated fields. Rows must compare on one axis; col
 
 ### 1. Fix the contract
 
-Record reader, useful action, title, scope, claims, and product role. Return `EDITORIAL_CONFLICT` when the problem requires changing them.
+Identify reader, useful action, title, scope, claims, and product role from the supplied contract. Reference that exact input rather than restating it in the report. Return `EDITORIAL_CONFLICT` when the problem requires changing it.
 
 ### 2. Build the inventory
 
-Walk reader Markdown top to bottom. Assign every paragraph, list, and table an ID. Record the nearest heading and first 6–12 words for each paragraph.
+Walk reader Markdown top to bottom. Assign every paragraph, list, and table an ID. Give each unit one exact locator in the supplied snapshot: nearest heading plus a unique excerpt or occurrence/line location. In expanded detail, also record the first 6–12 words; a compact inventory does not need both locators and a second first-words column.
 
 ### 3. Run a scan pass
 
@@ -143,6 +143,8 @@ Return `blocked` only when repair requires a contract change, invented evidence,
 ## Output
 
 For `audit`, return status, found and checked counts, excluded units, complete anchored `coverageInventory`, grouped `passedUnits`, paragraph/list/table findings, and critical blockers. Use the shared contract's snapshot, `coverageFingerprint`, and worker provenance. Do not repeat successful checks as prose.
+
+Keep the compact inventory to ID and locator, and refer to it for covered units. Record the scan result once; any failed scan belongs in the relevant finding. Use references to the Brief and reader snapshot for controls, not a repeated contract or paragraph-by-paragraph explanation of the fingerprint. A findings-only report does not require the expanded manifest or the complete automatic example below to be printed.
 
 For `rewrite`, also return corrected reader Markdown without IDs and a change log.
 
