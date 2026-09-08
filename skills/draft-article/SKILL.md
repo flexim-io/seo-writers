@@ -92,6 +92,32 @@ Use:
 
 For `RECOMMENDED`, identify the planned section, missing specificity, and a local fallback. Keep permitted authorial first person unchanged; use `KEEP_CURRENT_TEXT`, `REPHRASE`, or `CUT` only for the exact span that would otherwise assert unsupported experience. In automatic mode, retain the approved authorial perspective and never invent experiential `I`.
 
+Before a full interactive draft, offer that concrete reader benefit to the author and let them choose `interview_now`, `skip`, or `defer`. For example: “Один ваш пример поможет показать, где этот совет перестаёт работать. Обсудим его сейчас, пропустим интервью или отложим и сначала прочитаем текст?” Use ordinary language and the actual opportunity. Do not ask the first interview question until the author chooses `interview_now`.
+
+Keep the choice separate from the evidence decision in `authorContributionPreflight.authorInterviewChoice`:
+
+```yaml
+authorInterviewChoice:
+  recommendationKey: "author + Brief opportunity: planned section and reader benefit"
+  state: pending | interview_now | skip | defer | automatic_fallback
+  decisionSource: user | none | automatic_policy
+  userInstruction: null
+  revisitWhen: null
+  fallback: KEEP_CURRENT_TEXT | REPHRASE | CUT
+```
+
+`recommendationKey` identifies the same opportunity across structure, drafting, editing, and resume; a paragraph ID or whole-file hash is not its identity. Preserve the author's exact instruction and any explicit revisit condition. Store this small choice with the preflight handoff, and reference it at a real context boundary. Do not store the voice profile with it.
+
+One offer may cover the preflight's set of up to three opportunities. Preserve the scope of the user's answer: a broad instruction to skip interviews is not permission to ask again for each separately enumerated optional example.
+
+- `pending`: the preflight may be evidence-ready, but do not start the full draft. The coordinator remains `waiting` for this choice; standalone drafting returns the structure and missing decision with `nextStage: author_interview`. No reply or elapsed time is neither refusal nor permission to skip. Continue only preparation independent of the choice.
+- `interview_now`: ask the grounded questions one at a time, collect real answers, and rerun preflight before drafting. Preserve the choice and evidence provenance so the same interview is not started again after sufficient answers.
+- `skip`: draft with the stated local fallback; do not offer the same opportunity again after editing or resume.
+- `defer`: draft with the fallback now. Revisit only on the author's stated condition or later explicit request; absent a condition, wait for that request. A new stage or context alone does not reopen the choice.
+- `automatic_fallback`: in `automatic`, ask no questions, record `decisionSource: automatic_policy`, expose the recommendation and safe fallback in the handoff, and continue. This is not a user refusal. If resuming interactively before full drafting, offer the still-unanswered choice.
+
+Reuse a supplied choice only for the same assigned author and substantive opportunity. A materially changed promise or new critical evidence gap needs a new preflight with its reason; routine rewording does not reset the decision. A `skip` or `defer` never satisfies `REQUIRED` or authorizes an unsupported claim or Brief change. The recommendation's optionality and the user's unanswered choice are different conditions.
+
 When a framework exists only as a model hypothesis, label it internally as a hypothesis. Never ask an author a question that assumes the framework is real. Recover the factual episode in ordinary language first.
 
 For `REQUIRED` or an accepted `RECOMMENDED`, prepare at most three pre-draft questions:
@@ -189,7 +215,7 @@ Ask no questions.
 
 1. If critical information is missing, return `blocked` without plausible filler.
 2. If preflight is `REQUIRED`, return an empty `draftMarkdown` and `nextStage: author_interview`.
-3. If `RECOMMENDED`, preserve permitted authorial first person, use local safe fallbacks for unsupported experiential spans, and retain opportunities and a warning.
+3. If `RECOMMENDED`, preserve permitted authorial first person, use local safe fallbacks for unsupported experiential spans, and retain opportunities, a warning, and `authorInterviewChoice.state: automatic_fallback` unless a valid user choice already exists. A supplied `interview_now` without answers waits for those answers; `automatic` does not override an explicit choice.
 4. Remove or weaken optional unsupported claims and list them.
 5. Exclude future features presented as current.
 6. Return `EDITORIAL_CONFLICT` instead of silently changing a mismatched title or reader contract.
@@ -201,6 +227,8 @@ Ask no questions.
 For `structure`, return status, normalized working Brief, preflight, section structure with evidence needs, and only material missing inputs.
 
 For `draft`, return status, full reader Markdown, and a handoff to `edit-article` containing used and qualified claims, excluded claims, the transient author voice metadata, preflight and first-person permissions, used author evidence, unused opportunities, translated or excluded production inputs, unresolved markers, media candidates, warnings, and blockers.
+
+Pass the complete preflight and `authorInterviewChoice` from structure to drafting and editing. Inspect their controlling Brief, author, evidence, and opportunity before reuse; do not discard the decision merely because a new worker owns drafting. When an interview's answers suffice, return `NOT_NEEDED` with the earlier choice and supplied answers as provenance.
 
 For `automatic`, return:
 
@@ -217,6 +245,7 @@ authorContributionPreflight:
   authorContributionExpected: true | false
   authorEvidenceStatus: DEMONSTRATED | AVAILABLE_NOT_INTEGRATED | ABSENT | NOT_REQUIRED
   decision: REQUIRED | RECOMMENDED | NOT_NEEDED
+  authorInterviewChoice: null # use the choice contract above when applicable
   firstPersonPermissions: []
   opportunities: []
   preDraftAuthorQuestions:

@@ -60,6 +60,8 @@ On `run` or `resume`, derive the current stage from evidence in this order:
 
 Artifact evidence outranks a handoff label. If the handoff says a gate is ready but its report is missing, stale, or points to another input hash, treat the gate as incomplete. If a valid artifact exists but the handoff omitted it, use the artifact and note the recovered stage in the next compact response.
 
+A report for an older reader hash may remain valid only with the explicit carry-forward record and anchor mapping from [audit-coverage.md](audit-coverage.md). Hash mismatch triggers comparison, not an automatic rerun of every semantic audit.
+
 Do not infer readiness from stage order alone. The current stage is the first required target dependency that is missing, blocked, or invalidated by changed controlling inputs.
 
 ## Boundary handoff
@@ -93,6 +95,8 @@ boundaryHandoff:
 For an open revision batch, preserve `status: collecting`, `baseCheckpointPath`, `workingArtifactPath`, `pendingCorrectionCount`, exact ordered `pendingCorrections`, and the next action. Each pending item retains the user's instruction plus its `oldText` and `newText`; later corrections stay after earlier ones so a fresh context can compose dependencies deterministically. Do not embed the whole article, full audit history, or unchanged decisions when their artifacts can be referenced.
 
 For an interrupted interview, add the partial transcript checkpoint and the exact unanswered question to `requiredArtifactRefs` or a small interview-specific field. Do not regenerate the transcript from memory.
+
+Preserve the preflight's `authorInterviewChoice` reference, including recommendation identity, exact user instruction, pending state, and any revisit condition. Restore a pending offer as unanswered; restore `skip` or `defer` without asking again solely because context changed. Preserve the `editedPreview` receipt when the edited draft has already been shown. Neither record needs the author's voice profile.
 
 Never store CMS authorization in a boundary handoff. The current explicit user request must authorize a new private-draft mutation.
 
@@ -136,6 +140,18 @@ When artifact storage needs a machine-readable stage key, use the established `c
 
 Never run the five independent audits or the cold reader in the coordinator context and label them independent. If isolated workers are unavailable, create external clean-context dispatch packages and wait for their returned artifacts.
 
+### Capacity and handoff procedure
+
+1. Inspect the host's actual capacity and worker lifecycle. Count the coordinator and any retained completed workers against occupied slots. Do not assume that completion, interruption, or waiting retires a worker.
+2. Before retiring a provider, obtain its complete result and verify required inputs are available for the next recipient. The coordinator may hold the full `authorVoiceHandoff` transiently and pass it verbatim to each authorized voice-dependent worker. A summary, profile ID, checksum, or last-line excerpt is not the complete profile.
+3. Include an input acknowledgement in the recipient's normal result/receipt: recipient identity, target stage, input identities, and completeness. Verify exact profile content/identity and permitted stage without writing the profile to files, separate logs, or durable boundary handoffs. The checksum may identify a transient payload; it cannot replace that payload. A clean auditor receives only its authorized raw inputs, never the provider's reasoning or previous reports.
+4. Reuse a production worker only for compatible non-independent work and when it holds the required inputs. Use the host's supported retire/close operation after result transfer to release retained slots. Verify release before dispatch. Never reuse a drafting, editing, or previous audit context as a fresh independent reviewer.
+5. Queue the five audits in waves within capacity. On a four-slot host including the coordinator, at most three workers occupy slots together. Receive and validate results, retire completed workers when supported, then launch the remaining fresh audits. Preserve valid reports; do not restart the entire wave for one failure.
+6. After a definite send/spawn failure, record target, error, and the condition needed to retry. Retry only after that condition changes (slot freed, recipient created/idle, corrected target, or supported channel selected). After an ambiguous result, inspect delivery/status before resending to avoid duplicates. Do not repeat a known unsupported transfer method.
+7. If safe transfer or fresh capacity cannot be obtained, retain pending packages and return `in_progress` for a known running dependency, otherwise `waiting` interactively or `blocked` in `automatic` with the smallest external clean-context dispatch package. A host without retirement or a fresh-context mechanism cannot complete independent review by relabeling an old worker.
+
+At a context boundary, retain non-sensitive input refs and the exact missing transfer condition in the short `boundaryHandoff`. Never persist or reconstruct a lost profile from a summary: route to `load-author-voice` for an authorized fresh read or complete portable input. Do not write a second central scheduler/runtime or a per-message dispatch history.
+
 ## Optional production workers
 
 Optional media producers are not canonical workflow stages. Keep their records append-only under `productionWorkers`, grouped by the owning stage and the real invocation identity.
@@ -162,17 +178,19 @@ Reuse only when every identity field matches and the prior human semantic review
 
 ## Baseline gates and coverage
 
-Selective invalidation starts only after the first complete required pass:
+Selective invalidation starts only after the first complete required pass, including before the first lock when the chief editor applies changes:
 
 - both content-library audits have valid outputs for their required moments;
 - the four text audits and pre-chief-editor content-library audit cover the same edited reader snapshot;
-- chief-editor review has resolved material findings;
-- the relevant reader checkpoint is immutable.
+- the original audited reader input is immutable and its identity is recorded in the editing receipt;
+- chief-editor review resolves material findings and verifies affected reruns before creating the lock.
+
+Use [audit-coverage.md](audit-coverage.md) at the first dispatch to establish compact complete coverage, concern-specific controls, and anchor-mapping rules. Keep reader byte identity separate from the inputs that control each judgment.
 
 Each independent report carries a concern-specific `coverageFingerprint` derived from its controlling inputs and coverage manifest. A result may be marked `carried_forward` only when:
 
 1. the prior report is valid and independently produced;
-2. the aggregate `changeImpactManifest` shows that its controlling inputs and covered anchors did not change;
+2. the aggregate `changeImpactManifest` shows that its controlling content and relationships did not change, with an unambiguous mapping for relocated anchors;
 3. its `coverageFingerprint unchanged` determination is explicit;
 4. the carried-forward provenance identifies the prior report.
 
@@ -217,14 +235,14 @@ Classify the whole batch, not each turn:
 | Change class | Minimum consequence |
 | --- | --- |
 | `production_state_only` | No reader gate changes; keep only production provenance. |
-| `spelling_typography` | Punctuation, spelling, or typography alone does not invalidate an independent editorial audit. |
+| `spelling_typography` | Punctuation, spelling, or typography alone does not invalidate an independent editorial audit. Inspect rendered meaning first; a soft-line reflow can retain editorial and final-reader results only when the complete rendered surface and every other control are unchanged. |
 | `paragraph_structure` | Invalidate `audit-paragraph-structure`; add other gates if meaning or navigation changed. |
 | `title_or_useful_action` | Invalidate `audit-useful-action`; include tone or E-E-A-T if the promise or claim changed. |
 | `tone_voice_authorship` | Invalidate `audit-tone-honesty`; include E-E-A-T for new experiential first person. |
-| `claim_evidence_product_state` | Invalidate `audit-eeat`; include useful action or content-library role when the claim changes the article's job. |
+| `claim_evidence_product_state` | Invalidate `audit-eeat`, even when only the source or product-state input changed; include tone for changed confidence/qualification and useful action or content-library role when the claim changes the article's job. |
 | `brief_scope_or_intent` | Return to Brief approval, content-library pre-brief, and every affected downstream gate. |
-| `media_caption_alt_link` | Route to visual and integration gates; include editorial gates only when visible meaning changed. |
-| `visible_trust_metadata` | Invalidate E-E-A-T and final integration; require a fresh isolated cold-reader review if the reader-visible surface changed. |
+| `media_caption_alt_link` | Route to visual and integration gates as applicable; a support-link destination change invalidates E-E-A-T, an internal-link destination/role change invalidates content-library review, and a changed next action invalidates useful action. |
+| `visible_trust_metadata` | Invalidate E-E-A-T and final integration; a changed relationship disclosure also invalidates tone honesty. Require a fresh isolated cold-reader review if the reader-visible surface changed. |
 | `cms_payload_only` | Route to final integration and CMS read-back. A serializer-only safe payload change does not invalidate the cold-reader result. |
 
 Any changed reader-visible final surface requires one final-integration check and one fresh isolated cold-reader review after affected editorial gates are ready. A production-only change that cannot affect the reader surface does not invalidate the cold-reader result.

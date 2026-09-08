@@ -171,6 +171,8 @@ Pass `authorVoiceHandoff` outside reader Markdown:
 
 Text stages and auditors must not query CMS for the profile themselves.
 
+With limited worker capacity, return the complete profile-bearing handoff to the coordinator transiently before the resolver is retired. Authorized recipients receive the exact payload and acknowledge its identity, completeness, and target stage in their normal result; metadata or a checksum alone is not the payload. Preserve the profile byte-for-byte when adapting target-stage metadata for an authorized recipient. If transfer fails, resolve the recipient/capacity condition before retrying; never shorten the profile or write it to disk to bypass the failure. A fresh context that lost the payload must obtain a complete input through this resolver again.
+
 ## Missing data
 
 Never guess an author from topic, language, usual byline, or recent record; reconstruct a profile from published articles without a separate evidence-based request; use a bio as a voice profile; insert the author's name merely because a record was resolved; or invent a “neutral author voice.” When profile use is optional, follow the Article Brief and editorial policy.

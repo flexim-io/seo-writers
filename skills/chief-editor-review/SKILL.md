@@ -31,7 +31,7 @@ Use:
 1. approved Article Brief and explicit amendments;
 2. current reader Markdown after `edit-article`;
 3. source bundle, claim permissions, and product-state snapshot;
-4. author-contribution preflight and supplied author evidence or answers;
+4. author-contribution preflight, existing `authorInterviewChoice`, and supplied author evidence or answers;
 5. independent reports from `audit-useful-action`, `audit-paragraph-structure`, `audit-tone-honesty`, `audit-eeat`, and `audit-content-library` in `pre-chief-editor` mode;
 6. current `authorVoiceHandoff` when used;
 7. previous chief-editor decision log and `changeImpactManifest` only for rerun or amendment;
@@ -55,7 +55,9 @@ Default to `review`; use `amend` when a locked snapshot and new input exist.
 
 Confirm that the first complete pass has five reports for one reader snapshot and Brief version. On amendment, accept an affected fresh report or a valid `carried_forward` report only when its concern-specific `coverageFingerprint`, source artifact, impact-manifest ID, and rationale prove its controls unchanged. Every fresh report needs coverage, exact anchors, action, status, and clean-context provenance; text auditors did not mutate shared copy or read forbidden inputs; the corpus snapshot is fresh enough; and every marker and blocker is listed.
 
-Never mix reports from different article versions. Request the affected rerun before deciding when snapshots differ.
+Read the shared [audit coverage contract](../run-seo-writing-workflow/references/audit-coverage.md). Accept compact complete inventories and grouped passes from the first dispatch; do not demand expanded successful rows or a fresh audit merely for presentation. Reject counts without anchored coverage or independent provenance.
+
+Never mix reports from different article versions without an explicit carry-forward record. A reader byte-hash mismatch calls for change-impact comparison and unambiguous anchor mapping, not automatic semantic invalidation. Verify source, product-state, metadata, and corpus controls separately even when reader bytes match. The same selective rules apply after all five first reports arrive, including changes made during initial reconciliation before the first lock.
 
 ### 2. Build the finding ledger
 
@@ -86,10 +88,12 @@ Every decision needs a reason and applied or next action. Never ignore a finding
 Compare `audit-eeat.authorContribution.decision` with the early preflight.
 
 - `REQUIRED`: do not fabricate a patch; route to `author_interview`, or accept a documented `REPHRASE` or `CUT` only when it preserves the Brief.
-- `RECOMMENDED`: explicitly choose `interview_now`, `keep_current_text`, or `defer` and explain the reader-value trade-off. Do not describe evidence-safe generic copy as demonstrated author contribution.
+- `RECOMMENDED`: preserve the author's choice for the same substantive opportunity: `skip` maps to `keep_current_text`, `defer` remains `defer`, and completed `interview_now` uses its actual answers. Keep `automatic_fallback` distinguishable from a user refusal and explicitly choose a safe editorial fallback in `automatic`. In interactive work, route a still-pending or materially new opportunity to the coordinator for the author's choice; do not silently make that choice or repeat an already settled question. Explain the reader-value trade-off without describing evidence-safe generic copy as demonstrated author contribution.
 - `NOT_NEEDED`: confirm sufficiency or irrelevance without decorative biography.
 
 Reject interview questions that depend on model-invented frames and return them to `audit-eeat` for reality-first reformulation.
+
+An independent auditor may recommend the same example without seeing the earlier decision. Reconcile that recommendation here using its planned-section/reader-benefit identity, not a newly assigned audit ID. Revisit a deferred choice only at the author's specified condition or explicit request. A new critical `REQUIRED` gap still blocks until evidence or a Brief-preserving repair resolves it; an old refusal cannot authorize invention.
 
 ### 5. Resolve report conflicts
 
@@ -159,6 +163,7 @@ findingLedger:
     action: "..."
 authorContribution:
   auditDecision: REQUIRED | RECOMMENDED | NOT_NEEDED
+  authorInterviewChoiceRef: null
   editorialDecision: interview_now | keep_current_text | defer | not_needed
   rationale: "..."
 appliedEdits: []
@@ -184,7 +189,7 @@ blockers: []
 nextStage: visual_storytelling | author_interview | research | edit_article | blocked
 ```
 
-Return reader Markdown and a human-readable decision log beside the package, never inside it.
+Return the reader artifact reference (or Markdown when needed) and one concise decision ledger outside reader Markdown. Do not repeat all accepted findings in a second human report or restate successful audit units. The package's finding ledger is the decision log; preserve reasons, provenance, deferred owners, and all changed concerns.
 
 ## Do not
 

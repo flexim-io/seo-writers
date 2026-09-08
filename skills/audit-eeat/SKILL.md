@@ -45,6 +45,8 @@ Priority: explicit user correction, approved Brief, verified primary source or r
 
 Read [references/rubric-and-sources.md](references/rubric-and-sources.md) completely when applying Google guidance or YMYL calibration. Read [references/output-contracts.md](references/output-contracts.md) completely for field and patch contracts.
 
+Read the shared [audit coverage contract](../run-seo-writing-workflow/references/audit-coverage.md). Default to `reportDetail: findings`, retaining every atomic claim's exact support and provenance in compact records. Summarize successful checks once; never replace claim-level evidence with coverage counts alone.
+
 ## Modes
 
 - `audit`: run S0–S6 and applicable regression checks without questions or copy changes; return claim inventory, evidence findings, experience profile, trust findings, routed gaps, and explicit interview decision.
@@ -187,7 +189,7 @@ Return `blocked` for critical missing sources, artifacts, metadata, or author an
 
 ## Output
 
-For `audit`, return a short verdict, coverage, dimension verdicts, and the full manifest from [references/output-contracts.md](references/output-contracts.md). For `interview`, return only active gaps or approved opportunities, up to seven questions, and fallbacks. For `patch`, return patch set and regression report—not a rewritten article.
+For `audit`, return a short verdict, complete claim and section coverage, dimension verdicts, and the compact complete claim manifest from [references/output-contracts.md](references/output-contracts.md), with detailed findings only for failures, uncertainties, and material contribution opportunities. Include the shared contract's input identities, `coverageFingerprint`, and independent worker provenance. For `interview`, return only active gaps or approved opportunities, up to seven questions, and fallbacks. For `patch`, return patch set and regression report—not a rewritten article.
 
 For `automatic`, return:
 

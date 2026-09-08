@@ -209,7 +209,7 @@ Run a final cold-reader pass. `ready` is impossible if a span makes sense only a
 
 For `audit`, return status, a brief diagnosis, prioritized findings with exact spans and minimal fixes, and only questions that cannot be resolved without the author or a contract decision.
 
-For `rewrite`, return status, final reader Markdown, 3–7 key editing decisions, and unresolved critical questions.
+For `rewrite`, return status, edited reader Markdown, material editing decisions, and unresolved critical questions. Preserve the incoming preflight's `authorInterviewChoice` in the editor handoff; do not restart a settled optional interview. A ready editing result is an edited draft for immediate user preview, with independent audits, chief-editor lock, and final packaging still pending. Preview adds no approval gate and does not change `nextStage: independent_editorial_audit`.
 
 For `automatic`, return:
 
@@ -218,6 +218,7 @@ status: ready | blocked
 editedMarkdown: |
   ...
 keyChanges: []
+authorContributionPreflight: {} # preserve the incoming choice and evidence permissions
 removedClaims: []
 qualifiedClaims: []
 mediaCandidates: []

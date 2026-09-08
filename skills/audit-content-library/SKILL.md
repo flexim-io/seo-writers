@@ -44,6 +44,8 @@ Use in this order:
 
 Titles, descriptions, and SEO metadata are shortlist signals only. Decide overlap from complete Markdown.
 
+Read the shared [audit coverage contract](../run-seo-writing-workflow/references/audit-coverage.md). Default to `reportDetail: findings`; retain complete corpus evidence and anchored comparisons while grouping non-colliding inventory entries by explicit exclusion reason. Do not shorten the work by omitting plausible neighbors or required full reads.
+
 ## Modes
 
 - `pre-brief`: locate the proposed article in the portfolio; return a decision, differentiation contract, exclusion zones, and internal-link plan.
@@ -191,7 +193,7 @@ Missing optional search-volume data is a warning, not a blocker. Never invent it
 
 ## Output
 
-Return a human report with status and phase, corpus coverage and snapshot, proposed or actual owned job, 3–7 nearest pages, overlap level and reason, portfolio decision or final verdict, differentiation contract, internal-link handoffs, warnings, blockers, and `nextStage`.
+Return one compact report with status and phase, complete corpus coverage and snapshot, proposed or actual owned job, all plausible neighbors with full-read identities and exact comparison anchors, overlap level and reason, portfolio decision or final verdict, differentiation contract, internal-link handoffs, material findings with priority and minimum action, warnings, blockers, and `nextStage`. Summarize the nearest pages without a count quota. In `pre-chief-editor`, include `coverageFingerprint`, reader/input identities, and independent worker provenance. Do not duplicate the same comparison in a second narrative and YAML report.
 
 For `automatic`, return:
 
