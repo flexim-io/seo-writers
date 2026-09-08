@@ -37,6 +37,26 @@ claude plugin install seo-writers@flexim
 
 Start a new Claude Code session after installation. If the install summary asks for it, run `/reload-plugins`. Plugin skills use commands such as `/seo-writers:audit-content-library`.
 
+## Update an installed plugin
+
+At workflow startup and after a context change, the coordinator checks the source/version of its loaded skills against available published release metadata. It reports a newer or unverified version once and continues with the known loaded package. It does not install updates or repeat the check on every editorial stage. This check becomes available only after a version containing it is loaded; an older running task cannot gain it automatically.
+
+For an existing repository-marketplace installation in Codex:
+
+```bash
+codex plugin marketplace upgrade flexim
+codex plugin add seo-writers@flexim
+```
+
+For an existing repository-marketplace installation in Claude Code:
+
+```bash
+claude plugin marketplace update flexim
+claude plugin update seo-writers@flexim
+```
+
+Verify the installed version, then start a fresh task/session with the article's boundary handoff, or use a supported reload that refreshes plugin skills. Installation alone does not prove the current task has new instructions. For a manually linked local Codex plugin, follow OpenAI's [local plugin reload guidance](https://developers.openai.com/plugins/build/plugins#install-a-local-plugin-manually), including restarting the desktop app when required. A reviewed hosted catalog is a separate distribution: a GitHub release does not prove that its version is available there. Use that catalog's update path instead of these repository commands.
+
 ## Connect Flexim for an onboarding prompt
 
 Paste the writing prompt from Flexim into your agent in the private content repository. It carries the available topics and their research. The agent compares the topics, recommends a starting point, and waits for your choice before preparing the Article Brief. You do not need a blog or a CMS to write the article.

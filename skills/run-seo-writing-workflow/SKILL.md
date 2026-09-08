@@ -55,6 +55,8 @@ Use `requestedTarget`: `portfolio_decision`, `article_brief`, `draft`, `edited`,
 
 ### 1. Initialize or resume
 
+Before the first specialist dispatch in a new workflow or a resumed coordinator context, perform the read-only [skill freshness check](references/skill-freshness.md). Identify the package that supplied this skill, compare it with the published release available through its distribution source, and report a newer or unverified version once. Reuse the receipt during an uninterrupted run; ordinary correction collection and each specialist call do not repeat the lookup. A version notice does not create an editorial approval gate or authorize installation.
+
 Do not create a central workflow state during one uninterrupted task. Derive the current stage from the active conversation, immutable checkpoints, the working artifact, specialist results, and any short `boundaryHandoff`. Record delegation and other durable decisions in the relevant checkpoint or specialist artifact, not in a second model-visible memory file.
 
 If a legacy workflow state is supplied, use the reference's one-time migration procedure to resolve its referenced artifacts and produce the smallest boundary handoff needed for the current context. Do not update or recreate that state file.

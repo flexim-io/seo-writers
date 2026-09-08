@@ -118,6 +118,8 @@ For an interrupted interview, add the partial transcript checkpoint and the exac
 
 Preserve the preflight's `authorInterviewChoice` reference, including recommendation identity, exact user instruction, pending state, and any revisit condition. Restore a pending offer as unanswered; restore `skip` or `defer` without asking again solely because context changed. Preserve the `editedPreview` receipt when the edited draft has already been shown. Neither record needs the author's voice profile.
 
+If present, carry the small `skillVersionCheck` receipt and explicit update decision described in [skill-freshness.md](skill-freshness.md). It records the previous loaded source and check, not proof that the resumed context or current installation uses that version. Keep it outside independent reader and audit packages.
+
 Never store CMS authorization in a boundary handoff. The current explicit user request must authorize a new private-draft mutation.
 
 ## Worker ownership and delegation
