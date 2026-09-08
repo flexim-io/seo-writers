@@ -34,6 +34,8 @@ Keep the native useful-action statement, tone contract, evidence/experience and 
 
 Define each input identity once and reuse its short reference. `coverageFingerprint.controllingInputs` may use exact selectors into those immutable inputs instead of restating the selected content; `coveredUnits` may reference the complete inventory. An inventory locator and a finding's quote need not each repeat the full paragraph. Keep successful scan/QA results as one confirmation; explain only an exception or unresolved issue. Use compact tables or inline mappings where they retain the same traceability. Do not add a second contract summary, redundant empty fields, or expanded mode's optional analysis to a findings report. Native required verdict and QA fields remain available; report brevity must not conceal a false, missing, or unperformed check.
 
+When returning structured output, keep the skill's native names, such as `paragraphManifest`, `structureManifest`, `toneManifest`, `claimManifest`, `evidenceFindings`, `overlapMap`, and `blockers`. Compact detail changes which successful explanations are printed; it does not authorize new aliases for existing fields.
+
 ## Evidence and corpus exceptions
 
 For `audit-eeat`, retain a compact record for **every atomic claim**, including passes: exact span/locator, claim type, load-bearing flag, risk, status, support pointers, and provenance. Preserve duplicate links and every qualification or contradictory support. Optional false flags and empty action text may be omitted; omission of a flag means false, never an unperformed check. Successful evidence records do not need a second explanatory paragraph. Trust conditions can be grouped only with their supplied evidence pointers. Missing input is never a pass.
