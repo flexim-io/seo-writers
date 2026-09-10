@@ -179,9 +179,22 @@ Then use the impact matrix, final integration, and a new fresh cold-reader revie
 
 Preserve `writingContext`, the approved Brief reference, final Markdown, and metadata with the final-package checkpoint so a later save request can continue without choosing the topic again. An existing verified article package proves the article is written; it does not prove a Flexim draft exists. Keep any topic-status update receipt separate from a CMS mutation receipt. Do not claim either external event from local completion alone.
 
+### Choose where to save the finished article
+
+After the final package is ready, reuse a destination the user already chose. Otherwise ask one question: whether to prepare the article for their own CMS or save a private draft in Flexim. Do not ask this during topic selection or drafting. The article remains written while this decision, connection, or save is pending. In `automatic`, return the ready article package and the unresolved delivery decision; do not choose a CMS for the user.
+
+- **Own CMS:** write a portable handoff in the private content repository containing the unchanged final reader Markdown, approved title and metadata, media references when present, and a short manual-transfer instruction. Open the generated files and verify their contents against the final package. Preserve `writingContext` and the source Brief reference in the handoff metadata, outside reader Markdown. Mark `cms-draft-handoff` skipped with reason `own_cms`; this is a completed delivery. Do not install or configure their CMS, write Flexim collections, or imply that the article was saved in either CMS.
+- **Flexim:** offer to set up the blog and save this article as a private draft. Accepting that offer or explicitly requesting those actions sets `requestedTarget: cms_draft` and authorizes that bounded setup/save. Follow [the Flexim blog handoff](references/flexim-blog-handoff.md), then dispatch the existing private-draft handoff. A generic statement such as “I have no CMS” only permits offering Flexim. Keep the finished package available if access or setup fails.
+
+Retain the chosen destination and package/receipt references with the existing final checkpoint or a necessary boundary handoff. On resume, reuse the selection and inspect actual receipts before continuing. Do not repeat topic or destination selection, rerun unchanged editorial work, or infer a saved draft from a topic status.
+
+When the active user request authorizes tracking the linked topic, verify its exact workspace and source identity, call `update_topic_status` with `done` after the article package is ready, then read the status back. This operation is independent of either destination and of draft saving. Without authorization, a verified linked identity, or the required capability, leave the topic unchanged and preserve the article; a failed topic update does not invalidate a ready portable package or a verified draft. A topic already read back as `done` needs no repeated write. Preserve its receipt separately from the CMS receipt.
+
 ### 11. Hand off a private Flexim draft
 
 Treat a CMS draft request as an instruction to close any collecting `revisionBatch`. Complete its aggregate change-impact analysis, affected reruns, final integration, and fresh cold-reader review before evaluating CMS readiness.
+
+For a previously ready portable package, obtain the actual schema and supply its field mapping to `final-integration-check` with `deliveryTarget: flexim_draft`. Carry the cold-reader result forward only when the reader-visible surface is unchanged and its provenance still matches. A storage-only mapping does not require choosing a topic or rewriting the article.
 
 Dispatch `cms-draft-handoff` only when all are true:
 
@@ -192,7 +205,7 @@ Dispatch `cms-draft-handoff` only when all are true:
 
 Preparing or reviewing a payload is not mutation authorization. Private-draft permission is not publication permission.
 
-Do not carry CMS authorization in a checkpoint or `boundaryHandoff`. For every attempted CMS mutation and required read-back, preserve a durable `mutationReceipt` that identifies the requested operation, returned entry, comparison result, and final draft status. A receipt records what happened; it never grants a later mutation.
+Do not treat a checkpoint or `boundaryHandoff` as CMS authorization. Reuse an explicit, still-active user request covering this exact setup/save; do not ask again merely because a stage or turn changed. For every attempted CMS mutation and required read-back, preserve a durable `mutationReceipt` that identifies the requested operation, returned entry, comparison result, and final draft status. A receipt records what happened; it never grants an unrelated later mutation.
 
 ## Revision batches
 
