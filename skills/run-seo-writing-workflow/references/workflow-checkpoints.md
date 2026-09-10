@@ -67,6 +67,21 @@ Missing identifiers remain `null`; portable writing can continue, but a linked t
 
 At `final_package`, preserve references to final reader Markdown and metadata alongside this provenance. A later CMS choice resumes from that package. Article completion, a topic-status mutation, and a verified CMS record are separate facts; only their respective artifacts or read-back receipts establish them.
 
+Keep the delivery choice with that checkpoint's metadata or a necessary boundary handoff, without introducing another workflow-state file:
+
+```yaml
+delivery:
+  destination: undecided | own_cms | flexim
+  articlePackageRef: null
+  portableHandoffRef: null
+  topicStatusReceiptRef: null
+  blogSetupReceiptRef: null
+  draftMutationReceiptRef: null
+  nextAction: choose_destination
+```
+
+These references identify actual artifacts or read-back receipts, never expected success. Own-CMS delivery is complete when its portable handoff has been generated and checked; `draftMutationReceiptRef: null` is normal. Preserve the exact selection, source context, known plan/entry IDs, and unfinished action on resume. Topic-status failure, setup failure, or an unverified draft does not invalidate the written article. A recorded destination does not authorize a new mutation.
+
 ## Deriving the current stage
 
 On `run` or `resume`, derive the current stage from evidence in this order:
@@ -114,7 +129,7 @@ For an open revision batch, preserve `status: collecting`, `baseCheckpointPath`,
 
 For an interrupted interview, add the partial transcript checkpoint and the exact unanswered question to `requiredArtifactRefs` or a small interview-specific field. Do not regenerate the transcript from memory.
 
-Never store CMS authorization in a boundary handoff. The current explicit user request must authorize a new private-draft mutation.
+Never treat a boundary handoff as CMS authorization. The active explicit user request must cover the private-draft mutation; reuse that request across stages and turns while it remains in scope.
 
 ## Worker ownership and delegation
 
@@ -264,7 +279,7 @@ Do not persist after each collected correction or each interview answer. The act
 
 ## CMS mutation receipts
 
-CMS permission comes only from the current explicit user request. It is never inferred from a previous turn, checkpoint, handoff, or legacy state.
+CMS permission comes from an explicit, still-active user request covering the exact operation. A stage or turn boundary does not expire it. A checkpoint, handoff, or legacy state cannot grant new permission.
 
 For every authorized CMS mutation attempt, preserve a `mutationReceipt` even when the attempt partially succeeds or read-back blocks completion. Include:
 
@@ -276,10 +291,10 @@ mutationReceipt:
   mutationStatus: attempted | succeeded | partial | failed
   readBackStatus: pending | matched | blocked
   articleArtifactId: "..."
-  suggestedTopicStatus: unchanged | done | blocked
+  topicStatusReceiptRef: null
 ```
 
-The receipt is evidence and recovery context, not permission to retry. Publication always requires a separate explicit request and remains outside this workflow.
+The receipt is evidence and recovery context, not new permission. A retry must still be covered by the active user request and must inspect actual schema/entry state first. Publication always requires a separate explicit request and remains outside this workflow.
 
 ## Resume procedure
 

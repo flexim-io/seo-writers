@@ -269,9 +269,14 @@ SEO Writers does not provide an always-on hosted runner. Such a runner can be ad
 
 ## Flexim and other CMSs
 
-With Flexim, use read-only access for content-library and author-profile retrieval. The final `cms-draft-handoff` may create or update a private draft only after explicit user permission and a ready final-integration package. It never publishes automatically.
+You do not need to choose a CMS before writing. Once the article is ready, the agent asks where to save it, unless you have already chosen.
 
-Without Flexim, start with the files you have and answer the skills' focused requests for missing portable data. Run the text and visual-planning stages normally, then skip `cms-draft-handoff` and prepare a separate handoff for the destination CMS.
+- If you have your own CMS, the agent prepares the finished Markdown, approved metadata, and a short transfer guide. You save these in your system yourself. This completes the workflow without a Flexim draft.
+- If you choose Flexim, explicitly ask the agent to set up your blog and save this article as a private draft. It reuses the canonical blog structure through MCP, then verifies the saved article by reading it back. Missing access preserves the finished article and gives you the specific connection or permission step needed to continue.
+
+The article being written, its linked topic being marked done, and a draft being saved are separate facts. The agent can update an authorized, verified topic after writing even when you use another CMS. A saved draft is confirmed only by its actual record. Topic and destination context survive a later session, so you can continue without choosing the topic again.
+
+Website API connection is a separate action in Flexim after saving. Nothing is published or connected automatically.
 
 ## Beta limitations
 

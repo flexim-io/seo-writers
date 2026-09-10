@@ -1,13 +1,13 @@
 ---
 name: cms-draft-handoff
-description: Create or update an explicitly authorized private article draft in Flexim CMS after final integration and a context-free cold-reader review are ready, then read the full record back, verify normalized Markdown, relations, metadata, and unpublished state, and only afterward mark the linked Suggested Topic done. Use when a user asks to save, upload, import, hand off, or update an article draft in Flexim CMS. Do not publish, delete, silently overwrite an ambiguous record, invent missing payload fields, or treat a successful write without read-back as complete.
+description: Create or update an explicitly authorized private article draft in Flexim CMS after final integration and a context-free cold-reader review are ready, then read the full record back and verify normalized Markdown, relations, metadata, and unpublished state. Use when a user asks to save, upload, import, hand off, or update an article draft in Flexim CMS. Keep article completion and topic status separate from verified draft storage. Do not publish, delete, silently overwrite an ambiguous record, invent missing payload fields, or treat a successful write without read-back as complete.
 ---
 
 # Hand off a private draft to CMS
 
 ## Purpose
 
-Send an approved article package to Flexim as a private draft without publishing, then prove by full read-back that CMS preserved the intended copy, relations, and metadata. A mutation is complete only after verification; update Suggested Topic last.
+Send an approved article package to Flexim as a private draft without publishing, then prove by full read-back that CMS preserved the intended copy, relations, and metadata. A mutation is complete only after verification. The article may already be written and its topic marked done before storage starts.
 
 ## Responsibility
 
@@ -18,7 +18,7 @@ Send an approved article package to Flexim as a private draft without publishing
 - prevents duplicates and ambiguous overwrites;
 - creates a new draft or partially updates one unambiguous draft entry;
 - reads the full entry after mutation and compares it;
-- marks a linked Suggested Topic `done` only after successful article verification;
+- preserves the selected topic context and any separate topic-status receipt;
 - returns an external report and exact CMS entry ID.
 
 It does not publish, archive, or delete; change reader Markdown or locked meaning; invent author, category, slug, date, SEO metadata, or media IDs; upload images without a separately authorized media handoff; repair an unready package in CMS; or delete a partially created draft as rollback.
@@ -32,7 +32,7 @@ Use:
 3. exact CMS payload with collection, name, content, status, relations, metadata, and H1 decision;
 4. locked reader Markdown and snapshot;
 5. expected counts for headings, links, tables, code fences, and media;
-6. Suggested Topic ID and expected current status when applicable;
+6. `writingContext`, the approved Brief reference, and any separate topic-status receipt when applicable;
 7. mode: `create`, `update`, or `automatic`.
 
 Priority: explicit user correction, final-integration handoff, approved Brief and meaning lock, current Flexim schema and read-back, model assumption.
@@ -49,7 +49,7 @@ Preparing a payload earlier is not mutation permission. “Check readiness” is
 
 Before writing, use read-only operations: `list_content_types`, `get_content_type`, `query_entries`, `get_entry`, plus `list_topics` and `get_topic_prompt` when the topic workflow requires them.
 
-After explicit permission, use only `create_entry`, `update_entry`, and `update_topic_status` after successful article read-back.
+After explicit permission, use only `create_entry` and `update_entry`. Topic-status tracking belongs to the coordinator after article completion; this skill never requires or changes it to establish that a draft was saved.
 
 Never call `delete_entry`. Do not call `upload_media` without a ready media handoff containing separate permission and a source-of-truth asset.
 
@@ -65,7 +65,7 @@ When mode is absent, infer it from an explicit entry ID and duplicate check. Sim
 
 ### 1. Fix the mutation contract
 
-Record authorized action, collection, exact name, expected `draft` status, source snapshot, matching cold-reader surface snapshot, `contentIncludesH1`, relation IDs, description, SEO component, fields that must remain unset, Suggested Topic ID, and topic-update order.
+Record authorized action, collection, exact name, expected `draft` status, source snapshot, matching cold-reader surface snapshot, `contentIncludesH1`, relation IDs, description, SEO component, fields that must remain unset, and the unchanged `writingContext` with its source Brief reference.
 
 Do not guess whether CMS renders `name` as H1. The H1 decision must come from a verified presentation contract or final-integration handoff.
 
@@ -128,17 +128,13 @@ Allow `SERIALIZER_EQUIVALENT` only for proven equivalent serialization such as `
 
 Never call changed visible copy or punctuation, heading level or order, URL or anchor text, missing paragraphs or rows, lost code or media, altered HTML rendering, or lost qualification equivalent.
 
-Return `EXACT`, `SERIALIZER_EQUIVALENT`, or `MISMATCH`, canonical hash, and delta inventory. Do not update Suggested Topic after `MISMATCH`.
+Return `EXACT`, `SERIALIZER_EQUIVALENT`, or `MISMATCH`, canonical hash, and delta inventory. A mismatch blocks the saved-draft claim; it does not undo the separately verified article package or topic status.
 
-### 8. Complete the Suggested Topic workflow
+### 8. Preserve independent completion facts
 
-Only after every article check:
+Return the article package reference, any existing topic-status receipt, and this mutation's actual read-back result separately. A topic marked `done` is not evidence of a CMS record. Conversely, an unchanged or unavailable topic status does not block a verified private draft.
 
-1. list topics and confirm exact topic ID and current status;
-2. call `update_topic_status(..., done)`;
-3. list topics again and read the exact topic as `done`.
-
-When topic mutation or read-back fails, leave the verified draft intact. Return `blocked`, `draftCreated: true`, the incomplete step, and a safe continuation action.
+If mutation or read-back fails, preserve the finished article and any known entry ID. Report only what is proven, then resume with exact identity lookup before another write. Never reset a completed topic or create a second draft to hide the failed handoff.
 
 ### 9. Write the external handoff
 
@@ -146,7 +142,7 @@ Update the integration report and durable task log when part of the workflow. Ne
 
 ## Readiness gates
 
-Return `ready` only when mutation was explicitly authorized; final integration and cold-reader review are ready for the same final reader-visible surface; schema and duplicate identity were checked; exactly one target draft exists; full `get_entry` read-back passed; Markdown is `EXACT` or safely `SERIALIZER_EQUIVALENT`; relations and metadata match; publication fields are honest and status is `draft`; Suggested Topic, when applicable, reads back as `done`; and publication did not occur.
+Return `ready` only when mutation was explicitly authorized; final integration and cold-reader review are ready for the same final reader-visible surface; schema and duplicate identity were checked; exactly one target draft exists; full `get_entry` read-back passed; Markdown is `EXACT` or safely `SERIALIZER_EQUIVALENT`; relations and metadata match; publication fields are honest and status is `draft`; and publication did not occur.
 
 Return `blocked` before mutation on ambiguity or after mutation on incomplete verification. Always state whether an entry was created or changed.
 
@@ -189,9 +185,10 @@ markdown:
 topic:
   applicable: true | false
   topicId: null
-  previousStatus: null
-  updatedAfterReadBack: true | false
+  statusReceiptRef: null
   finalStatus: null
+articlePackageRef: null
+writingContext: null
 warnings: []
 blockers: []
 nextStage: human_review | final_integration_check | blocked
@@ -204,6 +201,6 @@ nextStage: human_review | final_integration_check | blocked
 - Update the first similar record or overwrite published content.
 - Treat a mutation response as read-back.
 - Accept semantic or structural drift as normalization.
-- Mark Suggested Topic `done` before full article read-back.
+- Infer draft storage from Suggested Topic `done`, or change topic status as part of this draft mutation.
 - Delete a partially created draft as automatic rollback.
 - Hide a mutation when a later blocker occurs.
