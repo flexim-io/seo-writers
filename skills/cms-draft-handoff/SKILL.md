@@ -90,6 +90,8 @@ Query exact name; never assume preview contains full Markdown.
 
 Always fetch an existing target with `get_entry`. After an uncertain mutation response, query exact identity before retrying; never issue another `create_entry` blindly.
 
+If that proven target is already a private draft matching the full approved payload, perform the same read-back comparison and reuse it without a write. Return `identity.action: none` and `mutation.attempted: false`; do not rewrite an unchanged article merely because the workflow resumed.
+
 ### 4. Prepare a draft-only payload
 
 - Send text fields as Markdown.
@@ -104,7 +106,7 @@ Before mutation, verify the structural manifest and absence of `[VERIFY: ...]`, 
 
 ### 5. Perform one mutation
 
-In `create`, call one `create_entry`. In `update`, call one `update_entry` for the target ID with only approved changed fields. Record response ID, status, and timestamp. A shortened mutation response is not read-back.
+In `create`, call one `create_entry`. In `update`, call one `update_entry` for the target ID with only approved changed fields; skip it when none changed. Record the actual operation, entry ID, status, and timestamp. A shortened mutation response is not read-back.
 
 ### 6. Read the entry back
 
@@ -142,7 +144,7 @@ Update the integration report and durable task log when part of the workflow. Ne
 
 ## Readiness gates
 
-Return `ready` only when mutation was explicitly authorized; final integration and cold-reader review are ready for the same final reader-visible surface; schema and duplicate identity were checked; exactly one target draft exists; full `get_entry` read-back passed; Markdown is `EXACT` or safely `SERIALIZER_EQUIVALENT`; relations and metadata match; publication fields are honest and status is `draft`; and publication did not occur.
+Return `ready` only when the requested save was explicitly authorized; final integration and cold-reader review are ready for the same final reader-visible surface; schema and duplicate identity were checked; exactly one target draft exists; full `get_entry` read-back passed; Markdown is `EXACT` or safely `SERIALIZER_EQUIVALENT`; relations and metadata match; publication fields are honest and status is `draft`; and publication did not occur. An already matching draft can satisfy this without a new mutation.
 
 Return `blocked` before mutation on ambiguity or after mutation on incomplete verification. Always state whether an entry was created or changed.
 
