@@ -59,6 +59,8 @@ Set `requiredEvidenceKinds` by claim type rather than one universal bar for the 
 
 Calculate coverage as `claims audited / claims inventoried`. Report H2 coverage separately so section-by-section processing cannot lose the middle of a long article.
 
+In default `reportDetail: findings`, retain `id`, exact span/locator, type, load-bearing flag, risk, status, support pointers, and provenance for every claim. Omit false optional flags, null fields, and empty successful actions; preserve non-empty duplicate, contradiction, qualification, and uncertainty fields. Detailed diagnoses belong in `evidenceFindings` or `gaps`, with exact anchors, priority/severity, minimum action, and final status. Do not repeat the same success in `claimManifest`, a narrative report, and `evidenceFindings`. `expanded` may render every field shown above. Both forms require full coverage and the shared reporting contract's `coverageFingerprint` and independent input provenance.
+
 ## Experience profile
 
 ```yaml

@@ -37,6 +37,26 @@ claude plugin install seo-writers@flexim
 
 Start a new Claude Code session after installation. If the install summary asks for it, run `/reload-plugins`. Plugin skills use commands such as `/seo-writers:audit-content-library`.
 
+## Update an installed plugin
+
+At workflow startup and after a context change, the coordinator checks the source/version of its loaded skills against available published release metadata. It reports a newer or unverified version once and continues with the known loaded package. It does not install updates or repeat the check on every editorial stage. This check becomes available only after a version containing it is loaded; an older running task cannot gain it automatically.
+
+For an existing repository-marketplace installation in Codex:
+
+```bash
+codex plugin marketplace upgrade flexim
+codex plugin add seo-writers@flexim
+```
+
+For an existing repository-marketplace installation in Claude Code:
+
+```bash
+claude plugin marketplace update flexim
+claude plugin update seo-writers@flexim
+```
+
+Verify the installed version, then start a fresh task/session with the article's boundary handoff, or use a supported reload that refreshes plugin skills. Installation alone does not prove the current task has new instructions. For a manually linked local Codex plugin, follow OpenAI's [local plugin reload guidance](https://developers.openai.com/plugins/build/plugins#install-a-local-plugin-manually), including restarting the desktop app when required. A reviewed hosted catalog is a separate distribution: a GitHub release does not prove that its version is available there. Use that catalog's update path instead of these repository commands.
+
 ## Connect Flexim for an onboarding prompt
 
 Paste the writing prompt from Flexim into your agent in the private content repository. It carries the available topics and their research. The agent compares the topics, recommends a starting point, and waits for your choice before preparing the Article Brief. You do not need a blog or a CMS to write the article.
@@ -166,11 +186,19 @@ audit-content-library (pre-brief)
 → cms-draft-handoff (Flexim drafts only, with explicit permission)
 ```
 
-The independent audit includes `audit-useful-action`, `audit-paragraph-structure`, `audit-tone-honesty`, `audit-eeat`, and a second `audit-content-library` pass in `pre-chief-editor` mode. The orchestrator dispatches them into clean isolated contexts when the host supports that. Otherwise it returns five self-contained packages for external isolated execution and resumes after the reports are supplied. Other specialist-owned stages are also dispatched when the host supports workers; the coordinator keeps intake, Article Brief approval, checkpoint discovery, validation, and routing.
+Before the full draft, a recommended interview comes with a concrete reader benefit and your choice: do it now, skip it, or defer it and read the text first. No reply leaves the choice unanswered. A recorded skip or deferral survives resume and is not asked again just because another review recommends the same example. Deferral is revisited only at your stated condition or your later request. A required evidence gap still needs evidence or an approved change to the promise. In automatic mode, optional recommendations use an explicit safe fallback without pretending you declined.
+
+After editing, the coordinator shows the edited draft immediately and identifies the remaining checks. You can read it while work continues; showing it adds no approval step and does not make it a final package.
+
+The independent audit includes `audit-useful-action`, `audit-paragraph-structure`, `audit-tone-honesty`, `audit-eeat`, and a second `audit-content-library` pass in `pre-chief-editor` mode. The orchestrator dispatches them into clean isolated contexts in waves that fit the host's available slots. It obtains complete handoffs before retiring workers and retries a failed transfer only after the relevant condition changes. If fresh contexts are unavailable, it returns self-contained packages for the missing independent gates and resumes after the reports are supplied. Other specialist-owned stages are also dispatched when the host supports workers; the coordinator keeps intake, Article Brief approval, checkpoint discovery, validation, and routing.
+
+Audit reports default to findings plus compact complete coverage. Every unit is still checked; passing units can be grouped, while evidence claims retain exact source and provenance records. Ask for expanded detail when useful. Custom audit consumers must accept `reportDetail: findings`, anchored inventories or the native evidence/corpus inventory, grouped passes, and concern-specific input provenance. An expanded successful row for every paragraph is no longer the default.
 
 After the first complete pass and chief-editor lock, consecutive corrections form one revision batch. While you are listing changes, the working Markdown stays unchanged: the coordinator remembers the exact replacements, replies naturally, and does not run file commands, audits, or final checks. Another correction automatically continues the batch. Say the natural equivalent of “done,” “apply the changes,” “check it,” or “show me the result” to close it; requesting a CMS draft also closes it. The coordinator then applies all corrections in one consolidated patch, compares the complete result with the last checkpoint, creates one aggregate change-impact record, reruns only gates with changed controls, and carries another gate forward only with explicit provenance and a proven unchanged coverage fingerprint. A changed reader-visible surface receives final integration and a fresh cold-reader review once after the complete batch is ready.
 
 If an interview is needed, the coordinator saves one completed interview artifact instead of rewriting the full transcript after every answer. It creates an intermediate checkpoint only when the interview is interrupted, blocked, deferred, or at material risk of context loss.
+
+A paragraph split reruns paragraph review and any other judgment it actually affects. Unchanged claims, tone, and portfolio role can retain their earlier reviews with explicit anchor mapping and unchanged inputs. A changed claim, source, promise, link destination, or relationship disclosure reruns its dependent checks even if the reader-file hash stayed the same. Byte identity alone is not evidence that external facts are current.
 
 When an author is explicitly assigned, the linkage is verified, and a complete voice profile is ready, the Brief may use first person for the author's framing, navigation, and source-grounded judgment. This does not establish that the author personally used a product, observed a result, made a decision, or lived through an event; those claims still need evidence.
 

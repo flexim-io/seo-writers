@@ -55,11 +55,15 @@ Use `requestedTarget`: `portfolio_decision`, `article_brief`, `draft`, `edited`,
 
 ### 1. Initialize or resume
 
+Before the first specialist dispatch in a new workflow or a resumed coordinator context, perform the read-only [skill freshness check](references/skill-freshness.md). Identify the package that supplied this skill, compare it with the published release available through its distribution source, and report a newer or unverified version once. Reuse the receipt during an uninterrupted run; ordinary correction collection and each specialist call do not repeat the lookup. A version notice does not create an editorial approval gate or authorize installation.
+
 Do not create a central workflow state during one uninterrupted task. Derive the current stage from the active conversation, immutable checkpoints, the working artifact, specialist results, and any short `boundaryHandoff`. Record delegation and other durable decisions in the relevant checkpoint or specialist artifact, not in a second model-visible memory file.
 
 If a legacy workflow state is supplied, use the reference's one-time migration procedure to resolve its referenced artifacts and produce the smallest boundary handoff needed for the current context. Do not update or recreate that state file.
 
 Record whether a host supports workers and the selected `delegation` mechanism. When workers are available, dispatch specialists; the coordinator may prepare an Article Brief but must not produce specialist outputs itself.
+
+Before dispatch, use the checkpoint reference's capacity and handoff procedure. Count occupied slots, including the coordinator and retained completed workers; queue work until a fresh slot is actually available. A failed send or spawn is not a reason to repeat the same call without a changed condition.
 
 When workers are unavailable, disclose `same_context_disclosed` for non-independent stages. For independent audits or the cold reader, return the smallest external clean-context dispatch package instead of performing a same-context imitation.
 
@@ -111,13 +115,19 @@ Dispatch `load-author-voice` when the approved Brief requires a named voice. A c
 
 Dispatch `draft-article` in `structure` mode for author-contribution preflight before full copy. Route `REQUIRED` to a reality-first author interview. For `RECOMMENDED`, preserve permitted non-experiential first person and use local `REPHRASE`, `CUT`, or evidence-required handling only for unsafe spans. Never neutralize the whole article merely because distinctive contribution is absent.
 
+Use the drafting skill's `authorInterviewChoice` contract. In `run` and interactive `resume`, show the concrete benefit and let the author choose before full drafting. Keep an unanswered offer `pending` and remain `waiting`; silence never means `skip`. Honor `interview_now`, `skip`, and `defer` across worker handoffs and resume. In `automatic`, record `automatic_fallback` and the non-blocking recommendation without inventing a user decision. Do not ask again for an unchanged opportunity; only the user's revisit condition, explicit request, or a materially new evidence requirement reopens it.
+
 During an author interview, retain the answers in the active conversation and save one completed interview artifact when the interview ends. Create an intermediate checkpoint and short `boundaryHandoff` only when the interview is interrupted, blocked, deferred for a later answer, or approaching a context-loss risk. Do not rewrite the full transcript after each answer.
 
 ### 6. Draft and edit
 
-Dispatch `draft-article` for the full draft only after Brief approval and preflight readiness. Validate its handoff, then dispatch `edit-article` with the same Brief, evidence permissions, author handoff, and source provenance.
+Dispatch `draft-article` for the full draft only after Brief approval, preflight readiness, and resolution of any pending interactive interview choice. Pass the structure worker's complete preflight, including `authorInterviewChoice`, with the same Brief, evidence permissions, complete transient author handoff, author answers, and source provenance. Validate its handoff, then dispatch `edit-article` with those controlling inputs.
 
 Do not let either stage promote unresolved claims or production language into reader Markdown. Route `EDITORIAL_CONFLICT` to the smallest required approval instead of changing the contract silently.
+
+Immediately after a ready editing result, expose the actual edited artifact to the user before dispatching the five audits. Link or open the readable Markdown, or return it inline when no artifact viewer exists. Say that this is an edited draft and briefly identify the remaining independent checks and final assembly; do not label it a final package. Keep that notice outside reader Markdown. Record `editedPreview` (artifact reference, exact snapshot, shown/pending status) in the editing receipt so resume neither loses the preview nor claims unseen text was shown. Showing the draft adds no approval gate: continue toward the requested target while the user reads. A response changing the Brief or text must be included in the next controlling snapshot. Respect `requestedTarget: draft` or `edited` without running later stages.
+
+Preserve the ready editing result as an immutable specialist output, not an extra reader checkpoint. Audit packages use its exact content; a later change to the mutable working file must not silently change an audit already in flight.
 
 ### 7. Dispatch independent audits
 
@@ -131,13 +141,15 @@ The required gate set is:
 
 Create five clean packages from the same current reader snapshot. Each worker receives exactly one assigned skill and the smallest complete permitted input package. Do not pass prior reports, Linear comments, chief-editor preferences, or an expected verdict. Only the content-library worker may obtain a fresh read-only corpus snapshot. Only the E-E-A-T worker receives the allowed source bundle and trust metadata.
 
-Dispatch the five workers in fresh isolated contexts, preferably in parallel. Reject an independent report unless its snapshot, coverage, anchors, status, and clean-context provenance are valid. If a clean context is unavailable, return five external dispatch packages and do not claim independent-audit readiness.
+At the first dispatch, specify the shared [audit coverage contract](references/audit-coverage.md), `reportDetail: findings`, the input snapshot, and required controlling inputs. Each auditor checks its full scope and returns concrete findings plus compact complete coverage. Do not ask it to regenerate an already valid report merely to expand successful checks into prose.
+
+Dispatch the five workers in fresh isolated contexts in waves that fit verified capacity. Reject an independent report unless its snapshot, coverage, anchors, status, and clean-context provenance are valid. If a clean context is unavailable, preserve valid returned reports and return external dispatch packages only for the missing gates; do not claim independent-audit readiness.
 
 ### 8. Reconcile and lock
 
 Dispatch `chief-editor-review` only after the baseline five audit reports are valid, or after an amendment with valid reruns and explicitly recorded carried-forward coverage. The chief editor alone changes shared reader Markdown and must route each changed concern through the change-impact rules.
 
-Do not lock meaning until every affected gate is ready or provably `carried_forward`. Keep the explicit `interview_now`, `keep_current_text`, or `defer` decision for a `RECOMMENDED` contribution opportunity. Store the lock, accepted decisions, controlling fingerprints, and reader snapshot as one immutable chief-editor checkpoint.
+Do not lock meaning until every affected gate is ready or provably `carried_forward`. Give the chief editor the existing `authorInterviewChoice` separately from the independent auditor's findings. Keep the explicit `interview_now`, `keep_current_text`, or `defer` editorial decision, honoring the author's prior choice for the same opportunity. Store the lock, accepted decisions, controlling fingerprints, and reader snapshot as one immutable chief-editor checkpoint.
 
 After the first chief-editor lock, keep that immutable checkpoint as the base and use one working reader Markdown for subsequent user corrections. Keep that working file unchanged while a correction batch is collecting, then update it once when the batch closes. Do not create a new immutable reader artifact for each micro-edit.
 
@@ -246,7 +258,7 @@ handoffRef: null
 nextAction: "await_more_user_edits or the smallest concrete next action"
 ```
 
-The active collection acknowledgement is the exception: return the natural conversational line defined above instead of this technical delta. Do not return complete workflow history by default. Return expanded artifact provenance only when the user explicitly asks, checkpoint persistence fails, or a safe context transfer cannot be represented by the compact delta and referenced artifacts. When waiting across a context boundary, create the smallest self-contained `boundaryHandoff` and return its `handoffRef`. When ready, identify the terminal artifact and confirm that no publication occurred.
+The active collection acknowledgement, interview offer, and edited-draft preview use the natural conversational forms defined above instead of this technical delta. Do not return complete workflow history by default. Return expanded artifact provenance only when the user explicitly asks, checkpoint persistence fails, or a safe context transfer cannot be represented by the compact delta and referenced artifacts. When waiting across a context boundary, create the smallest self-contained `boundaryHandoff` and return its `handoffRef`. When ready, identify the terminal artifact and confirm that no publication occurred.
 
 ## Do not
 
