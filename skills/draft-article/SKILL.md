@@ -1,6 +1,6 @@
 ---
 name: draft-article
-description: Write or structure a useful article from an approved Article Brief, source material, notes, or interviews. Use for outlines, drafts, guides, cases, expert columns, and automatic article generation when a reader task and evidence must become an evidence-linked draft. Before a full named-author draft, decide whether real author contribution is required, recommended, or not needed; preserve permitted authorial first person while limiting experiential first-person claims to supplied evidence. Keep keyword, audit, Brief, MCP, schema, and other production-only metadata outside reader copy unless the subject genuinely requires it. Do not use to edit a final draft or publish.
+description: Discover the author's intended direction and material, structure a proposed Article Brief, or write an evidence-linked draft from an approved Brief. Use after topic analysis and before direction approval or full drafting, including when sources alone could support a generic article. Resolve author discovery before classifying remaining evidence needs; preserve permitted voice without inventing experience. Do not use to edit a final draft or publish.
 ---
 
 # Draft an article
@@ -12,6 +12,7 @@ Move an approved Article Brief to an honest, useful draft. Build around the read
 `draft-article`:
 
 - verifies that the Article Brief is ready;
+- resolves author discovery before fixing the direction or classifying residual evidence needs;
 - runs author-contribution preflight before a full draft;
 - builds structure around the reader's useful action;
 - writes only from allowed claims and supplied evidence;
@@ -24,13 +25,15 @@ It does not silently change the promise, audience, product role, or scope; turn 
 Use the fullest available package:
 
 1. a `ready` `audit-content-library` `pre-brief` report and differentiation contract;
-2. the approved Article Brief, including the owned job, exclusion zones, and internal-link handoffs;
+2. the proposed Article Brief for `structure`, or approved Article Brief for a full draft, including the owned job, exclusion zones, and internal-link handoffs;
 3. a `ready` `authorVoiceHandoff` from `load-author-voice` when assigned-author voice is required;
 4. an author evidence bundle containing real interviews, answers, artifacts, decisions, observations, failures, boundaries, or actual use;
 5. evidence such as data, code, screenshots, and examples;
 6. sources and claim permissions;
 7. editorial policy;
 8. mode: `structure`, `draft`, or `automatic`.
+
+Reuse supplied `authorDiscovery`, preflight, and `authorInterviewChoice` records with their actual inputs; a status alone does not establish readiness. A proposed Brief permits discovery and provisional structure only, never full copy.
 
 The Brief may use another format, but it must identify language and format, reader and situation, useful action, promise and non-goals, search intent and scope, target keyword and approved natural reader-facing key phrase when applicable, intended form, claim permissions, evidence, product role, `authorshipMode`, `narrativePerspective`, expected author contribution, permitted first person, and output requirements.
 
@@ -54,7 +57,7 @@ If a required reader artifact uses an internal label, preserve its function but 
 
 ## Modes
 
-- `structure`: return Brief readiness, structure, and missing evidence; do not write the full article.
+- `structure`: resolve author discovery, then return a proposed direction, Brief readiness, structure, and missing evidence; do not write the full article or approve the Brief.
 - `draft`: return structure, full draft, and editor handoff.
 - `automatic`: ask no questions and return a structured `ready` or `blocked` package.
 
@@ -70,9 +73,15 @@ Reduce the task to one working sentence:
 
 Extract decisions that control the article. Do not rewrite the Brief as prose.
 
-### 2. Run author-contribution preflight
+### 2. Resolve author discovery
 
-Before structure and full drafting, determine:
+Read and follow [the author discovery contract](references/author-discovery.md) before classifying evidence needs. Establish the author's intended point, actual approach, material, and limits while the direction is provisional. Ask about missing direction-changing inputs, even when a generic source-based draft would be possible. Existing grounded answers or an explicit user opt-out can satisfy this gate; model-selected neutral authorship cannot.
+
+While `authorDiscovery.status: pending`, return the provisional direction and next unanswered question, `status: blocked`, `authorContributionPreflight: null`, empty `draftMarkdown`, and `nextStage: author_interview`. An interactive coordinator remains `waiting`. Do not assign `RECOMMENDED` or `NOT_NEEDED` to bypass discovery. A changed approved promise or fixed title returns `EDITORIAL_CONFLICT` for amendment before drafting.
+
+### 3. Run author-contribution preflight
+
+After `authorDiscovery` is `resolved` or `skipped`, and before final structure and full drafting, determine remaining evidence needs:
 
 - `authorshipMode`;
 - `narrativePerspective: FIRST_PERSON | NEUTRAL | ORGANIZATIONAL | THIRD_PERSON`;
@@ -129,7 +138,9 @@ For `REQUIRED` or an accepted `RECOMMENDED`, prepare at most three pre-draft que
 
 Ask one question at a time. Save answers as a separate author evidence handoff, rerun preflight, then build the structure. Independent `audit-eeat` will repeat the decision after editing against exact reader-facing spans.
 
-### 3. Check readiness
+### 4. Check readiness
+
+Full drafting also requires a valid resolved or explicitly skipped `authorDiscovery` and approval of the resulting Article Brief. A ready `structure` result approves neither the direction nor full drafting on the user's behalf.
 
 Return `ready` only when the reader and situation are specific, the useful action is observable, the title promise can be delivered honestly, the form matches intent, key facts have sources and permissions, no invented experience or result is required, future features are not required as current, product role is clear, the differentiation contract is preserved, and production-only inputs can stay outside reader language.
 
@@ -137,7 +148,7 @@ Return `blocked` when the reader or purpose is unknown, the title requires an un
 
 Remove or weaken optional unsupported claims and list the change in warnings.
 
-### 4. Separate production-only inputs
+### 5. Separate production-only inputs
 
 Create a short internal map before outlining:
 
@@ -150,7 +161,7 @@ Create a short internal map before outlining:
 
 Do not open with phrases such as “the query X,” “checked on this date,” “the schema stores,” or “the audit found” unless the reader came to learn about that object. First person does not bypass this boundary.
 
-### 5. Place the primary key phrase
+### 6. Place the primary key phrase
 
 If the Brief contains a target keyword, approve one grammatically natural reader-facing key phrase first. Literal query order is not required.
 
@@ -162,13 +173,13 @@ If the Brief contains a target keyword, approve one grammatically natural reader
 
 If a natural H1 or H2 would change the approved promise, return `EDITORIAL_CONFLICT` and propose the smallest key-phrase change.
 
-### 6. Build the evidence map
+### 7. Build the evidence map
 
 For every planned section record its reader task, one testable claim, supporting experience or source, permission (`allowed`, `qualified`, or `prohibited`), boundary, and any media that explains or proves the point better than prose.
 
 Never use `prohibited`. Keep the required qualification next to every `qualified` claim.
 
-### 7. Choose form and structure
+### 8. Choose form and structure
 
 Make form serve the task: instructions guide action; stories show a person, event, and change; overviews explain a system and its boundaries; comparisons support a choice; collections provide independent options; cases prove a result with specific evidence.
 
@@ -176,7 +187,7 @@ Every section must advance the useful action, provide required evidence, expose 
 
 Headings must reveal the article's reasoning without body copy. For step-by-step content, use a consistent action-bearing form such as `Step 1 (35 mins): Choose a topic worth writing about`, not a time range without an action.
 
-### 8. Draft
+### 9. Draft
 
 Write in the Brief's language.
 
@@ -201,7 +212,9 @@ Allowed temporary markers:
 
 Every marker must state the next action.
 
-### 9. Self-review
+### 10. Self-review
+
+Verify discovery preceded residual preflight, actual answers informed the direction, the resulting Brief was approved, and the discovery evidence or explicit opt-out survives the handoff. A source-safe outline alone does not pass this check.
 
 Confirm that every section advances the useful action; the title promise is delivered; no fact or experience is invented; preflight preceded drafting; permitted authorial first person is preserved; every experiential first-person span has evidence; prohibited claims are absent; qualifications are adjacent; product coverage is proportional; headings scan; the differentiation contract remains intact; production language is isolated; key phrase placement is natural and totals 2–4; every reader link has a real purpose; and all markers appear in the handoff.
 
@@ -212,6 +225,8 @@ Do not duplicate the full `edit-article` pass or start `visual-storytelling` bef
 ## Automatic mode
 
 Ask no questions.
+
+First validate `authorDiscovery`. Pending discovery returns `blocked`, empty `draftMarkdown`, and `nextStage: author_interview`; `automatic_fallback` cannot bypass it. Apply the following evidence rules only after discovery is resolved or explicitly skipped.
 
 1. If critical information is missing, return `blocked` without plausible filler.
 2. If preflight is `REQUIRED`, return an empty `draftMarkdown` and `nextStage: author_interview`.
@@ -224,11 +239,11 @@ Ask no questions.
 
 ## Output
 
-For `structure`, return status, normalized working Brief, preflight, section structure with evidence needs, and only material missing inputs.
+For `structure`, return status, `authorDiscovery`, proposed direction and normalized working Brief, residual preflight when discovery is complete, section structure with evidence needs, and only material missing inputs. Keep provisional directions visibly provisional while discovery is pending.
 
 For `draft`, return status, full reader Markdown, and a handoff to `edit-article` containing used and qualified claims, excluded claims, the transient author voice metadata, preflight and first-person permissions, used author evidence, unused opportunities, translated or excluded production inputs, unresolved markers, media candidates, warnings, and blockers.
 
-Pass the complete preflight and `authorInterviewChoice` from structure to drafting and editing. Inspect their controlling Brief, author, evidence, and opportunity before reuse; do not discard the decision merely because a new worker owns drafting. When an interview's answers suffice, return `NOT_NEEDED` with the earlier choice and supplied answers as provenance.
+Pass `authorDiscovery`, its raw answers, the complete preflight, and `authorInterviewChoice` from structure to drafting and editing. Inspect their controlling Brief, author, evidence, and opportunity before reuse; do not discard the decision merely because a new worker owns drafting. When an interview's answers suffice, return `NOT_NEEDED` with the earlier choice and supplied answers as provenance.
 
 For `automatic`, return:
 
@@ -239,6 +254,7 @@ draftMarkdown: |
 usedClaims: []
 qualifiedClaims: []
 excludedClaims: []
+authorDiscovery: {} # use the linked contract; pending discovery leaves the preflight null
 authorContributionPreflight:
   authorshipMode: NEUTRAL | NAMED_EXPERT | NAMED_PRACTITIONER | REVIEW_CASE | ORGANIZATION
   narrativePerspective: FIRST_PERSON | NEUTRAL | ORGANIZATIONAL | THIRD_PERSON
@@ -263,6 +279,7 @@ unresolvedMarkers: []
 warnings: []
 blockers: []
 qa:
+  authorDiscoveryResolvedBeforePreflight: true | false
   keywordUsedOnlyForReaderMeaning: true | false
   primaryKeyPhraseInH1: true | false
   primaryKeyPhraseInOneH2: true | false
@@ -280,6 +297,7 @@ When `blocked`, leave `draftMarkdown` empty if writing would require invention o
 
 ## Do not
 
+- Let a model-selected direction or residual evidence classification waive author discovery.
 - Write for everyone or open with a generic definition.
 - Invent facts, figures, quotes, links, cases, or personal experience.
 - Treat a named author or voice profile as experiential evidence.

@@ -1,6 +1,6 @@
 ---
 name: run-seo-writing-workflow
-description: Coordinate or resume SEO Writers from an onboarding prompt, topic selection, or portfolio decision through an approved Article Brief, specialist work, independent reviews, and a final article package or explicitly authorized private CMS draft. Preserve the selected topic's source context, title authority, evidence boundaries, and checkpoint handoffs. Use for the complete article workflow or a scoped revision batch. Keep Flexim optional for writing and never publish.
+description: Coordinate or resume SEO Writers from an onboarding prompt, topic selection, or portfolio decision through author discovery, an approved Article Brief, specialist work, independent reviews, and a final article package or explicitly authorized private CMS draft. Resolve author intent before fixing a new direction or drafting, preserving source context, title authority, evidence boundaries, and checkpoint handoffs. Use for the complete article workflow or a scoped revision batch. Keep Flexim optional for writing and never publish.
 ---
 
 # Run SEO Writing Workflow
@@ -103,25 +103,35 @@ For later targets, pause for a portfolio decision when the report recommends `up
 
 ### 4. Prepare and approve the Article Brief
 
-The coordinator builds the smallest complete Article Brief from the pre-brief differentiation contract, user intent, title authority, and verified inputs. Include reader and situation, useful action, title and promise, search intent and scope, reader-facing key phrase when applicable, claim permissions and evidence, product role, differentiation boundaries, internal links, authorship mode, narrative perspective, first-person permissions, and output requirements.
+The coordinator prepares a provisional direction from the pre-brief differentiation contract, user intent, title authority, and verified inputs. Before asking for approval of a new Article Brief, dispatch `draft-article` in `structure` mode with that proposal and the supplied author material. Follow its [author discovery contract](../draft-article/references/author-discovery.md). The model's initial angle is a hypothesis; source sufficiency and a `RECOMMENDED` or `NOT_NEEDED` classification cannot settle the author's intent.
+
+In `run` or interactive `resume`, ask the returned direction-changing questions one at a time and pass answers back to the structure worker. The author's answer may change the argument, examples, or section plan. Keep `authorDiscovery.status: pending` as `waiting`; in `automatic`, return `blocked` with the missing input. A worker without a human channel returns questions to this coordinator; its execution mode cannot waive discovery. Covered existing answers or an explicit user opt-out follow the drafting skill's completion rules. Reuse them without another interview.
+
+After discovery is resolved or explicitly skipped, build the smallest complete Article Brief from the resulting direction. Include reader and situation, useful action, title and promise, search intent and scope, reader-facing key phrase when applicable, claim permissions and evidence, product role, differentiation boundaries, internal links, authorship mode, narrative perspective, first-person permissions, and output requirements. If discovery changes the portfolio role, rerun the affected pre-brief corpus assessment before approval. Preserve fixed titles and route an incompatible answer through `EDITORIAL_CONFLICT`; general approval of an earlier model-written Brief does not prove discovery happened.
 
 An explicitly assigned author with verified linkage and a ready `authorVoiceHandoff` should default to `narrativePerspective: FIRST_PERSON` unless the user or approved Brief explicitly selects another perspective. This permits authorial framing, navigation, and source-grounded judgment or recommendation; it does not permit unsupported personal actions, product use, results, failures, decision trails, or lived experience.
 
 Present the Brief for explicit human approval. In `automatic`, return `blocked` with the proposed Brief and approval as the next action. Silence is never approval.
 
+When a matching approved Brief is already supplied, reuse its approval; do not request it again unless the proposed direction changes its contract. Before the first full draft, validate discovery against actual prior answers or an explicit opt-out. For an already written article, preserve the existing artifact and use the review/amendment path for real new gaps rather than retroactively restarting discovery.
+
+An explicit instruction to write or proceed with a complete Brief already shown to the user approves that proposal, including when the same instruction opts out of further author participation. Record the instruction against that Brief and continue without asking for approval again. A bare request for no questions, an unseen model-written Brief, or silence is not approval; return the proposed Brief with the missing decision rather than inventing consent.
+
 ### 5. Resolve voice and author contribution
 
 Dispatch `load-author-voice` when the approved Brief requires a named voice. A complete portable profile or handoff is valid when Flexim is unavailable. A voice profile is not evidence.
 
-Dispatch `draft-article` in `structure` mode for author-contribution preflight before full copy. Route `REQUIRED` to a reality-first author interview. For `RECOMMENDED`, preserve permitted non-experiential first person and use local `REPHRASE`, `CUT`, or evidence-required handling only for unsafe spans. Never neutralize the whole article merely because distinctive contribution is absent.
+Dispatch `draft-article` in `structure` mode with the completed `authorDiscovery` and its actual answers for residual author-contribution preflight before full copy. Reuse a matching preflight already returned by the structure worker; rerun only when its controlling Brief, voice, or evidence changed. Route `REQUIRED` to a reality-first author interview. For `RECOMMENDED`, preserve permitted non-experiential first person and use local `REPHRASE`, `CUT`, or evidence-required handling only for unsafe spans. Never neutralize the whole article merely because distinctive contribution is absent.
 
 Use the drafting skill's `authorInterviewChoice` contract. In `run` and interactive `resume`, show the concrete benefit and let the author choose before full drafting. Keep an unanswered offer `pending` and remain `waiting`; silence never means `skip`. Honor `interview_now`, `skip`, and `defer` across worker handoffs and resume. In `automatic`, record `automatic_fallback` and the non-blocking recommendation without inventing a user decision. Do not ask again for an unchanged opportunity; only the user's revisit condition, explicit request, or a materially new evidence requirement reopens it.
+
+This optional choice applies to residual evidence opportunities after discovery. It cannot replace the initial direction questions or turn unanswered discovery into `automatic_fallback`. Honor the scope of an existing instruction to write without further author participation for residual optional opportunities as well.
 
 During an author interview, retain the answers in the active conversation and save one completed interview artifact when the interview ends. Create an intermediate checkpoint and short `boundaryHandoff` only when the interview is interrupted, blocked, deferred for a later answer, or approaching a context-loss risk. Do not rewrite the full transcript after each answer.
 
 ### 6. Draft and edit
 
-Dispatch `draft-article` for the full draft only after Brief approval, preflight readiness, and resolution of any pending interactive interview choice. Pass the structure worker's complete preflight, including `authorInterviewChoice`, with the same Brief, evidence permissions, complete transient author handoff, author answers, and source provenance. Validate its handoff, then dispatch `edit-article` with those controlling inputs.
+Dispatch `draft-article` for the full draft only after resolved or explicitly skipped `authorDiscovery`, approval of the resulting Brief, preflight readiness, and resolution of any pending interactive interview choice. Pass the structure worker's `authorDiscovery` and complete preflight, including `authorInterviewChoice`, with the same Brief, evidence permissions, complete transient author handoff, actual author answers, and source provenance. Validate its handoff, then dispatch `edit-article` with those controlling inputs.
 
 Do not let either stage promote unresolved claims or production language into reader Markdown. Route `EDITORIAL_CONFLICT` to the smallest required approval instead of changing the contract silently.
 
@@ -141,6 +151,8 @@ The required gate set is:
 
 Create five clean packages from the same current reader snapshot. Each worker receives exactly one assigned skill and the smallest complete permitted input package. Do not pass prior reports, Linear comments, chief-editor preferences, or an expected verdict. Only the content-library worker may obtain a fresh read-only corpus snapshot. Only the E-E-A-T worker receives the allowed source bundle and trust metadata.
 
+Include raw author answers and their provenance in the first E-E-A-T package as well as reruns. Exclude `authorDiscovery` verdicts, prior preflight decisions, and `authorInterviewChoice` from independent audit packages; these coordination records belong with the chief editor. Raw evidence is permitted input, not a previous reviewer's conclusion.
+
 At the first dispatch, specify the shared [audit coverage contract](references/audit-coverage.md), `reportDetail: findings`, the input snapshot, and required controlling inputs. Each auditor checks its full scope and returns concrete findings plus compact complete coverage. Do not ask it to regenerate an already valid report merely to expand successful checks into prose.
 
 Dispatch the five workers in fresh isolated contexts in waves that fit verified capacity. Reject an independent report unless its snapshot, coverage, anchors, status, and clean-context provenance are valid. If a clean context is unavailable, preserve valid returned reports and return external dispatch packages only for the missing gates; do not claim independent-audit readiness.
@@ -149,7 +161,7 @@ Dispatch the five workers in fresh isolated contexts in waves that fit verified 
 
 Dispatch `chief-editor-review` only after the baseline five audit reports are valid, or after an amendment with valid reruns and explicitly recorded carried-forward coverage. The chief editor alone changes shared reader Markdown and must route each changed concern through the change-impact rules.
 
-Do not lock meaning until every affected gate is ready or provably `carried_forward`. Give the chief editor the existing `authorInterviewChoice` separately from the independent auditor's findings. Keep the explicit `interview_now`, `keep_current_text`, or `defer` editorial decision, honoring the author's prior choice for the same opportunity. Store the lock, accepted decisions, controlling fingerprints, and reader snapshot as one immutable chief-editor checkpoint.
+Do not lock meaning until every affected gate is ready or provably `carried_forward`. Give the chief editor `authorDiscovery`, its actual evidence, and the existing `authorInterviewChoice` separately from the independent auditor's findings. Keep the explicit `interview_now`, `keep_current_text`, or `defer` editorial decision, honoring the author's prior choice for the same opportunity. Store the lock, accepted decisions, controlling fingerprints, and reader snapshot as one immutable chief-editor checkpoint.
 
 After the first chief-editor lock, keep that immutable checkpoint as the base and use one working reader Markdown for subsequent user corrections. Keep that working file unchanged while a correction batch is collecting, then update it once when the batch closes. Do not create a new immutable reader artifact for each micro-edit.
 
@@ -258,7 +270,7 @@ handoffRef: null
 nextAction: "await_more_user_edits or the smallest concrete next action"
 ```
 
-The active collection acknowledgement, interview offer, and edited-draft preview use the natural conversational forms defined above instead of this technical delta. Do not return complete workflow history by default. Return expanded artifact provenance only when the user explicitly asks, checkpoint persistence fails, or a safe context transfer cannot be represented by the compact delta and referenced artifacts. When waiting across a context boundary, create the smallest self-contained `boundaryHandoff` and return its `handoffRef`. When ready, identify the terminal artifact and confirm that no publication occurred.
+The active collection acknowledgement, discovery question, interview offer, and edited-draft preview use the natural conversational forms defined above instead of this technical delta. Do not return complete workflow history by default. Return expanded artifact provenance only when the user explicitly asks, checkpoint persistence fails, or a safe context transfer cannot be represented by the compact delta and referenced artifacts. When waiting across a context boundary, create the smallest self-contained `boundaryHandoff` and return its `handoffRef`. When ready, identify the terminal artifact and confirm that no publication occurred.
 
 ## Do not
 

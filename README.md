@@ -12,7 +12,7 @@ Codex reads `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json`. 
 
 The current pipeline is:
 
-`topic or idea → audit-content-library (pre-brief) → Article Brief → load-author-voice (when an author voice is required) → draft-article author-contribution preflight → draft-article → edit-article → independent editorial audit → chief-editor-review → visual-storytelling → media production and integration → final-integration-check → cold-reader-review → cms-draft-handoff`
+`topic or idea → audit-content-library (pre-brief) → provisional direction → draft-article author discovery → Article Brief approval → load-author-voice (when an author voice is required) → draft-article residual evidence preflight → draft-article → edit-article → independent editorial audit → chief-editor-review → visual-storytelling → media production and integration → final-integration-check → cold-reader-review → cms-draft-handoff`
 
 The independent editorial audit contains five separate gates:
 
@@ -39,7 +39,7 @@ See [Content repositories](docs/content-repositories.md) for the complete bounda
 | `run-seo-writing-workflow` | Coordinate or resume the complete workflow, preserve title authority, dispatch specialist workers, batch post-lock user corrections, reuse unaffected checks after one aggregate impact analysis, and stop at real approval or authorization boundaries. |
 | `audit-content-library` | Compare a proposed or completed article with published posts and active drafts, then define or verify its distinct portfolio role. |
 | `load-author-voice` | Resolve the assigned author and load a complete voice profile from Flexim or a validated portable input. |
-| `draft-article` | Turn an approved Article Brief and allowed evidence into an article structure and evidence-safe draft. |
+| `draft-article` | Discover author intent and material before direction approval, then turn the approved Brief and allowed evidence into a structure and evidence-safe draft. |
 | `edit-article` | Edit an existing draft from reader task and factual integrity through structure, tone, sentences, words, and rhythm. |
 | `audit-useful-action` | Check whether the title, introduction, sections, examples, product block, and conclusion advance one useful reader action. |
 | `audit-paragraph-structure` | Audit every paragraph, list, and table with complete coverage and rewrite only failing units. |
@@ -84,7 +84,7 @@ In short:
 1. Open a checkout or worktree of the separate private content repository for the brand or editorial operation. Do not start article work in this plugin repository.
 2. Add the `flexim-io/seo-writers` marketplace and install `seo-writers@flexim` in Codex or Claude Code.
 3. Start `run-seo-writing-workflow` with an idea or topic, the data you already have, and an optional requested target. Use `portfolio_decision` when you only want a topic or portfolio choice.
-4. Let the coordinator run `audit-content-library` in `pre-brief` mode using either read-only Flexim access or a complete CMS export, then explicitly approve the proposed Article Brief.
+4. Let the coordinator run `audit-content-library` in `pre-brief` mode, clarify your intended point and available material, then explicitly approve the resulting Article Brief. It reuses answers already supplied. You can explicitly choose source-only writing without additional author participation; the model cannot make that choice merely because it can write a generic article.
 5. Resume from immutable checkpoints, specialist results, and a short boundary handoff after any requested evidence, author answer, isolated audit, or media-production pause. A compatible Mermaid brief may use the optional local renderer; missing renderer setup blocks only that visual. After the first complete pass, consecutive user corrections stay pending in one revision batch without changing the article until review, finalization, or CMS handoff is requested. The coordinator then applies one consolidated patch, records one aggregate change-impact plan, and reruns only affected gates; ambiguous changes escalate conservatively. Keep reader Markdown separate from production reports and handoffs.
 6. Use `cms-draft-handoff` only after an explicit request to create or update a private Flexim draft, ready final integration, and a ready independent cold-reader review.
 

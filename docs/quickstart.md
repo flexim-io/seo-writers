@@ -162,7 +162,7 @@ approval or missing-input boundary. Do not publish or mutate CMS.
 
 In Claude Code, invoke `/seo-writers:run-seo-writing-workflow` with the same input.
 
-The coordinator first runs `audit-content-library` in `pre-brief` mode. When it presents a proposed Article Brief, approve it explicitly before drafting. The Brief defines the reader and situation, useful action, promise and non-goals, search intent and scope, natural reader-facing key phrase when applicable, evidence and claim permissions, product role, authorship mode, permitted first person, and output requirements.
+The coordinator first runs `audit-content-library` in `pre-brief` mode. It then clarifies your intended point, approach, available material, and limits before fixing the direction. Answers can change the argument and structure; supplied answers are reused. When it presents the resulting Article Brief, approve it explicitly before drafting. The Brief defines the reader and situation, useful action, promise and non-goals, search intent and scope, natural reader-facing key phrase when applicable, evidence and claim permissions, product role, authorship mode, permitted first person, and output requirements.
 
 If you only want the portfolio or topic decision, set `Requested target: portfolio_decision`. The workflow returns the content-library decision and stops: it does not propose a working title or prepare an Article Brief. A title you explicitly supply is preserved as `fixed`; if it cannot be delivered honestly, the workflow returns `EDITORIAL_CONFLICT` with the smallest amendment instead of replacing it.
 
@@ -174,8 +174,10 @@ Then continue in this order:
 
 ```text
 audit-content-library (pre-brief)
+→ provisional direction and author discovery (draft-article structure)
 → Article Brief approval
 → load-author-voice (only when needed)
+→ remaining evidence needs (draft-article preflight)
 → draft-article
 → edit-article
 → independent editorial audits
@@ -186,7 +188,11 @@ audit-content-library (pre-brief)
 → cms-draft-handoff (Flexim drafts only, with explicit permission)
 ```
 
-Before the full draft, a recommended interview comes with a concrete reader benefit and your choice: do it now, skip it, or defer it and read the text first. No reply leaves the choice unanswered. A recorded skip or deferral survives resume and is not asked again just because another review recommends the same example. Deferral is revisited only at your stated condition or your later request. A required evidence gap still needs evidence or an approved change to the promise. In automatic mode, optional recommendations use an explicit safe fallback without pretending you declined.
+Initial direction questions happen before the model classifies remaining evidence needs as required, recommended, or unnecessary. They are not optional examples for an already chosen outline. You can supply the answers in advance or explicitly ask for source-only writing without further author participation. A pause or no reply leaves discovery pending; “write from sources now” records your scoped choice to proceed. A neutral outline proposed by the model cannot skip this step.
+
+After discovery, a recommended interview for a remaining concrete contribution comes with your choice: do it now, skip it, or defer it. Existing answers and instructions are respected across workers, resume, and later audits. A required evidence gap still needs evidence or an approved change to the promise. The first evidence audit receives your actual early answers, so omitted material can be integrated without repeating the interview.
+
+From 0.13.0, `automatic` also stops before a new full draft when author discovery is pending. Supply relevant author intent/material or an explicit instruction to proceed without additional participation. Automatic fallback remains available for residual optional evidence opportunities only. Existing written articles continue through review and amendments; they are not restarted merely because an older handoff lacks `authorDiscovery`.
 
 After editing, the coordinator shows the edited draft immediately and identifies the remaining checks. You can read it while work continues; showing it adds no approval step and does not make it a final package.
 
