@@ -133,6 +133,8 @@ For an interrupted interview, add the partial transcript checkpoint and the exac
 
 Preserve the preflight's `authorInterviewChoice` reference, including recommendation identity, exact user instruction, pending state, and any revisit condition. Restore a pending offer as unanswered; restore `skip` or `defer` without asking again solely because context changed. Preserve the `editedPreview` receipt when the edited draft has already been shown. Neither record needs the author's voice profile.
 
+Preserve the structure handoff's `authorDiscovery` and exact answer references using the [drafting discovery contract](../../draft-article/references/author-discovery.md). An unanswered direction question remains pending across resume, even if an old residual preflight says `NOT_NEEDED`. Check the subject and actual inputs before reuse; a new worker or ordinary rewording does not reopen settled answers. Preserve the scope of an explicit opt-out. Before the first full draft, missing discovery evidence requires reconstruction from real inputs or the next missing answer; an already written article uses the existing review/amendment path without invented historical records.
+
 If present, carry the small `skillVersionCheck` receipt and explicit update decision described in [skill-freshness.md](skill-freshness.md). It records the previous loaded source and check, not proof that the resumed context or current installation uses that version. Keep it outside independent reader and audit packages.
 
 Never treat a boundary handoff as CMS authorization. The active explicit user request must cover the private-draft mutation; reuse that request across stages and turns while it remains in scope.
@@ -160,6 +162,7 @@ Canonical ownership:
 | portfolio audit | `audit-content-library` pre-brief |
 | author voice | `load-author-voice` |
 | draft and preflight | `draft-article` |
+| author discovery before direction approval | `draft-article` structure; coordinator presents questions and approves no answers on the user's behalf |
 | edited reader Markdown | `edit-article` |
 | useful action | `audit-useful-action` |
 | paragraph structure | `audit-paragraph-structure` |

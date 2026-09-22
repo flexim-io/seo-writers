@@ -31,7 +31,7 @@ Use:
 1. approved Article Brief and explicit amendments;
 2. current reader Markdown after `edit-article`;
 3. source bundle, claim permissions, and product-state snapshot;
-4. author-contribution preflight, existing `authorInterviewChoice`, and supplied author evidence or answers;
+4. `authorDiscovery` when present, author-contribution preflight, existing `authorInterviewChoice`, and supplied author evidence or answers;
 5. independent reports from `audit-useful-action`, `audit-paragraph-structure`, `audit-tone-honesty`, `audit-eeat`, and `audit-content-library` in `pre-chief-editor` mode;
 6. current `authorVoiceHandoff` when used;
 7. previous chief-editor decision log and `changeImpactManifest` only for rerun or amendment;
@@ -86,6 +86,8 @@ Every decision needs a reason and applied or next action. Never ignore a finding
 ### 4. Decide author contribution separately
 
 Compare `audit-eeat.authorContribution.decision` with the early preflight.
+
+First compare each proposed question with the actual discovery answers and their limits. Integrate an already supplied answer through a traceable edit and affected reruns; do not repeat the interview because the draft omitted it. For a new question, identify the material evidence detail still missing. Honor the scope of a discovery opt-out as well as later interview choices; neither can authorize an unsupported critical claim. A missing discovery record for an existing article alone does not require restarting it.
 
 - `REQUIRED`: do not fabricate a patch; route to `author_interview`, or accept a documented `REPHRASE` or `CUT` only when it preserves the Brief.
 - `RECOMMENDED`: preserve the author's choice for the same substantive opportunity: `skip` maps to `keep_current_text`, `defer` remains `defer`, and completed `interview_now` uses its actual answers. Keep `automatic_fallback` distinguishable from a user refusal and explicitly choose a safe editorial fallback in `automatic`. In interactive work, route a still-pending or materially new opportunity to the coordinator for the author's choice; do not silently make that choice or repeat an already settled question. Explain the reader-value trade-off without describing evidence-safe generic copy as demonstrated author contribution.

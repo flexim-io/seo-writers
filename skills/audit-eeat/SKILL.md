@@ -36,7 +36,7 @@ Use a clean package:
 4. page and publisher metadata snapshot when trust surface is in scope;
 5. approved `authorVoiceHandoff` and Brief-approved narrative perspective when applied;
 6. a supplied corpus or search summary only when prepared by another stage;
-7. author answers only for `patch` or rerun;
+7. raw author answers and evidence provenance from discovery or later interviews, including the first `audit`, `patch`, and reruns;
 8. desired interview language;
 9. authorship intent: neutral reference, named-expert explanation, practitioner view, review, case, or column;
 10. mode: `audit`, `interview`, `patch`, or `automatic`.
@@ -46,6 +46,8 @@ Priority: explicit user correction, approved Brief, verified primary source or r
 Read [references/rubric-and-sources.md](references/rubric-and-sources.md) completely when applying Google guidance or YMYL calibration. Read [references/output-contracts.md](references/output-contracts.md) completely for field and patch contracts.
 
 Read the shared [audit coverage contract](../run-seo-writing-workflow/references/audit-coverage.md). Default to `reportDetail: findings`, retaining every atomic claim's exact support and provenance in compact records. Summarize successful checks once; never replace claim-level evidence with coverage counts alone.
+
+Use the actual early answers as evidence, not the coordinator's `authorDiscovery` verdict, preflight classification, or `authorInterviewChoice`. Those decisions stay outside the clean audit package. Before proposing an author question, check whether the supplied answers already resolve it. If the evidence exists but was omitted from the text, identify the unused answer and the needed integration instead of asking the author again. Identify the exact missing detail when an answer covers only part of a new claim.
 
 ## Modes
 
