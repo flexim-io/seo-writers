@@ -28,7 +28,16 @@ Start a new Codex task after installation. Plugin skills use the `seo-writers:` 
 
 ## Install in Claude Code
 
-Add the same repository as a Claude Code marketplace, then install the plugin:
+**Inside a Claude Code session**, run each slash command separately:
+
+```text
+/plugin marketplace add flexim-io/seo-writers
+/plugin install seo-writers@flexim
+```
+
+Choose **User scope** if you want the plugin available across your projects.
+
+**From your terminal**, use these commands instead:
 
 ```bash
 claude plugin marketplace add flexim-io/seo-writers@main
@@ -36,6 +45,15 @@ claude plugin install seo-writers@flexim
 ```
 
 Start a new Claude Code session after installation. If the install summary asks for it, run `/reload-plugins`. Plugin skills use commands such as `/seo-writers:audit-content-library`.
+
+### If installation does not work
+
+- **The plugin is missing from Discover:** add `flexim-io/seo-writers` first. SEO Writers is distributed through the `flexim` repository marketplace and is not currently listed in Anthropic's official or community catalog.
+- **The `claude` command is not found:** use the slash commands inside your installed Claude Code session, or follow the official [Claude Code setup guide](https://code.claude.com/docs/en/setup) to install the CLI.
+- **The plugin installed but its skills are missing:** open `/plugin` and confirm `seo-writers` is installed and enabled, then reload plugins or start a new session. Check the Errors tab if it still fails.
+- **The marketplace cannot be cloned or is blocked:** keep the exact error message. Check GitHub connectivity and whether your organization's marketplace policy permits `flexim-io/seo-writers`; a catalog listing does not bypass an administrator's policy.
+
+To inspect the installation from a terminal, run `claude plugin list` and `claude plugin details seo-writers@flexim`. If you report an installation issue, include the error, `claude --version`, and whether you used terminal commands or session slash commands. Remove credentials and private content from the report.
 
 ## Update an installed plugin
 

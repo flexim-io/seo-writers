@@ -4,6 +4,21 @@ An open beta editorial operating system for planning, drafting, editing, auditin
 
 SEO in this project means satisfying search intent and helping a reader complete a real task. It does not mean keyword-density targets, artificial length, or sections added without reader value.
 
+## Install in Claude Code
+
+Run these commands **inside Claude Code**, one at a time:
+
+```text
+/plugin marketplace add flexim-io/seo-writers
+/plugin install seo-writers@flexim
+```
+
+Choose **User scope** to use the plugin across your projects, then start a new session or run `/reload-plugins` if prompted. Open your private content repository and invoke `/seo-writers:run-seo-writing-workflow` with your topic or writing prompt.
+
+SEO Writers is available from the `flexim` repository marketplace. Add that marketplace before searching for the plugin in `/plugin`; it is not currently listed in Anthropic's official or community catalog. No Flexim account is required for the text workflow.
+
+For terminal commands, Codex installation, updates, and troubleshooting, see the [Quickstart](docs/quickstart.md).
+
 ## What is included
 
 The repository packages 15 reusable editorial skills as one beta plugin for both Codex and Claude Code. Both hosts use the same canonical skill sources, and neither requires [Flexim](https://flexim.io/) to run the text workflow. `run-seo-writing-workflow` coordinates or resumes the full pipeline while each specialist skill keeps its own contract.
