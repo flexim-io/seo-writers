@@ -60,7 +60,11 @@ Canonical skill sources live under `skills/<skill>/`; the optional local Mermaid
 
 Text production does not require the renderer. Mermaid production requires Node.js 22 or newer, a compatible local Chrome or Chromium, and one explicitly authorized dependency-cache setup. Preflight and automatic mode never install dependencies or download a browser.
 
-Setup installs the bundled lockfile's production dependencies with package install hooks, npm audit requests, and npm update checks disabled. npm uses isolated configuration, and package downloads retain their locked public npm URLs and integrity checks. Generated article assets stay inside the private content repository. No online renderer, CMS mutation, or publication fallback is used.
+Setup uses a self-contained npm installation beside the trusted Node.js executable, or one selected with `--npm-cli /trusted/npm/bin/npm-cli.js`. It copies npm code temporarily, uses empty builtin/user/global npm configuration, and disables package install hooks, audit requests, and update checks. Package downloads retain their locked public npm URLs and integrity checks.
+
+Node grants npm read access only to the fresh npm/runtime directories and the exact trusted Node executable, and write access only to those fresh directories. Child-process grants, global module lookup, and npm bin links are disabled.
+
+npm and the Mermaid CLI run directly through Node.js. Child processes and Chrome receive fresh home, configuration, and temporary paths; Chrome uses fresh profiles with OS proxy settings disabled. The browser still runs with `--no-sandbox`. Generated article assets stay inside the private content repository. No online renderer, CMS mutation, or publication fallback is used.
 
 See [Quickstart: optional local Mermaid rendering](docs/quickstart.md#optional-local-mermaid-rendering) for setup and limitations.
 

@@ -10,10 +10,10 @@ export function canonicalizeJson(value) {
     if (!Number.isFinite(value)) throw new TypeError("Canonical JSON rejects non-finite numbers.");
     return JSON.stringify(value);
   }
-  if (Array.isArray(value)) return "[" + value.map(canonicalizeJson).join(",") + "]";
+  if (Array.isArray(value)) return `[${value.map(canonicalizeJson).join(",")}]`;
   if (typeof value === "object") {
     const keys = Object.keys(value).sort();
-    return "{" + keys.map((key) => JSON.stringify(key) + ":" + canonicalizeJson(value[key])).join(",") + "}";
+    return `{${keys.map((key) => `${JSON.stringify(key)}:${canonicalizeJson(value[key])}`).join(",")}}`;
   }
   throw new TypeError(`Canonical JSON does not support ${typeof value}.`);
 }

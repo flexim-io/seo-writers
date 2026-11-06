@@ -1,12 +1,13 @@
 import { spawn } from "node:child_process";
-import { access } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import { access, mkdir, mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
 export const MINIMUM_NODE_MAJOR = 22;
 
 export function runtimeEnvironment(options = {}) {
-  const environment = {
+  const env = {
     PATH: options.PATH ?? options.Path ?? options.path ?? process.env.PATH ?? process.env.Path ?? process.env.path,
     HOME: options.HOME ?? process.env.HOME,
     USERPROFILE: options.USERPROFILE ?? process.env.USERPROFILE,
@@ -36,20 +37,14 @@ export function runtimeEnvironment(options = {}) {
     SEO_WRITERS_MERMAID_CACHE: options.SEO_WRITERS_MERMAID_CACHE ?? process.env.SEO_WRITERS_MERMAID_CACHE,
     SEO_WRITERS_INSTALLED_RUNTIME: options.SEO_WRITERS_INSTALLED_RUNTIME ?? process.env.SEO_WRITERS_INSTALLED_RUNTIME,
   };
-  return Object.fromEntries(Object.entries(environment).filter(([, value]) => value !== undefined));
+  return Object.fromEntries(Object.entries(env).filter(([, value]) => value !== undefined));
 }
 
-function npmEnvironment(root, options) {
+export async function isolatedEnvironment(root, options = {}, { readOnly = false } = {}) {
+  const env = runtimeEnvironment(options);
   const home = path.join(root, "home");
   const temporary = path.join(root, "tmp");
-  const { PATH, SystemRoot, SystemDrive, ComSpec, WINDIR, PATHEXT } = runtimeEnvironment(options);
-  return {
-    PATH,
-    SystemRoot,
-    SystemDrive,
-    ComSpec,
-    WINDIR,
-    PATHEXT,
+  const directories = {
     HOME: home,
     USERPROFILE: home,
     APPDATA: path.join(home, "AppData", "Roaming"),
@@ -57,13 +52,37 @@ function npmEnvironment(root, options) {
     XDG_CONFIG_HOME: path.join(home, ".config"),
     XDG_CACHE_HOME: path.join(home, ".cache"),
     XDG_DATA_HOME: path.join(home, ".local", "share"),
+    XDG_RUNTIME_DIR: path.join(root, "run"),
     TMPDIR: temporary,
     TMP: temporary,
     TEMP: temporary,
+  };
+  if (!readOnly) {
+    await Promise.all([...new Set(Object.values(directories))].map((directory) => mkdir(directory, { recursive: true, mode: 0o700 })));
+  }
+  const systemPaths = process.platform === "win32"
+    ? [path.join(env.SystemRoot ?? "C:\\Windows", "System32"), env.SystemRoot ?? "C:\\Windows"]
+    : ["/usr/bin", "/bin", "/usr/sbin", "/sbin"];
+  return {
+    ...env,
+    ...directories,
+    SystemRoot: env.SystemRoot,
+    PATH: [path.dirname(process.execPath), ...systemPaths].join(path.delimiter),
+    NODE_V8_COVERAGE: "",
+  };
+}
+
+async function npmEnvironment(root, options) {
+  const isolated = await isolatedEnvironment(root, options);
+  const { HOME, USERPROFILE, APPDATA, LOCALAPPDATA, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_DATA_HOME, XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP, SystemRoot } = isolated;
+  return {
+    HOME, USERPROFILE, APPDATA, LOCALAPPDATA, XDG_CONFIG_HOME, XDG_CACHE_HOME, XDG_DATA_HOME, XDG_RUNTIME_DIR, TMPDIR, TMP, TEMP, SystemRoot,
     NPM_CONFIG_USERCONFIG: path.join(root, "user.npmrc"),
     NPM_CONFIG_GLOBALCONFIG: path.join(root, "global.npmrc"),
     NPM_CONFIG_CACHE: path.join(root, "cache"),
+    NPM_CONFIG_REGISTRY: "https://registry.npmjs.org",
     PUPPETEER_SKIP_DOWNLOAD: "true",
+    NODE_V8_COVERAGE: "",
   };
 }
 
@@ -82,10 +101,10 @@ async function isExecutable(candidate) {
   }
 }
 
-export async function resolveChromeExecutable(environment = runtimeEnvironment()) {
+export async function resolveChromeExecutable(env = runtimeEnvironment()) {
   const candidates = [
-    environment.MERMAID_CHROME_PATH,
-    environment.PUPPETEER_EXECUTABLE_PATH,
+    env.MERMAID_CHROME_PATH,
+    env.PUPPETEER_EXECUTABLE_PATH,
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
     "/usr/bin/google-chrome",
@@ -93,7 +112,7 @@ export async function resolveChromeExecutable(environment = runtimeEnvironment()
     "/usr/bin/chromium",
     "/usr/bin/chromium-browser",
     process.platform === "win32"
-      ? path.join(environment.PROGRAMFILES ?? "", "Google", "Chrome", "Application", "chrome.exe")
+      ? path.join(env.PROGRAMFILES ?? "", "Google", "Chrome", "Application", "chrome.exe")
       : null,
   ];
   for (const candidate of candidates) {
@@ -104,57 +123,71 @@ export async function resolveChromeExecutable(environment = runtimeEnvironment()
   throw error;
 }
 
-export function readProcessOutput(command, args, options = {}) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      cwd: options.cwd,
-      env: options.npmRoot
-        ? npmEnvironment(options.npmRoot, options.env)
-        : runtimeEnvironment(options.env),
-      stdio: ["ignore", "pipe", "pipe"],
+export async function readProcessOutput(command, args, options = {}) {
+  const root = options.npmRoot ?? (options.readOnly
+    ? path.join(os.tmpdir(), `seo-writers-process-${randomUUID()}`)
+    : await mkdtemp(path.join(os.tmpdir(), "seo-writers-process-")));
+  let closed;
+  try {
+    const env = options.npmRoot ? await npmEnvironment(root, options.env) : await isolatedEnvironment(root, options.env, { readOnly: options.readOnly });
+    return await new Promise((resolve, reject) => {
+      const child = spawn(command, args, {
+        cwd: options.cwd,
+        env,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+      closed = new Promise((resolveClose) => child.once("close", resolveClose));
+      let stdout = "";
+      let stderr = "";
+      let settled = false;
+      let killTimer;
+      const timeoutMs = options.timeoutMs ?? 30_000;
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        killTimer = setTimeout(() => child.kill("SIGKILL"), 250);
+        child.kill();
+        reject(new Error(`${path.basename(command)} timed out after ${timeoutMs}ms.`));
+      }, timeoutMs);
+      child.stdout.on("data", (chunk) => {
+        stdout += chunk;
+      });
+      child.stderr.on("data", (chunk) => {
+        stderr += chunk;
+      });
+      child.on("error", (error) => {
+        clearTimeout(timer);
+        clearTimeout(killTimer);
+        if (settled) return;
+        settled = true;
+        reject(error);
+      });
+      child.on("close", (code) => {
+        clearTimeout(timer);
+        clearTimeout(killTimer);
+        if (settled) return;
+        settled = true;
+        if (code === 0) resolve({ stdout, stderr });
+        else reject(new Error(`${path.basename(command)} exited with ${code}: ${(stderr || stdout).trim().split("\n")[0]}`));
+      });
     });
-    let stdout = "";
-    let stderr = "";
-    let settled = false;
-    const timeoutMs = options.timeoutMs ?? 30_000;
-    const timer = setTimeout(() => {
-      if (settled) return;
-      settled = true;
-      child.kill();
-      reject(new Error(`${path.basename(command)} timed out after ${timeoutMs}ms.`));
-    }, timeoutMs);
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk;
-    });
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk;
-    });
-    child.on("error", (error) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      reject(error);
-    });
-    child.on("close", (code) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      if (code === 0) resolve({ stdout, stderr });
-      else reject(new Error(`${path.basename(command)} exited with ${code}: ${(stderr || stdout).trim().split("\n")[0]}`));
-    });
-  });
+  } finally {
+    await closed;
+    if (!options.npmRoot && !options.readOnly) await rm(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 250 });
+  }
 }
 
 export async function chromeVersion(chromePath) {
   const { stdout, stderr } = await readProcessOutput(chromePath, ["--version"], {
     timeoutMs: 10_000,
+    readOnly: true,
   });
   return (stdout || stderr).trim().split("\n")[0];
 }
 
-export function platformCacheRoot(environment = runtimeEnvironment()) {
-  if (environment.SEO_WRITERS_MERMAID_CACHE) return path.resolve(environment.SEO_WRITERS_MERMAID_CACHE);
+export function platformCacheRoot(env = runtimeEnvironment()) {
+  if (env.SEO_WRITERS_MERMAID_CACHE) return path.resolve(env.SEO_WRITERS_MERMAID_CACHE);
   if (process.platform === "darwin") return path.join(os.homedir(), "Library", "Caches");
-  if (process.platform === "win32") return path.resolve(environment.LOCALAPPDATA ?? path.join(os.homedir(), "AppData", "Local"));
-  return path.resolve(environment.XDG_CACHE_HOME ?? path.join(os.homedir(), ".cache"));
+  if (process.platform === "win32") return path.resolve(env.LOCALAPPDATA ?? path.join(os.homedir(), "AppData", "Local"));
+  return path.resolve(env.XDG_CACHE_HOME ?? path.join(os.homedir(), ".cache"));
 }

@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 
 import { spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
+import { mkdtemp, realpath, rm } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { inspectRuntimeCache, setupCommand } from "./cache.mjs";
 import {
   chromeVersion,
+  isolatedEnvironment,
   nodeIsCompatible,
   resolveChromeExecutable,
   runtimeEnvironment,
@@ -27,45 +31,61 @@ function writeResult(result, exitCode = 0) {
   process.exitCode = exitCode;
 }
 
-function runCachedCli(cliPath, args, environment, timeoutMs = 120_000) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [cliPath, ...args], {
-      env: runtimeEnvironment(environment),
-      stdio: ["pipe", "pipe", "pipe"],
+export async function runCachedCli(cliPath, args, env, timeoutMs = 120_000) {
+  const readOnly = args[0] === "preflight";
+  const temporaryRoot = readOnly
+    ? path.join(os.tmpdir(), `seo-writers-cli-${randomUUID()}`)
+    : await mkdtemp(path.join(os.tmpdir(), "seo-writers-cli-"));
+  let closed = Promise.resolve();
+  try {
+    const isolatedEnv = await isolatedEnvironment(temporaryRoot, env, { readOnly });
+    return await new Promise((resolve, reject) => {
+      const child = spawn(process.execPath, ["--no-global-search-paths", cliPath, ...args], {
+        env: isolatedEnv,
+        stdio: ["pipe", "pipe", "pipe"],
+      });
+      closed = new Promise((resolveClose) => child.once("close", resolveClose));
+      let stdout = "";
+      let stderr = "";
+      let settled = false;
+      let killTimer;
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        killTimer = setTimeout(() => child.kill("SIGKILL"), 250);
+        child.kill();
+        reject(new Error(`Cached renderer timed out after ${timeoutMs}ms.`));
+      }, timeoutMs);
+      if (args.some((argument, index) => argument === "-" && args[index - 1] === "--source")) {
+        process.stdin.pipe(child.stdin);
+      } else {
+        child.stdin.end();
+      }
+      child.stdout.on("data", (chunk) => {
+        stdout += chunk;
+      });
+      child.stderr.on("data", (chunk) => {
+        stderr += chunk;
+      });
+      child.on("error", (error) => {
+        clearTimeout(timer);
+        clearTimeout(killTimer);
+        if (settled) return;
+        settled = true;
+        reject(error);
+      });
+      child.on("close", (code) => {
+        clearTimeout(timer);
+        clearTimeout(killTimer);
+        if (settled) return;
+        settled = true;
+        resolve({ code, stdout, stderr });
+      });
     });
-    let stdout = "";
-    let stderr = "";
-    let settled = false;
-    const timer = setTimeout(() => {
-      if (settled) return;
-      settled = true;
-      child.kill();
-      reject(new Error(`Cached renderer timed out after ${timeoutMs}ms.`));
-    }, timeoutMs);
-    if (args.some((argument, index) => argument === "-" && args[index - 1] === "--source")) {
-      process.stdin.pipe(child.stdin);
-    } else {
-      child.stdin.end();
-    }
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk;
-    });
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk;
-    });
-    child.on("error", (error) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      reject(error);
-    });
-    child.on("close", (code) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      resolve({ code, stdout, stderr });
-    });
-  });
+  } finally {
+    await closed;
+    if (!readOnly) await rm(temporaryRoot, { recursive: true, force: true, maxRetries: 8, retryDelay: 250 });
+  }
 }
 
 async function main() {
@@ -77,6 +97,18 @@ async function main() {
   if (!nodeIsCompatible()) {
     writeResult(blocker("NODE_INCOMPATIBLE", "Node.js", `Node.js ${process.versions.node} is below 22.`, "Use Node.js 22 or newer.", rawCommand), 1);
     return;
+  }
+
+  let npmCliPath;
+  if (rawCommand === "setup") {
+    const npmCliIndex = rawArgs.indexOf("--npm-cli");
+    if (npmCliIndex !== -1) {
+      npmCliPath = rawArgs[npmCliIndex + 1];
+      if (!npmCliPath || npmCliPath.startsWith("--")) {
+        writeResult(blocker("BRIEF_INCOMPLETE", "--npm-cli", "The --npm-cli option requires a path to npm's bin/npm-cli.js.", "Provide --npm-cli <path> or omit it to use npm beside Node.js.", rawCommand), 1);
+        return;
+      }
+    }
   }
 
   let chromePath;
@@ -95,6 +127,7 @@ async function main() {
         installedRuntimeRoot: INSTALLED_RUNTIME_ROOT,
         chromePath,
         chromeVersion: detectedChromeVersion,
+        npmCliPath,
       });
       writeResult({
         schemaVersion: 1,
@@ -156,7 +189,9 @@ async function main() {
   process.exitCode = execution.code;
 }
 
-main().catch((error) => {
-  const mode = process.argv[2] ?? "preflight";
-  writeResult(blocker(error.code ?? "TECHNICAL_QA_FAILED", "launcher", error.message, "Inspect the local runtime and retry.", mode), 1);
-});
+if (process.argv[1] && await realpath(process.argv[1]) === await realpath(LAUNCHER_PATH)) {
+  main().catch((error) => {
+    const mode = process.argv[2] ?? "preflight";
+    writeResult(blocker(error.code ?? "TECHNICAL_QA_FAILED", "launcher", error.message, "Inspect the local runtime and retry.", mode), 1);
+  });
+}

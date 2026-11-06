@@ -15,8 +15,8 @@ export async function runtimeIdentity(runtimeRoot) {
   };
 }
 
-export function cacheLocations(identity, environment = runtimeEnvironment()) {
-  const cacheRoot = path.join(platformCacheRoot(environment), "seo-writers", "mermaid-infographic");
+export function cacheLocations(identity, env = runtimeEnvironment()) {
+  const cacheRoot = path.join(platformCacheRoot(env), "seo-writers", "mermaid-infographic");
   const key = `${identity.rendererVersion}-${identity.packageLockSha256}`;
   const entryRoot = path.join(cacheRoot, key);
   return {
@@ -28,10 +28,10 @@ export function cacheLocations(identity, environment = runtimeEnvironment()) {
   };
 }
 
-export function requiredCacheRelativePaths(platform = process.platform) {
+export function requiredCacheRelativePaths() {
   return [
     "src/cli.mjs",
-    platform === "win32" ? "node_modules/.bin/mmdc.cmd" : "node_modules/.bin/mmdc",
+    "node_modules/@mermaid-js/mermaid-cli/src/cli.js",
     "node_modules/@mermaid-js/mermaid-cli/package.json",
     "node_modules/dompurify/package.json",
     "node_modules/mermaid/package.json",
@@ -41,9 +41,9 @@ export function requiredCacheRelativePaths(platform = process.platform) {
   ];
 }
 
-export async function inspectRuntimeCache(installedRuntimeRoot, environment = runtimeEnvironment()) {
+export async function inspectRuntimeCache(installedRuntimeRoot, env = runtimeEnvironment()) {
   const identity = await runtimeIdentity(installedRuntimeRoot);
-  const locations = cacheLocations(identity, environment);
+  const locations = cacheLocations(identity, env);
   try {
     const marker = JSON.parse(await readFile(locations.markerPath, "utf8"));
     if (

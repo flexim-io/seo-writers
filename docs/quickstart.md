@@ -235,11 +235,17 @@ PUPPETEER_SKIP_DOWNLOAD=true node <installed-launcher> setup
 
 The launcher resolves `<installed-launcher>` from the physical plugin payload and returns the exact host path; do not guess a Codex or Claude cache directory. Setup copies the bundled runtime into the platform user cache and installs its locked production dependencies. It does not download Chrome. `automatic` mode never performs setup.
 
-Internally, setup runs `npm ci --omit=dev --ignore-scripts --no-audit --no-fund --update-notifier=false --replace-registry-host=never`, then checks the installed dependencies with `npm ls --omit=dev --json --update-notifier=false`. Package install hooks, npm audit requests, and npm update checks are disabled.
+Setup requires self-contained npm code in a standard location beside the trusted Node.js executable. For another trusted npm layout, append its CLI path to the command you authorize:
 
-npm inherits only `PATH` and essential Windows variables; its home, temporary, configuration, and cache paths are isolated. It reads empty user/global config files and rejects a project `.npmrc`. The bundled lockfile pins package downloads to HTTPS URLs on the public npm registry with integrity hashes, and setup disables registry host replacement. Direct registry access is required.
+```bash
+PUPPETEER_SKIP_DOWNLOAD=true node <installed-launcher> setup --npm-cli /trusted/npm/bin/npm-cli.js
+```
 
-Renderer subprocesses inherit only named operating-system, path, temporary-directory, locale, and renderer settings; personal npm credentials, proxy settings, and Node.js injection settings are not inherited.
+The launcher copies npm code, dependencies, and package metadata temporarily, excluding original npmrc files and unrelated files at the npm installation root. It creates empty builtin, user, and global npm config files and rejects a project `.npmrc` in the bundled runtime. The trusted Node.js executable runs that copied npm CLI with an explicit `--prefix` for the cached runtime. Package install hooks, npm audit requests, and npm update checks are disabled. Downloads keep the bundled lockfile's HTTPS public npm URLs and integrity hashes; registry host replacement is disabled, and direct registry access is required.
+
+The copied npm process runs with Node filesystem permissions: read grants cover only its fresh npm/runtime directories and the exact trusted Node executable; write grants cover only the fresh directories. It receives no child-process grant, and global module lookup is disabled. npm bin links are disabled because the Mermaid CLI uses its direct Node entrypoint.
+
+npm and the Mermaid CLI are launched through absolute Node.js entrypoints, without looking up `npm` or `mmdc` on `PATH`. Every child process and Chrome launch receives fresh home, configuration, and temporary paths. Chrome uses separate invocation profiles and `--no-proxy-server`; personal npm credentials, proxy settings, and Node.js injection settings are not inherited. These configuration controls do not provide an operating system filesystem sandbox.
 
 After a ready preflight, request `render` mode with the same source, context, private root, and existing output root. The renderer works locally and returns preserved `.mmd`, SVG, PNG, HTML preview, JSON QA, hashes, and a `mermaidInfographicHandoff`. The asset remains `needs-production` until `visual-storytelling` performs human semantic review against the locked brief. Technical success is not editorial approval.
 

@@ -177,7 +177,7 @@ Any meaning or claim change returns to `chief-editor-review`. A media, caption, 
 
 ### 10. Final integration and independent cold reader
 
-Dispatch `final-integration-check` against the lock, final reader Markdown, media manifest, visible trust surface, and proposed payload. Use `deliveryTarget: portable` while writing toward `final_package` without a chosen CMS; use `deliveryTarget: flexim_draft` only for an actual Flexim draft target with supplied schema mapping. A ready integration result is not yet a `final_package`.
+Dispatch `final-integration-check` against the lock, final reader Markdown, media manifest, visible trust surface, and proposed payload. Pass `deliveryTarget: portable` while writing toward `final_package` without a chosen CMS; pass `deliveryTarget: flexim_draft` only for an actual Flexim draft target with supplied schema mapping. A ready integration result is not yet a `final_package`.
 
 From its minimal reader-surface package, dispatch `cold-reader-review` to a fresh isolated worker. Give that worker only title, reader Markdown or rendered page, visible author and publisher surface, media, captions, `alt`, and reader links. Do not give it the Brief, sources, author profile, boundary handoff, audit reports, or expected result.
 

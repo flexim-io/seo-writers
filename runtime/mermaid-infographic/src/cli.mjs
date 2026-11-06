@@ -27,25 +27,25 @@ function parseArgs(argv) {
   for (let index = 0; index < rest.length; index += 1) {
     const argument = rest[index];
     if (!argument.startsWith("--")) continue;
-    const optionName = argument.slice(2);
-    if (optionName === "force") options.force = true;
+    const key = argument.slice(2);
+    if (key === "force") options.force = true;
     else {
       const value = rest[index + 1];
-      if (!value || value.startsWith("--")) throw new Error(`BRIEF_INCOMPLETE: Missing value for --${optionName}.`);
-      options[optionName] = value;
+      if (!value || value.startsWith("--")) throw new Error(`BRIEF_INCOMPLETE: Missing value for --${key}.`);
+      options[key] = value;
       index += 1;
     }
   }
   return { command, options };
 }
 
-function required(options, optionName) {
-  if (!options[optionName]) {
-    const error = new Error(`BRIEF_INCOMPLETE: --${optionName} is required.`);
+function required(options, key) {
+  if (!options[key]) {
+    const error = new Error(`BRIEF_INCOMPLETE: --${key} is required.`);
     error.code = "BRIEF_INCOMPLETE";
     throw error;
   }
-  return options[optionName];
+  return options[key];
 }
 
 function writeResult(value, exitCode = 0) {
