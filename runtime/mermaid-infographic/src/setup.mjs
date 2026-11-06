@@ -13,6 +13,16 @@ const REMOVE_TREE_OPTIONS = {
   retryDelay: 250,
 };
 
+// Node.js 22.0-22.12 accept only --experimental-permission, and Node.js 24 rejects it.
+// Node.js 25 and newer also deny network access under the permission model, while npm
+// must still reach the locked public package URLs as it does on earlier versions.
+export function nodePermissionArgs(flags = process.allowedNodeEnvironmentFlags) {
+  return [
+    flags.has("--permission") ? "--permission" : "--experimental-permission",
+    ...(flags.has("--allow-net") ? ["--allow-net"] : []),
+  ];
+}
+
 async function resolveNpmCli(suppliedPath) {
   const nodePaths = [...new Set([process.execPath, await realpath(process.execPath)])];
   const candidates = suppliedPath ? [path.resolve(suppliedPath)] : nodePaths.flatMap((nodePath) => {
@@ -108,7 +118,7 @@ export async function setupRuntime(options) {
       throw new Error("SETUP_REQUIRED: Isolated setup paths cannot contain permission wildcard or list characters.");
     }
     const npmNodeArgs = [
-      "--experimental-permission",
+      ...nodePermissionArgs(),
       "--disable-warning=ExperimentalWarning",
       "--no-global-search-paths",
       ...readRoots.map((root) => `--allow-fs-read=${root}`),
