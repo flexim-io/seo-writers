@@ -4,7 +4,7 @@ import path from "node:path";
 
 import puppeteer from "puppeteer-core";
 
-import { isolatedEnvironment } from "./environment.mjs";
+import { browserEnvironment, isolatedEnvironment } from "./environment.mjs";
 import { buildRenderableSource } from "./metadata.mjs";
 import { composeMermaidConfig, loadPresetCss } from "./preset.mjs";
 import { PREVIEW_FIT_MAP, PREVIEW_LAYOUT } from "./preview-fit.mjs";
@@ -117,7 +117,7 @@ async function prepareInvocationRuntime({ runtimeRoot, workRoot, preset, chromeP
         headless: true,
         args: ["--no-sandbox", "--disable-background-networking", "--no-proxy-server"],
         userDataDir,
-        env: await isolatedEnvironment(userDataDir),
+        env: await browserEnvironment(userDataDir),
       },
       null,
       2,
@@ -290,7 +290,7 @@ export function createRealAdapters(options) {
         headless: true,
         args: ["--no-sandbox", "--disable-background-networking", "--no-proxy-server"],
         userDataDir,
-        env: await isolatedEnvironment(userDataDir),
+        env: await browserEnvironment(userDataDir),
       });
       try {
         const page = await browser.newPage();

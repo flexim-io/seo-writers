@@ -40,10 +40,9 @@ export function runtimeEnvironment(options = {}) {
   return Object.fromEntries(Object.entries(env).filter(([, value]) => value !== undefined));
 }
 
-export async function isolatedEnvironment(root, options = {}, { readOnly = false } = {}) {
+export async function isolatedEnvironment(root, options = {}, { readOnly = false, temporary = path.join(root, "tmp") } = {}) {
   const env = runtimeEnvironment(options);
   const home = path.join(root, "home");
-  const temporary = path.join(root, "tmp");
   const directories = {
     HOME: home,
     USERPROFILE: home,
@@ -70,6 +69,13 @@ export async function isolatedEnvironment(root, options = {}, { readOnly = false
     PATH: [path.dirname(process.execPath), ...systemPaths].join(path.delimiter),
     NODE_V8_COVERAGE: "",
   };
+}
+
+// Linux Chrome binds its process-singleton socket under TMPDIR, and Unix socket paths are
+// limited to 108 bytes. A deep profile cannot hold that directory, so Chrome shares the
+// fresh temporary directory created for the current renderer or setup process.
+export function browserEnvironment(userDataDir) {
+  return isolatedEnvironment(userDataDir, {}, { temporary: os.tmpdir() });
 }
 
 async function npmEnvironment(root, options) {
