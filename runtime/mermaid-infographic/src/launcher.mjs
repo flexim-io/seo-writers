@@ -9,6 +9,7 @@ import {
   chromeVersion,
   nodeIsCompatible,
   resolveChromeExecutable,
+  runtimeEnvironment,
 } from "./environment.mjs";
 import { hashDirectory } from "./hashing.mjs";
 import { blockedHandoff } from "./handoff.mjs";
@@ -29,7 +30,7 @@ function writeResult(result, exitCode = 0) {
 function runCachedCli(cliPath, args, env, timeoutMs = 120_000) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [cliPath, ...args], {
-      env,
+      env: runtimeEnvironment(env),
       stdio: ["pipe", "pipe", "pipe"],
     });
     let stdout = "";
@@ -137,11 +138,10 @@ async function main() {
   const execution = await runCachedCli(
     path.join(cache.locations.runtimeRoot, "src", "cli.mjs"),
     [command, ...modeArgs, ...rawArgs],
-    {
-      ...process.env,
+    runtimeEnvironment({
       MERMAID_CHROME_PATH: chromePath,
       SEO_WRITERS_INSTALLED_RUNTIME: INSTALLED_RUNTIME_ROOT,
-    },
+    }),
   );
   const installedAfter = await hashDirectory(INSTALLED_RUNTIME_ROOT);
   if (installedBefore !== installedAfter) {

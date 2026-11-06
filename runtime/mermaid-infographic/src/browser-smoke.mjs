@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+
+import { runtimeEnvironment } from "./environment.mjs";
 
 const [chromePath, userDataDir] = process.argv.slice(2);
 if (!chromePath || !userDataDir) {
@@ -12,6 +14,7 @@ const browser = await puppeteer.launch({
   headless: true,
   args: ["--no-sandbox", "--disable-background-networking"],
   userDataDir,
+  env: runtimeEnvironment(),
 });
 try {
   const page = await browser.newPage();

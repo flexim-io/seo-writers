@@ -1,7 +1,7 @@
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { platformCacheRoot } from "./environment.mjs";
+import { platformCacheRoot, runtimeEnvironment } from "./environment.mjs";
 import { hashDirectory, hashFile } from "./hashing.mjs";
 
 export async function runtimeIdentity(runtimeRoot) {
@@ -15,7 +15,7 @@ export async function runtimeIdentity(runtimeRoot) {
   };
 }
 
-export function cacheLocations(identity, env = process.env) {
+export function cacheLocations(identity, env = runtimeEnvironment()) {
   const cacheRoot = path.join(platformCacheRoot(env), "seo-writers", "mermaid-infographic");
   const key = `${identity.rendererVersion}-${identity.packageLockSha256}`;
   const entryRoot = path.join(cacheRoot, key);
@@ -36,11 +36,12 @@ export function requiredCacheRelativePaths(platform = process.platform) {
     "node_modules/dompurify/package.json",
     "node_modules/mermaid/package.json",
     "node_modules/puppeteer/package.json",
+    "node_modules/puppeteer-core/package.json",
     "node_modules/yaml/package.json",
   ];
 }
 
-export async function inspectRuntimeCache(installedRuntimeRoot, env = process.env) {
+export async function inspectRuntimeCache(installedRuntimeRoot, env = runtimeEnvironment()) {
   const identity = await runtimeIdentity(installedRuntimeRoot);
   const locations = cacheLocations(identity, env);
   try {

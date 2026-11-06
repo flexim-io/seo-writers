@@ -190,6 +190,8 @@ When preflight returns `SETUP_REQUIRED`:
 
 The safe setup uses `PUPPETEER_SKIP_DOWNLOAD=true npm ci --omit=dev`. It must not use `npm install`, floating versions, or a silent browser download. The external cache contains runtime dependencies only, never article source or artifacts.
 
+Setup uses the public npm registry with isolated npm configuration. Renderer subprocesses receive only named operating-system, path, temporary-directory, locale, and renderer settings; personal npm credentials, proxy settings, and Node.js injection settings are not inherited. Setup requires direct access to the public registry.
+
 Missing Node, Chrome, network access for first setup, or cached dependencies blocks only this optional visual. Preserve the visual plan, or return to `visual-storytelling` for a user-approved text-only or alternate-production fallback.
 
 ### 6. Render locally
