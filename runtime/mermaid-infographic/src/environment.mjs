@@ -42,8 +42,14 @@ export function runtimeEnvironment(options = {}) {
 function npmEnvironment(root, options) {
   const home = path.join(root, "home");
   const temporary = path.join(root, "tmp");
+  const { PATH, SystemRoot, SystemDrive, ComSpec, WINDIR, PATHEXT } = runtimeEnvironment(options);
   return {
-    ...runtimeEnvironment(options),
+    PATH,
+    SystemRoot,
+    SystemDrive,
+    ComSpec,
+    WINDIR,
+    PATHEXT,
     HOME: home,
     USERPROFILE: home,
     APPDATA: path.join(home, "AppData", "Roaming"),
