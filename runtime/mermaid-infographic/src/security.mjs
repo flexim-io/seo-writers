@@ -36,7 +36,20 @@ export const ALLOWED_CLASSES = Object.freeze([
 const tagPattern = /<\/?([A-Za-z][\w:-]*)([^>]*)>/g;
 const attributePattern =
   /([:\w-]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
-const uriSchemePattern = /(?:^|[\s"'[(])(?:https?|javascript|data|file|ftp|wss?):/i;
+const forbiddenUriSchemes = Object.freeze([
+  "http",
+  "https",
+  "javascript",
+  "data",
+  "file",
+  "ftp",
+  "ws",
+  "wss",
+]);
+const uriSchemePattern = new RegExp(
+  "(?:^|[\\s\"'[(])(?:" + forbiddenUriSchemes.join("|") + "):",
+  "i",
+);
 
 function lineAnchor(source, index) {
   return `line ${source.slice(0, index).split("\n").length}`;
