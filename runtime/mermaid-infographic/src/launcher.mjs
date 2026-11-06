@@ -27,10 +27,10 @@ function writeResult(result, exitCode = 0) {
   process.exitCode = exitCode;
 }
 
-function runCachedCli(cliPath, args, env, timeoutMs = 120_000) {
+function runCachedCli(cliPath, args, environment, timeoutMs = 120_000) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [cliPath, ...args], {
-      env: runtimeEnvironment(env),
+      env: runtimeEnvironment(environment),
       stdio: ["pipe", "pipe", "pipe"],
     });
     let stdout = "";

@@ -14,17 +14,17 @@ const REMOVE_TREE_OPTIONS = {
 };
 
 export async function setupRuntime(options) {
-  const { installedRuntimeRoot, chromePath, chromeVersion, env = runtimeEnvironment() } = options;
-  if (env.PUPPETEER_SKIP_DOWNLOAD !== "true") {
+  const { installedRuntimeRoot, chromePath, chromeVersion, env: environment = runtimeEnvironment() } = options;
+  if (environment.PUPPETEER_SKIP_DOWNLOAD !== "true") {
     const error = new Error("SETUP_REQUIRED: Setup requires PUPPETEER_SKIP_DOWNLOAD=true.");
     error.code = "SETUP_REQUIRED";
     throw error;
   }
 
   const identity = await runtimeIdentity(installedRuntimeRoot);
-  const locations = cacheLocations(identity, env);
+  const locations = cacheLocations(identity, environment);
   assertDisjointPaths(installedRuntimeRoot, locations.cacheRoot);
-  const existing = await inspectRuntimeCache(installedRuntimeRoot, env);
+  const existing = await inspectRuntimeCache(installedRuntimeRoot, environment);
   if (existing.ready) return existing;
 
   await mkdir(locations.cacheRoot, { recursive: true });
@@ -55,7 +55,7 @@ export async function setupRuntime(options) {
       ["ci", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund", "--update-notifier=false", "--replace-registry-host=never"],
       {
         cwd: temporaryRuntime,
-        env,
+        env: environment,
         npmRoot,
         timeoutMs: 300_000,
       },
@@ -63,7 +63,7 @@ export async function setupRuntime(options) {
     await readProcessOutput(
       process.platform === "win32" ? "npm.cmd" : "npm",
       ["ls", "--omit=dev", "--json", "--update-notifier=false"],
-      { cwd: temporaryRuntime, env, npmRoot, timeoutMs: 30_000 },
+      { cwd: temporaryRuntime, env: environment, npmRoot, timeoutMs: 30_000 },
     );
     await rm(npmRoot, REMOVE_TREE_OPTIONS);
     await readProcessOutput(
@@ -75,14 +75,14 @@ export async function setupRuntime(options) {
       ],
       {
         cwd: temporaryRuntime,
-        env: { ...runtimeEnvironment(env), MERMAID_CHROME_PATH: chromePath },
+        env: { ...runtimeEnvironment(environment), MERMAID_CHROME_PATH: chromePath },
         timeoutMs: 60_000,
       },
     );
     await rm(chromeSmokeProfile, REMOVE_TREE_OPTIONS);
     await readProcessOutput(process.execPath, [path.join(temporaryRuntime, "src", "cli.mjs"), "help"], {
       cwd: temporaryRuntime,
-      env: { ...runtimeEnvironment(env), MERMAID_CHROME_PATH: chromePath },
+      env: { ...runtimeEnvironment(environment), MERMAID_CHROME_PATH: chromePath },
       timeoutMs: 30_000,
     });
 
@@ -107,7 +107,7 @@ export async function setupRuntime(options) {
     );
     await rm(locations.entryRoot, REMOVE_TREE_OPTIONS);
     await rename(temporaryRoot, locations.entryRoot);
-    return inspectRuntimeCache(installedRuntimeRoot, env);
+    return inspectRuntimeCache(installedRuntimeRoot, environment);
   } catch (error) {
     await rm(temporaryRoot, REMOVE_TREE_OPTIONS);
     throw error;

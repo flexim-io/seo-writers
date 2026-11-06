@@ -15,8 +15,8 @@ export async function runtimeIdentity(runtimeRoot) {
   };
 }
 
-export function cacheLocations(identity, env = runtimeEnvironment()) {
-  const cacheRoot = path.join(platformCacheRoot(env), "seo-writers", "mermaid-infographic");
+export function cacheLocations(identity, environment = runtimeEnvironment()) {
+  const cacheRoot = path.join(platformCacheRoot(environment), "seo-writers", "mermaid-infographic");
   const key = `${identity.rendererVersion}-${identity.packageLockSha256}`;
   const entryRoot = path.join(cacheRoot, key);
   return {
@@ -41,9 +41,9 @@ export function requiredCacheRelativePaths(platform = process.platform) {
   ];
 }
 
-export async function inspectRuntimeCache(installedRuntimeRoot, env = runtimeEnvironment()) {
+export async function inspectRuntimeCache(installedRuntimeRoot, environment = runtimeEnvironment()) {
   const identity = await runtimeIdentity(installedRuntimeRoot);
-  const locations = cacheLocations(identity, env);
+  const locations = cacheLocations(identity, environment);
   try {
     const marker = JSON.parse(await readFile(locations.markerPath, "utf8"));
     if (

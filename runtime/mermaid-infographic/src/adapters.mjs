@@ -64,7 +64,7 @@ export const PROFILE_MAP = Object.freeze({
 function runProcess(command, args, options = {}) {
   const { cwd, timeoutMs = 90_000 } = options;
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { cwd, "env": runtimeEnvironment() });
+    const child = spawn(command, args, { cwd, env: runtimeEnvironment() });
     let stdout = "";
     let stderr = "";
     let settled = false;
@@ -116,7 +116,7 @@ async function prepareInvocationRuntime({ runtimeRoot, workRoot, preset, chromeP
         headless: true,
         args: ["--no-sandbox", "--disable-background-networking"],
         userDataDir: path.join(workRoot, "mmdc-chrome-profile"),
-        "env": runtimeEnvironment(),
+        env: runtimeEnvironment(),
       },
       null,
       2,
@@ -287,7 +287,7 @@ export function createRealAdapters(options) {
         headless: true,
         args: ["--no-sandbox", "--disable-background-networking"],
         userDataDir: path.join(workRoot, "qa-chrome-profile"),
-        "env": runtimeEnvironment(),
+        env: runtimeEnvironment(),
       });
       try {
         const page = await browser.newPage();

@@ -6,7 +6,7 @@ import path from "node:path";
 export const MINIMUM_NODE_MAJOR = 22;
 
 export function runtimeEnvironment(options = {}) {
-  const env = {
+  const environment = {
     PATH: options.PATH ?? options.Path ?? options.path ?? process.env.PATH ?? process.env.Path ?? process.env.path,
     HOME: options.HOME ?? process.env.HOME,
     USERPROFILE: options.USERPROFILE ?? process.env.USERPROFILE,
@@ -36,7 +36,7 @@ export function runtimeEnvironment(options = {}) {
     SEO_WRITERS_MERMAID_CACHE: options.SEO_WRITERS_MERMAID_CACHE ?? process.env.SEO_WRITERS_MERMAID_CACHE,
     SEO_WRITERS_INSTALLED_RUNTIME: options.SEO_WRITERS_INSTALLED_RUNTIME ?? process.env.SEO_WRITERS_INSTALLED_RUNTIME,
   };
-  return Object.fromEntries(Object.entries(env).filter(([, value]) => value !== undefined));
+  return Object.fromEntries(Object.entries(environment).filter(([, value]) => value !== undefined));
 }
 
 function npmEnvironment(root, options) {
@@ -82,10 +82,10 @@ async function isExecutable(candidate) {
   }
 }
 
-export async function resolveChromeExecutable(env = runtimeEnvironment()) {
+export async function resolveChromeExecutable(environment = runtimeEnvironment()) {
   const candidates = [
-    env.MERMAID_CHROME_PATH,
-    env.PUPPETEER_EXECUTABLE_PATH,
+    environment.MERMAID_CHROME_PATH,
+    environment.PUPPETEER_EXECUTABLE_PATH,
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
     "/usr/bin/google-chrome",
@@ -93,7 +93,7 @@ export async function resolveChromeExecutable(env = runtimeEnvironment()) {
     "/usr/bin/chromium",
     "/usr/bin/chromium-browser",
     process.platform === "win32"
-      ? path.join(env.PROGRAMFILES ?? "", "Google", "Chrome", "Application", "chrome.exe")
+      ? path.join(environment.PROGRAMFILES ?? "", "Google", "Chrome", "Application", "chrome.exe")
       : null,
   ];
   for (const candidate of candidates) {
@@ -152,9 +152,9 @@ export async function chromeVersion(chromePath) {
   return (stdout || stderr).trim().split("\n")[0];
 }
 
-export function platformCacheRoot(env = runtimeEnvironment()) {
-  if (env.SEO_WRITERS_MERMAID_CACHE) return path.resolve(env.SEO_WRITERS_MERMAID_CACHE);
+export function platformCacheRoot(environment = runtimeEnvironment()) {
+  if (environment.SEO_WRITERS_MERMAID_CACHE) return path.resolve(environment.SEO_WRITERS_MERMAID_CACHE);
   if (process.platform === "darwin") return path.join(os.homedir(), "Library", "Caches");
-  if (process.platform === "win32") return path.resolve(env.LOCALAPPDATA ?? path.join(os.homedir(), "AppData", "Local"));
-  return path.resolve(env.XDG_CACHE_HOME ?? path.join(os.homedir(), ".cache"));
+  if (process.platform === "win32") return path.resolve(environment.LOCALAPPDATA ?? path.join(os.homedir(), "AppData", "Local"));
+  return path.resolve(environment.XDG_CACHE_HOME ?? path.join(os.homedir(), ".cache"));
 }
