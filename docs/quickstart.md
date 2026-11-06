@@ -233,9 +233,13 @@ Preflight does not render, install, create a cache, or write output. If the pinn
 PUPPETEER_SKIP_DOWNLOAD=true node <installed-launcher> setup
 ```
 
-The launcher resolves `<installed-launcher>` from the physical plugin payload and returns the exact host path; do not guess a Codex or Claude cache directory. Setup copies the bundled runtime into the platform user cache and runs the exact lockfile with `npm ci --omit=dev`. It does not download Chrome. `automatic` mode never performs setup.
+The launcher resolves `<installed-launcher>` from the physical plugin payload and returns the exact host path; do not guess a Codex or Claude cache directory. Setup copies the bundled runtime into the platform user cache and installs its locked production dependencies. It does not download Chrome. `automatic` mode never performs setup.
 
-Setup uses the public npm registry with isolated npm configuration and requires direct registry access. Renderer subprocesses inherit only named operating-system, path, temporary-directory, locale, and renderer settings; personal npm credentials, proxy settings, and Node.js injection settings are not inherited.
+Internally, setup runs `npm ci --omit=dev --ignore-scripts --no-audit --no-fund --update-notifier=false --replace-registry-host=never`, then checks the installed dependencies with `npm ls --omit=dev --json --update-notifier=false`. Package install hooks, npm audit requests, and npm update checks are disabled.
+
+npm inherits only `PATH` and essential Windows variables; its home, temporary, configuration, and cache paths are isolated. It reads empty user/global config files and rejects a project `.npmrc`. The bundled lockfile pins package downloads to HTTPS URLs on the public npm registry with integrity hashes, and setup disables registry host replacement. Direct registry access is required.
+
+Renderer subprocesses inherit only named operating-system, path, temporary-directory, locale, and renderer settings; personal npm credentials, proxy settings, and Node.js injection settings are not inherited.
 
 After a ready preflight, request `render` mode with the same source, context, private root, and existing output root. The renderer works locally and returns preserved `.mmd`, SVG, PNG, HTML preview, JSON QA, hashes, and a `mermaidInfographicHandoff`. The asset remains `needs-production` until `visual-storytelling` performs human semantic review against the locked brief. Technical success is not editorial approval.
 

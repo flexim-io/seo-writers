@@ -58,7 +58,9 @@ Canonical skill sources live under `skills/<skill>/`; the optional local Mermaid
 
 `render-mermaid-infographic` is an optional media-production worker, not a mandatory pipeline stage. `visual-storytelling` first decides whether a diagram is useful and prepares a complete evidence-safe brief. The renderer then handles one approved `visualId + canvas` locally and returns SVG, PNG, preserved Mermaid source, preview, QA, hashes, and provenance. `visual-storytelling` still performs human semantic review and integration.
 
-Text production does not require the renderer. Mermaid production requires Node.js 22 or newer, a compatible local Chrome or Chromium, and one explicitly authorized dependency-cache setup. Preflight and automatic mode never install dependencies or download a browser. The setup command uses the bundled lockfile with `PUPPETEER_SKIP_DOWNLOAD=true npm ci --omit=dev`, and generated article assets stay inside the private content repository. No online renderer, CMS mutation, or publication fallback is used.
+Text production does not require the renderer. Mermaid production requires Node.js 22 or newer, a compatible local Chrome or Chromium, and one explicitly authorized dependency-cache setup. Preflight and automatic mode never install dependencies or download a browser.
+
+Setup installs the bundled lockfile's production dependencies with package install hooks, npm audit requests, and npm update checks disabled. npm uses isolated configuration, and package downloads retain their locked public npm URLs and integrity checks. Generated article assets stay inside the private content repository. No online renderer, CMS mutation, or publication fallback is used.
 
 See [Quickstart: optional local Mermaid rendering](docs/quickstart.md#optional-local-mermaid-rendering) for setup and limitations.
 
