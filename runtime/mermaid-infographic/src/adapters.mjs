@@ -110,7 +110,7 @@ async function prepareInvocationRuntime({ runtimeRoot, workRoot, preset, chromeP
   await writeFile(cssPath, presetCss);
   await writeFile(
     puppeteerConfigPath,
-    `${JSON.stringify(
+    JSON.stringify(
       {
         executablePath: chromePath,
         headless: true,
@@ -120,7 +120,7 @@ async function prepareInvocationRuntime({ runtimeRoot, workRoot, preset, chromeP
       },
       null,
       2,
-    )}\n`,
+    ) + "\n",
   );
   return { configPath, cssPath, puppeteerConfigPath, mermaidConfig };
 }
