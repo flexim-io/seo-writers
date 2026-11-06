@@ -57,7 +57,6 @@ function npmEnvironment(root, options) {
     NPM_CONFIG_USERCONFIG: path.join(root, "user.npmrc"),
     NPM_CONFIG_GLOBALCONFIG: path.join(root, "global.npmrc"),
     NPM_CONFIG_CACHE: path.join(root, "cache"),
-    NPM_CONFIG_REGISTRY: "https://registry.npmjs.org",
     PUPPETEER_SKIP_DOWNLOAD: "true",
   };
 }

@@ -52,7 +52,7 @@ export async function setupRuntime(options) {
     await writeFile(path.join(npmRoot, "global.npmrc"), "");
     await readProcessOutput(
       process.platform === "win32" ? "npm.cmd" : "npm",
-      ["ci", "--omit=dev"],
+      ["ci", "--omit=dev", "--registry=https://registry.npmjs.org"],
       {
         cwd: temporaryRuntime,
         env,
@@ -62,7 +62,7 @@ export async function setupRuntime(options) {
     );
     await readProcessOutput(
       process.platform === "win32" ? "npm.cmd" : "npm",
-      ["ls", "--omit=dev", "--json"],
+      ["ls", "--omit=dev", "--json", "--registry=https://registry.npmjs.org"],
       { cwd: temporaryRuntime, env, npmRoot, timeoutMs: 30_000 },
     );
     await rm(npmRoot, REMOVE_TREE_OPTIONS);
