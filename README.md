@@ -58,7 +58,13 @@ Canonical skill sources live under `skills/<skill>/`; the optional local Mermaid
 
 `render-mermaid-infographic` is an optional media-production worker, not a mandatory pipeline stage. `visual-storytelling` first decides whether a diagram is useful and prepares a complete evidence-safe brief. The renderer then handles one approved `visualId + canvas` locally and returns SVG, PNG, preserved Mermaid source, preview, QA, hashes, and provenance. `visual-storytelling` still performs human semantic review and integration.
 
-Text production does not require the renderer. Mermaid production requires Node.js 22 or newer, a compatible local Chrome or Chromium, and one explicitly authorized dependency-cache setup. Preflight and automatic mode never install dependencies or download a browser. The setup command uses the bundled lockfile with `PUPPETEER_SKIP_DOWNLOAD=true npm ci --omit=dev`, and generated article assets stay inside the private content repository. No online renderer, CMS mutation, or publication fallback is used.
+Text production does not require the renderer. Mermaid production requires Node.js 22 or newer, a compatible local Chrome or Chromium, and one explicitly authorized dependency-cache setup. Preflight and automatic mode never install dependencies or download a browser.
+
+Setup uses a self-contained npm installation beside the trusted Node.js executable, or one selected with `--npm-cli /trusted/npm/bin/npm-cli.js`. It copies npm code temporarily, uses empty builtin/user/global npm configuration, and disables package install hooks, audit requests, and update checks. Package downloads retain their locked public npm URLs and integrity checks.
+
+Node grants npm read access only to the fresh npm/runtime directories and the exact trusted Node executable, and write access only to those fresh directories. Child-process grants, global module lookup, and npm bin links are disabled.
+
+npm and the Mermaid CLI run directly through Node.js. Child processes and Chrome receive fresh home, configuration, and temporary paths; Chrome uses fresh profiles with OS proxy settings disabled. The browser still runs with `--no-sandbox`. Generated article assets stay inside the private content repository. No online renderer, CMS mutation, or publication fallback is used.
 
 See [Quickstart: optional local Mermaid rendering](docs/quickstart.md#optional-local-mermaid-rendering) for setup and limitations.
 

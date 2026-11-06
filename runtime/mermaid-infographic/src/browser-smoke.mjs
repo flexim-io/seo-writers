@@ -2,7 +2,7 @@
 
 import puppeteer from "puppeteer-core";
 
-import { runtimeEnvironment } from "./environment.mjs";
+import { browserEnvironment } from "./environment.mjs";
 
 const [chromePath, userDataDir] = process.argv.slice(2);
 if (!chromePath || !userDataDir) {
@@ -12,9 +12,9 @@ if (!chromePath || !userDataDir) {
 const browser = await puppeteer.launch({
   executablePath: chromePath,
   headless: true,
-  args: ["--no-sandbox", "--disable-background-networking"],
+  args: ["--no-sandbox", "--disable-background-networking", "--no-proxy-server"],
   userDataDir,
-  env: runtimeEnvironment(),
+  env: await browserEnvironment(userDataDir),
 });
 try {
   const page = await browser.newPage();

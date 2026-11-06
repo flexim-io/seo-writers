@@ -4,7 +4,7 @@ import path from "node:path";
 
 import puppeteer from "puppeteer-core";
 
-import { runtimeEnvironment } from "./environment.mjs";
+import { browserEnvironment, isolatedEnvironment } from "./environment.mjs";
 import { buildRenderableSource } from "./metadata.mjs";
 import { composeMermaidConfig, loadPresetCss } from "./preset.mjs";
 import { PREVIEW_FIT_MAP, PREVIEW_LAYOUT } from "./preview-fit.mjs";
@@ -64,7 +64,7 @@ export const PROFILE_MAP = Object.freeze({
 function runProcess(command, args, options = {}) {
   const { cwd, env, timeoutMs = 90_000 } = options;
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { cwd, env: runtimeEnvironment(env) });
+    const child = spawn(command, args, { cwd, env });
     let stdout = "";
     let stderr = "";
     let settled = false;
@@ -106,6 +106,7 @@ async function prepareInvocationRuntime({ runtimeRoot, workRoot, preset, chromeP
   const configPath = path.join(workRoot, `${preset}.mermaid.json`);
   const cssPath = path.join(workRoot, `${preset}.css`);
   const puppeteerConfigPath = path.join(workRoot, "puppeteer.json");
+  const userDataDir = path.join(workRoot, "mmdc-chrome-profile");
   await writeFile(configPath, `${JSON.stringify(mermaidConfig, null, 2)}\n`);
   await writeFile(cssPath, presetCss);
   await writeFile(
@@ -114,9 +115,9 @@ async function prepareInvocationRuntime({ runtimeRoot, workRoot, preset, chromeP
       {
         executablePath: chromePath,
         headless: true,
-        args: ["--no-sandbox", "--disable-background-networking"],
-        userDataDir: path.join(workRoot, "mmdc-chrome-profile"),
-        env: runtimeEnvironment(),
+        args: ["--no-sandbox", "--disable-background-networking", "--no-proxy-server"],
+        userDataDir,
+        env: await browserEnvironment(userDataDir),
       },
       null,
       2,
@@ -248,13 +249,10 @@ export function createRealAdapters(options) {
       const renderSourcePath = path.join(workRoot, `${metadata.id}.render.mmd`);
       await writeFile(renderSourcePath, buildRenderableSource(metadata, source));
       await runProcess(
-        path.join(
-          runtimeRoot,
-          "node_modules",
-          ".bin",
-          process.platform === "win32" ? "mmdc.cmd" : "mmdc",
-        ),
+        process.execPath,
         [
+          "--no-global-search-paths",
+          path.join(runtimeRoot, "node_modules", "@mermaid-js", "mermaid-cli", "src", "cli.js"),
           "--input", renderSourcePath,
           "--output", outputPath,
           "--configFile", runtime.configPath,
@@ -264,7 +262,11 @@ export function createRealAdapters(options) {
           "--svgId", metadata.id,
           "--quiet",
         ],
-        { cwd: runtimeRoot, timeoutMs },
+        {
+          cwd: runtimeRoot,
+          env: await isolatedEnvironment(path.join(workRoot, "mmdc-process")),
+          timeoutMs,
+        },
       );
       const renderedSvg = await readFile(outputPath, "utf8");
       const normalizedSvg = normalizeSvgMarkup(renderedSvg, {
@@ -282,12 +284,13 @@ export function createRealAdapters(options) {
       const background = tokenValue(DESIGN_TOKENS, "--flexim-color-canvas");
       const previewFit =
         PREVIEW_FIT_MAP[metadata.syntax] ?? PREVIEW_FIT_MAP.default;
+      const userDataDir = path.join(workRoot, "qa-chrome-profile");
       const browser = await puppeteer.launch({
         executablePath: chromePath,
         headless: true,
-        args: ["--no-sandbox", "--disable-background-networking"],
-        userDataDir: path.join(workRoot, "qa-chrome-profile"),
-        env: runtimeEnvironment(),
+        args: ["--no-sandbox", "--disable-background-networking", "--no-proxy-server"],
+        userDataDir,
+        env: await browserEnvironment(userDataDir),
       });
       try {
         const page = await browser.newPage();

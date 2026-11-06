@@ -28,10 +28,10 @@ export function cacheLocations(identity, env = runtimeEnvironment()) {
   };
 }
 
-export function requiredCacheRelativePaths(platform = process.platform) {
+export function requiredCacheRelativePaths() {
   return [
     "src/cli.mjs",
-    platform === "win32" ? "node_modules/.bin/mmdc.cmd" : "node_modules/.bin/mmdc",
+    "node_modules/@mermaid-js/mermaid-cli/src/cli.js",
     "node_modules/@mermaid-js/mermaid-cli/package.json",
     "node_modules/dompurify/package.json",
     "node_modules/mermaid/package.json",
