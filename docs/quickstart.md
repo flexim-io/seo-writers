@@ -235,6 +235,8 @@ PUPPETEER_SKIP_DOWNLOAD=true node <installed-launcher> setup
 
 The launcher resolves `<installed-launcher>` from the physical plugin payload and returns the exact host path; do not guess a Codex or Claude cache directory. Setup copies the bundled runtime into the platform user cache and runs the exact lockfile with `npm ci --omit=dev`. It does not download Chrome. `automatic` mode never performs setup.
 
+Setup uses the public npm registry with isolated npm configuration and requires direct registry access. Renderer subprocesses inherit only named operating-system, path, temporary-directory, locale, and renderer settings; personal npm credentials, proxy settings, and Node.js injection settings are not inherited.
+
 After a ready preflight, request `render` mode with the same source, context, private root, and existing output root. The renderer works locally and returns preserved `.mmd`, SVG, PNG, HTML preview, JSON QA, hashes, and a `mermaidInfographicHandoff`. The asset remains `needs-production` until `visual-storytelling` performs human semantic review against the locked brief. Technical success is not editorial approval.
 
 Beta limitations:

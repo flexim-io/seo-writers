@@ -4,6 +4,7 @@
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
+  "puppeteer": {},
   "engines": {
     "node": ">=22.0.0"
   },
@@ -12,6 +13,7 @@
     "dompurify": "3.4.13",
     "mermaid": "11.16.1",
     "puppeteer": "25.2.1",
+    "puppeteer-core": "25.2.1",
     "yaml": "2.9.0"
   },
   "overrides": {

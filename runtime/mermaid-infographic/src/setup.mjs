@@ -1,8 +1,8 @@
-import { cp, mkdir, mkdtemp, realpath, rename, rm, writeFile } from "node:fs/promises";
+import { cp, lstat, mkdir, mkdtemp, realpath, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { cacheLocations, inspectRuntimeCache, runtimeIdentity } from "./cache.mjs";
-import { readProcessOutput } from "./environment.mjs";
+import { readProcessOutput, runtimeEnvironment } from "./environment.mjs";
 import { hashDirectory } from "./hashing.mjs";
 import { assertDisjointPaths } from "./paths.mjs";
 
@@ -14,7 +14,7 @@ const REMOVE_TREE_OPTIONS = {
 };
 
 export async function setupRuntime(options) {
-  const { installedRuntimeRoot, chromePath, chromeVersion, env = process.env } = options;
+  const { installedRuntimeRoot, chromePath, chromeVersion, env = runtimeEnvironment() } = options;
   if (env.PUPPETEER_SKIP_DOWNLOAD !== "true") {
     const error = new Error("SETUP_REQUIRED: Setup requires PUPPETEER_SKIP_DOWNLOAD=true.");
     error.code = "SETUP_REQUIRED";
@@ -35,25 +35,37 @@ export async function setupRuntime(options) {
   const temporaryRoot = await mkdtemp(path.join(locations.cacheRoot, ".setup-"));
   const temporaryRuntime = path.join(temporaryRoot, "runtime");
   const chromeSmokeProfile = path.join(temporaryRoot, "chrome-smoke-profile");
+  const npmRoot = path.join(temporaryRoot, "npm");
   try {
     await cp(installedRuntimeRoot, temporaryRuntime, {
       recursive: true,
       filter: (source) => !source.split(path.sep).includes("node_modules"),
     });
+    const projectConfig = await lstat(path.join(temporaryRuntime, ".npmrc")).catch((error) => {
+      if (error.code !== "ENOENT") throw error;
+      return null;
+    });
+    if (projectConfig) throw new Error("SETUP_REQUIRED: Project npm configuration is not allowed in the bundled runtime.");
+    await mkdir(path.join(npmRoot, "home"), { recursive: true });
+    await mkdir(path.join(npmRoot, "tmp"));
+    await writeFile(path.join(npmRoot, "user.npmrc"), "");
+    await writeFile(path.join(npmRoot, "global.npmrc"), "");
     await readProcessOutput(
       process.platform === "win32" ? "npm.cmd" : "npm",
       ["ci", "--omit=dev"],
       {
         cwd: temporaryRuntime,
-        env: { ...env, PUPPETEER_SKIP_DOWNLOAD: "true" },
+        env,
+        npmRoot,
         timeoutMs: 300_000,
       },
     );
     await readProcessOutput(
       process.platform === "win32" ? "npm.cmd" : "npm",
       ["ls", "--omit=dev", "--json"],
-      { cwd: temporaryRuntime, env, timeoutMs: 30_000 },
+      { cwd: temporaryRuntime, env, npmRoot, timeoutMs: 30_000 },
     );
+    await rm(npmRoot, REMOVE_TREE_OPTIONS);
     await readProcessOutput(
       process.execPath,
       [
@@ -63,14 +75,14 @@ export async function setupRuntime(options) {
       ],
       {
         cwd: temporaryRuntime,
-        env: { ...env, MERMAID_CHROME_PATH: chromePath },
+        env: { ...runtimeEnvironment(env), MERMAID_CHROME_PATH: chromePath },
         timeoutMs: 60_000,
       },
     );
     await rm(chromeSmokeProfile, REMOVE_TREE_OPTIONS);
     await readProcessOutput(process.execPath, [path.join(temporaryRuntime, "src", "cli.mjs"), "help"], {
       cwd: temporaryRuntime,
-      env: { ...env, MERMAID_CHROME_PATH: chromePath },
+      env: { ...runtimeEnvironment(env), MERMAID_CHROME_PATH: chromePath },
       timeoutMs: 30_000,
     });
 

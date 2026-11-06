@@ -2,8 +2,9 @@ import { spawn } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 
+import { runtimeEnvironment } from "./environment.mjs";
 import { buildRenderableSource } from "./metadata.mjs";
 import { composeMermaidConfig, loadPresetCss } from "./preset.mjs";
 import { PREVIEW_FIT_MAP, PREVIEW_LAYOUT } from "./preview-fit.mjs";
@@ -61,9 +62,9 @@ export const PROFILE_MAP = Object.freeze({
 });
 
 function runProcess(command, args, options = {}) {
-  const { cwd, env = process.env, timeoutMs = 90_000 } = options;
+  const { cwd, env, timeoutMs = 90_000 } = options;
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { cwd, env });
+    const child = spawn(command, args, { cwd, env: runtimeEnvironment(env) });
     let stdout = "";
     let stderr = "";
     let settled = false;
@@ -115,6 +116,7 @@ async function prepareInvocationRuntime({ runtimeRoot, workRoot, preset, chromeP
         headless: true,
         args: ["--no-sandbox", "--disable-background-networking"],
         userDataDir: path.join(workRoot, "mmdc-chrome-profile"),
+        env: runtimeEnvironment(),
       },
       null,
       2,
@@ -285,6 +287,7 @@ export function createRealAdapters(options) {
         headless: true,
         args: ["--no-sandbox", "--disable-background-networking"],
         userDataDir: path.join(workRoot, "qa-chrome-profile"),
+        env: runtimeEnvironment(),
       });
       try {
         const page = await browser.newPage();
