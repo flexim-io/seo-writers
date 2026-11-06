@@ -163,7 +163,7 @@ Optional absence returns `ready`, `inputSource.type: none`, empty profile Markdo
 
 ### 8. Hand off
 
-Pass `authorVoiceHandoff` outside reader Markdown:
+Hand off `authorVoiceHandoff` outside reader Markdown:
 
 - to `draft-article` before structure and drafting;
 - to `edit-article` with the Brief, sources, and draft;

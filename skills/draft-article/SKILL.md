@@ -243,7 +243,7 @@ For `structure`, return status, `authorDiscovery`, proposed direction and normal
 
 For `draft`, return status, full reader Markdown, and a handoff to `edit-article` containing used and qualified claims, excluded claims, the transient author voice metadata, preflight and first-person permissions, used author evidence, unused opportunities, translated or excluded production inputs, unresolved markers, media candidates, warnings, and blockers.
 
-Pass `authorDiscovery`, its raw answers, the complete preflight, and `authorInterviewChoice` from structure to drafting and editing. Inspect their controlling Brief, author, evidence, and opportunity before reuse; do not discard the decision merely because a new worker owns drafting. When an interview's answers suffice, return `NOT_NEEDED` with the earlier choice and supplied answers as provenance.
+Carry `authorDiscovery`, its raw answers, the complete preflight, and `authorInterviewChoice` from structure to drafting and editing. Inspect their controlling Brief, author, evidence, and opportunity before reuse; do not discard the decision merely because a new worker owns drafting. When an interview's answers suffice, return `NOT_NEEDED` with the earlier choice and supplied answers as provenance.
 
 For `automatic`, return:
 
